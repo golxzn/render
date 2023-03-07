@@ -1,0 +1,3 @@
+[submodule "dependencies/core"]
+	path = dependencies/core
+	url = https://github.com/golxzn/core.git

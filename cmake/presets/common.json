@@ -1,0 +1,49 @@
+{
+	"version": 5,
+	"cmakeMinimumRequired": { "major": 3, "minor": 23 },
+	"configurePresets": [
+		{
+			"name": "cmake-pedantic",
+			"hidden": true,
+			"warnings": {
+				"dev": true,
+				"deprecated": true,
+				"uninitialized": true,
+				"unusedCli": true,
+				"systemVars": false
+			},
+			"errors": {
+				"dev": true,
+				"deprecated": true
+			}
+		},
+		{
+			"name": "dev-mode",
+			"hidden": true,
+			"binaryDir": "${sourceDir}/build/${presetName}",
+			"cacheVariables": {
+				"GOLXZNC_DEVELOPER_MODE": true,
+				"BUILD_TESTING": true,
+				"CMAKE_EXPORT_COMPILE_COMMANDS": true
+			}
+		},
+		{
+			"name": "cppcheck",
+			"hidden": true,
+			"cacheVariables": {
+				"CMAKE_CXX_CPPCHECK": "cppcheck;--inline-suppr"
+			}
+		},
+		{
+			"name": "clang-tidy",
+			"hidden": true,
+			"cacheVariables": {
+				"CMAKE_CXX_CLANG_TIDY": "clang-tidy;--header-filter=^${sourceDir}/"
+			}
+		},
+		{
+			"name": "ci-build",
+			"hidden": true
+		}
+	]
+}

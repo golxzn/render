@@ -1,0 +1,30 @@
+{
+	"version": 5,
+	"cmakeMinimumRequired": { "major": 3, "minor": 23 },
+	"configurePresets": [
+		{
+			"name": "flags-unix",
+			"hidden": true,
+			"cacheVariables": {
+				"CMAKE_C_FLAGS_INIT": "-Wall",
+				"CMAKE_C_FLAGS_DEBUG_INIT": "-g",
+				"CMAKE_C_FLAGS_MINSIZEREL_INIT": "-Os -DNDEBUG",
+				"CMAKE_C_FLAGS_RELEASE_INIT": "-O3 -DNDEBUG -Wextra -Wpedantic",
+				"CMAKE_C_FLAGS_RELWITHDEBINFO_INIT": "-O2 -g",
+				"CMAKE_CXX_FLAGS_INIT": "-Wall",
+				"CMAKE_CXX_FLAGS_DEBUG_INIT": "-g",
+				"CMAKE_CXX_FLAGS_MINSIZEREL_INIT": "-Os -DNDEBUG",
+				"CMAKE_CXX_FLAGS_RELEASE_INIT": "-O3 -DNDEBUG -Wextra -Wpedantic",
+				"CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT": "-O2 -g"
+			}
+		},
+		{
+			"name": "flags-windows",
+			"description": "Note that all the flags after /W4 are required for MSVC to conform to the language standard",
+			"hidden": true,
+			"cacheVariables": {
+				"CMAKE_CXX_FLAGS": "/utf-8 /W4 /permissive- /volatile:iso /Zc:preprocessor /EHsc /Zc:__cplusplus /Zc:externConstexpr /Zc:throwingNew"
+			}
+		}
+	]
+}

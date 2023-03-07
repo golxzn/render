@@ -1,0 +1,76 @@
+{
+	"version": 5,
+	"cmakeMinimumRequired": { "major": 3, "minor": 23 },
+	"include": [
+		"flags.json",
+		"common.json"
+	],
+	"configurePresets": [
+		{
+			"name": "ci-unix",
+			"generator": "Unix Makefiles",
+			"hidden": true,
+			"inherits": [ "flags-unix"]
+		},
+		{
+			"name": "ci-win64",
+			"inherits": [ "flags-windows" ],
+			"generator": "Visual Studio 17 2022",
+			"architecture": "x64",
+			"hidden": true
+		},
+		{
+			"name": "coverage-unix",
+			"binaryDir": "${sourceDir}/build/coverage",
+			"inherits": "ci-unix",
+			"hidden": true,
+			"cacheVariables": {
+				"ENABLE_COVERAGE": "ON",
+				"CMAKE_BUILD_TYPE": "Coverage",
+				"CMAKE_CXX_FLAGS_COVERAGE": "-Og -g --coverage -fkeep-inline-functions -fkeep-static-functions",
+				"CMAKE_EXE_LINKER_FLAGS_COVERAGE": "--coverage",
+				"CMAKE_SHARED_LINKER_FLAGS_COVERAGE": "--coverage",
+				"CMAKE_MAP_IMPORTED_CONFIG_COVERAGE": "Coverage;RelWithDebInfo;Release;Debug;"
+			}
+		},
+		{
+			"name": "ci-coverage",
+			"displayName": "[CI] Coverage",
+			"inherits": [ "coverage-unix", "dev-mode"],
+			"cacheVariables": {
+				"COVERAGE_HTML_COMMAND": ""
+			},
+			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
+		},
+		{
+			"name": "ci-sanitize",
+			"displayName": "[CI] Sanitize",
+			"binaryDir": "${sourceDir}/build/sanitize",
+			"inherits": [ "ci-unix", "dev-mode"],
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Sanitize",
+				"CMAKE_CXX_FLAGS_SANITIZE": "-O2 -g -fsanitize=address,undefined -fno-omit-frame-pointer -fno-common",
+				"CMAKE_MAP_IMPORTED_CONFIG_SANITIZE": "Sanitize;RelWithDebInfo;Release;Debug;"
+			},
+			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
+		},
+		{
+			"name": "ci-macos",
+			"displayName": "[CI] MacOS",
+			"inherits": [ "ci-build", "ci-unix", "dev-mode"],
+			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Darwin" }
+		},
+		{
+			"name": "ci-ubuntu",
+			"displayName": "[CI] Ubuntu",
+			"inherits": [ "ci-build", "ci-unix", "clang-tidy", "cppcheck", "dev-mode"],
+			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
+		},
+		{
+			"name": "ci-windows",
+			"displayName": "[CI] Windows",
+			"inherits": [ "ci-build", "ci-win64", "dev-mode" ],
+			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
+		}
+	]
+}
