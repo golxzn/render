@@ -9,14 +9,39 @@
 	"configurePresets": [
 		{
 			"name": "dev-windows",
-			"displayName": "[DEV] Windows",
-			"inherits": [ "ci-win64", "dev-mode" ],
+			"displayName": "[MSVC][DEV]",
+			"inherits": [ "ci-msvc", "dev-mode" ],
+			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
+		},
+		{
+			"name": "examples-windows",
+			"displayName": "[MSVC][Examples]",
+			"inherits": [ "ci-msvc", "examples" ],
 			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
 		},
 		{
 			"name": "windows",
-			"displayName": "Windows",
-			"inherits": [ "ci-win64" ],
+			"displayName": "[MSVC]",
+			"inherits": [ "ci-msvc" ],
+			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
+		},
+
+		{
+			"name": "ninja-dev-msvc",
+			"displayName": "[Ninja][MSVC][DEV]",
+			"inherits": [ "dev-mode", "ci-msvc-ninja-compiler" ],
+			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
+		},
+		{
+			"name": "ninja-examples-msvc",
+			"displayName": "[Ninja][MSVC][Examples]",
+			"inherits": [ "examples", "ci-msvc-ninja-compiler" ],
+			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
+		},
+		{
+			"name": "ninja-msvc",
+			"displayName": "[Ninja][MSVC]",
+			"inherits": [ "ci-msvc-ninja-compiler" ],
 			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
 		},
 
@@ -24,6 +49,12 @@
 			"name": "dev-linux",
 			"displayName": "[DEV] Linux",
 			"inherits": [ "ci-unix", "clang-tidy", "cppcheck", "dev-mode" ],
+			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
+		},
+		{
+			"name": "examples-linux",
+			"displayName": "[Examples] Linux",
+			"inherits": [ "ci-unix", "clang-tidy", "cppcheck", "examples" ],
 			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" }
 		},
 		{
@@ -40,6 +71,12 @@
 			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Darwin" }
 		},
 		{
+			"name": "examples-macos",
+			"displayName": "[Examples] MacOS",
+			"inherits": [ "ci-unix", "examples" ],
+			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Darwin" }
+		},
+		{
 			"name": "macos",
 			"displayName": "MacOS",
 			"inherits": [ "ci-unix" ],
@@ -48,86 +85,44 @@
 
 	],
 	"buildPresets": [
-		{
-			"name": "dev-win-debug",
-			"inherits": [ "common", "debug" ],
-			"configurePreset": "dev-windows"
-		},
-		{
-			"name": "win-debug",
-			"inherits": [ "common", "debug" ],
-			"configurePreset": "windows"
-		},
-		{
-			"name": "dev-win-release",
-			"inherits": [ "common", "release" ],
-			"configurePreset": "dev-windows"
-		},
-		{
-			"name": "win-release",
-			"inherits": [ "common", "release" ],
-			"configurePreset": "windows"
-		},
+		{ "name": "dev-win-debug",     "inherits": [ "common", "debug" ], "configurePreset": "dev-windows" },
+		{ "name": "ex-win-debug",      "inherits": [ "common", "debug" ], "configurePreset": "examples-windows" },
+		{ "name": "win-debug",         "inherits": [ "common", "debug" ], "configurePreset": "windows" },
 
-		{
-			"name": "dev-linux-debug",
-			"inherits": [ "common", "debug" ],
-			"configurePreset": "dev-linux"
-		},
-		{
-			"name": "linux-debug",
-			"inherits": [ "common", "debug" ],
-			"configurePreset": "linux"
-		},
-		{
-			"name": "dev-linux-release",
-			"inherits": [ "common", "release" ],
-			"configurePreset": "dev-linux"
-		},
-		{
-			"name": "linux-release",
-			"inherits": [ "common", "release" ],
-			"configurePreset": "linux"
-		},
+		{ "name": "dev-win-release",   "inherits": [ "common", "release" ], "configurePreset": "dev-windows" },
+		{ "name": "ex-win-release",    "inherits": [ "common", "release" ], "configurePreset": "examples-windows" },
+		{ "name": "win-release",       "inherits": [ "common", "release" ], "configurePreset": "windows" },
 
-		{
-			"name": "dev-macos-debug",
-			"inherits": [ "common", "debug" ],
-			"configurePreset": "dev-macos"
-		},
-		{
-			"name": "macos-debug",
-			"inherits": [ "common", "debug" ],
-			"configurePreset": "macos"
-		},
-		{
-			"name": "dev-macos-release",
-			"inherits": [ "common", "release" ],
-			"configurePreset": "dev-macos"
-		},
-		{
-			"name": "macos-release",
-			"inherits": [ "common", "release" ],
-			"configurePreset": "macos"
-		},
+		{ "name": "ninja-dev-msvc-debug",    "inherits": [ "common", "debug" ], "configurePreset": "ninja-dev-msvc" },
+		{ "name": "ninja-ex-msvc-debug",     "inherits": [ "common", "debug" ], "configurePreset": "ninja-examples-msvc" },
+		{ "name": "ninja-msvc-debug",        "inherits": [ "common", "debug" ], "configurePreset": "ninja-msvc" },
 
-		{
-			"name": "debug",
-			"hidden": true,
-			"displayName": "Debug",
-			"configuration": "Debug"
-		},
-		{
-			"name": "release",
-			"hidden": true,
-			"displayName": "Release",
-			"configuration": "Release"
-		},
-		{
-			"name": "common",
-			"hidden": true,
-			"jobs": 16
-		}
+		{ "name": "ninja-dev-msvc-release",  "inherits": [ "common", "release" ], "configurePreset": "ninja-dev-msvc" },
+		{ "name": "ninja-ex-msvc-release",   "inherits": [ "common", "release" ], "configurePreset": "ninja-examples-msvc" },
+		{ "name": "ninja-msvc-release",      "inherits": [ "common", "release" ], "configurePreset": "ninja-msvc" },
+
+
+		{ "name": "dev-linux-debug",   "inherits": [ "common", "debug" ], "configurePreset": "dev-linux" },
+		{ "name": "ex-linux-debug",    "inherits": [ "common", "debug" ], "configurePreset": "examples-linux" },
+		{ "name": "linux-debug",       "inherits": [ "common", "debug" ], "configurePreset": "linux" },
+
+		{ "name": "dev-linux-release", "inherits": [ "common", "release" ], "configurePreset": "dev-linux" },
+		{ "name": "ex-linux-release",  "inherits": [ "common", "release" ], "configurePreset": "examples-linux" },
+		{ "name": "linux-release",     "inherits": [ "common", "release" ], "configurePreset": "linux" },
+
+
+		{ "name": "dev-macos-debug",   "inherits": [ "common", "debug" ], "configurePreset": "dev-macos" },
+		{ "name": "ex-macos-debug",    "inherits": [ "common", "debug" ], "configurePreset": "examples-macos" },
+		{ "name": "macos-debug",       "inherits": [ "common", "debug" ], "configurePreset": "macos" },
+
+		{ "name": "dev-macos-release", "inherits": [ "common", "release" ], "configurePreset": "dev-macos" },
+		{ "name": "ex-macos-release",  "inherits": [ "common", "release" ], "configurePreset": "examples-macos" },
+		{ "name": "macos-release",     "inherits": [ "common", "release" ], "configurePreset": "macos" },
+
+
+		{ "name": "debug", "hidden": true, "displayName": "Debug", "configuration": "Debug" },
+		{ "name": "release", "hidden": true, "displayName": "Release", "configuration": "Release" },
+		{ "name": "common", "hidden": true, "jobs": 16 }
 	],
 	"testPresets": []
 }

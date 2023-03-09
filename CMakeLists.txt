@@ -1,14 +1,15 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.23)
 
-include(cmake/prelude.cmake)
+set(root ${CMAKE_CURRENT_SOURCE_DIR})
+include(${root}/cmake/prelude.cmake)
 
 project(golxzn_render
-	VERSION 0.1.0
+	VERSION 0.2.0
 	DESCRIPTION "Render provider"
 	HOMEPAGE_URL https://github.com/golxzn/render
-	LANGUAGES CXX
+	LANGUAGES C CXX
 )
-include(cmake/options.cmake)
+include(${root}/cmake/options.cmake)
 
 load_sources_list(headers ${GOLXZNR_INCLUDE_DIR} ".h;.hpp")
 load_sources_list(sources ${GOLXZNR_SOURCES_DIR} ".cpp")
@@ -41,7 +42,7 @@ set_target_properties(${target}
 
 target_include_directories(${target} ${warning_guard}
 	PUBLIC
-		"$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/${GOLXZNR_INCLUDE_DIR}>"
+		"$<BUILD_INTERFACE:${GOLXZNR_INCLUDE_DIR}>"
 )
 target_include_directories(${target} SYSTEM
 	PUBLIC
@@ -49,7 +50,12 @@ target_include_directories(${target} SYSTEM
 )
 
 include(${GOLXZNR_DEPENDENCIED_DIR}/import.cmake)
-target_link_libraries(${target} PRIVATE ${dependencies})
+target_link_libraries(${target} PUBLIC ${dependencies})
+target_include_directories(${target} PUBLIC ${include_directories})
 
-include(cmake/install/rules.cmake)
-include(cmake/developer_mode.cmake)
+include(${root}/cmake/install/rules.cmake)
+
+if(GOLXZNR_BUILD_EXAMPLES)
+	add_subdirectory(${GOLXZNR_EXAMPLES_DIR})
+endif()
+include(${root}/cmake/developer_mode.cmake)

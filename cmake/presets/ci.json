@@ -13,11 +13,31 @@
 			"inherits": [ "flags-unix"]
 		},
 		{
-			"name": "ci-win64",
+			"name": "ci-msvc",
 			"inherits": [ "flags-windows" ],
 			"generator": "Visual Studio 17 2022",
 			"architecture": "x64",
-			"hidden": true
+			"hidden": true,
+			"vendor": {
+				"microsoft.com/VisualStudioSettings/CMake/1.0": {
+					"hostOS": [ "Windows" ]
+				}
+			}
+		},
+		{
+			"name": "ci-msvc-ninja-compiler",
+			"hidden": true,
+			"generator": "Ninja",
+			"inherits": [ "ci-build", "flags-windows" ],
+			"cacheVariables": {
+				"CMAKE_CXX_COMPILER": "cl",
+				"CMAKE_LINKER": "link"
+			},
+			"vendor": {
+				"microsoft.com/VisualStudioSettings/CMake/1.0": {
+					"hostOS": [ "Windows" ]
+				}
+			}
 		},
 		{
 			"name": "coverage-unix",
@@ -69,7 +89,7 @@
 		{
 			"name": "ci-windows",
 			"displayName": "[CI] Windows",
-			"inherits": [ "ci-build", "ci-win64", "dev-mode" ],
+			"inherits": [ "ci-build", "ci-msvc", "dev-mode" ],
 			"condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows" }
 		}
 	]

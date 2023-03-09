@@ -8,14 +8,32 @@
 
 <h2>📜 Table of contents </h2>
 
+- [🧟 Cloning and building](#-cloning-and-building)
 - [🧱 Project structure](#-project-structure)
-  - [Dependencies](#dependencies)
+	- [Dependencies](#dependencies)
 - [⚖️ Licensing](#️-licensing)
+
+## 🧟 Cloning and building
+
+Clone the repo:
+
+```sh
+git clone --recurse-submodules -j8 https://github.com/golxzn/render.git
+```
+
+You could configure the project using CMake presets.
+
+```sh
+cmake --preset dev-windows
+```
 
 ## 🧱 Project structure
 
 ### Dependencies
+
+- CMake 3.23 or higher;
 - OpenGL;
+- [glm](https://github.com/g-truc/glm);
 - [golxzn::core](https://github.com/golxzn/core).
 
 ## ⚖️ Licensing
