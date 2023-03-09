@@ -3,25 +3,25 @@
 
 namespace golxzn::render::gl {
 
-namespace {
+namespace ebo_local {
 static constexpr core::u32 target{ GL_ELEMENT_ARRAY_BUFFER };
-} // anonymous namespace
+} // namespace ebo_local
 
 EBO::EBO(const std::vector<core::u32> &data) noexcept
-	: base_type{ data, target, GL_STATIC_DRAW } {
+	: base_type{ data, ebo_local::target, GL_STATIC_DRAW } {
 	bind();
 }
 
 void EBO::assign(const std::vector<core::u32> &data) noexcept {
-	base_type::assign(data, target, GL_STATIC_DRAW);
+	base_type::assign(data, ebo_local::target, GL_STATIC_DRAW);
 	bind();
 }
 
 void EBO::bind() const noexcept {
-	base_type::bind(target);
+	base_type::bind(ebo_local::target);
 }
 void EBO::unbind() const noexcept {
-	base_type::unbind(target);
+	base_type::unbind(ebo_local::target);
 }
 
 } // namespace golxzn::render::gl
