@@ -1,9 +1,8 @@
-#include <glad/gl.h>
-#include <GLFW/glfw3.h>
-#include <spdlog/spdlog.h>
+#include <golxzn/common.hpp>
 
 #include <golxzn/core/resources/manager.hpp>
 #include <golxzn/render.hpp>
+#include <golxzn/graphics/window/window.hpp>
 #include <golxzn/graphics/engines/opengl/VAO.hpp>
 #include <golxzn/graphics/engines/opengl/EBO.hpp>
 
@@ -95,15 +94,15 @@ int main() {
 	// uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	auto api{ golxzn::graphics::controller::api() };
-	if (api == nullptr) {
-		spdlog::critical("No render API");
+	auto window{ golxzn::graphics::window::api() };
+	if (window == nullptr) {
+		spdlog::critical("No window API");
 		return -1;
 	}
 
 	// render loop
 	// -----------
-	while (!api->window_should_close()) {
+	while (!window->should_close()) {
 
 		// render
 		// ------
@@ -119,7 +118,7 @@ int main() {
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
-		api->swap_window_buffers();
+		window->swap_buffers();
 		glfwPollEvents();
 	}
 

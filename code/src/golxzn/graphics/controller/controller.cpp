@@ -21,18 +21,23 @@ core::umap<controller::api_type, controller::impl_maker> controller::api_initial
 
 
 bool controller::initialize(const api_type render_api) noexcept {
-	if (active()) {
-		destroy();
-	}
+	destroy();
 
 	if (const auto found{ api_initializer.find(render_api) }; found != std::end(api_initializer)) {
 		impl = found->second();
+		if (const bool success{ impl->initialize() }; success) {
+			return success;
+		}
+		destroy();
 	}
 	return active();
 }
 
 void controller::destroy() noexcept {
-	impl.reset();
+	if (active()) {
+		impl->destroy();
+		impl.reset();
+	}
 }
 
 

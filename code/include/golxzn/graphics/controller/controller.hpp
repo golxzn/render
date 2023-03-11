@@ -14,13 +14,15 @@ public:
 	public:
 		virtual ~implementation() = default;
 
+		virtual bool initialize() = 0;
+		virtual void destroy() = 0;
+
 		virtual ctrl::object::ref make_shader(const std::string_view type, const std::string_view code) = 0;
 		virtual ctrl::object::ref make_program() = 0;
 		virtual ctrl::object::ref make_texture(const std::string &path) = 0;
 
-		/// @todo move the window stuff outside
-		virtual bool window_should_close() const noexcept = 0;
-		virtual void swap_window_buffers() noexcept = 0;
+		virtual void viewport(const core::u32 x, const core::u32 y,
+			const core::u32 width, const core::u32 height) noexcept = 0;
 	};
 
 	enum class api_type {
