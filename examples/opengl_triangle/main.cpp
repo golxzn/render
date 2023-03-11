@@ -5,6 +5,7 @@
 #include <golxzn/graphics/window/window.hpp>
 #include <golxzn/graphics/engines/opengl/VAO.hpp>
 #include <golxzn/graphics/engines/opengl/EBO.hpp>
+#include <golxzn/graphics/types/shader.hpp>
 
 #include <iostream>
 
@@ -17,57 +18,27 @@ int main() {
 	golxzn::core::res_man::initialize("opengl_triangle");
 	golxzn::graphics::controller::initialize(golxzn::graphics::controller::api_type::opengl);
 
-	const auto vs_code{ golxzn::core::res_man::load_string("res://shaders/default.vs.glsl") };
-	spdlog::info("Loaded vertex shader code size: {}", vs_code.size());
-	const auto fs_code{ golxzn::core::res_man::load_string("res://shaders/default.fs.glsl") };
-	spdlog::info("Loaded fragment shader code size: {}", fs_code.size());
+	golxzn::graphics::types::shader vertex_shader{ "res://shaders/default.vs.glsl" };
+	golxzn::graphics::types::shader fragment_shader{ "res://shaders/default.fs.glsl" };
 
-	// build and compile our shader program
-	// ------------------------------------
-	// vertex shader
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-	const auto *const vs_code_cstr{ vs_code.c_str() };
-	glShaderSource(vertexShader, 1, &vs_code_cstr, NULL);
-	glCompileShader(vertexShader);
-	// check for shader compile errors
-	int success;
-	char infoLog[512];
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		spdlog::error("[ERROR::SHADER::VERTEX::COMPILATION_FAILED]:\n{}", infoLog);
-	}
-	// fragment shader
-	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-	const auto *const fs_code_cstr{ fs_code.c_str() };
-	glShaderSource(fragmentShader, 1, &fs_code_cstr, NULL);
-	glCompileShader(fragmentShader);
-	// check for shader compile errors
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		spdlog::error("[ERROR::SHADER::FRAGMENT::COMPILATION_FAILED]:\n{}", infoLog);
-	}
 	// link shaders
 	unsigned int shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
+	glAttachShader(shaderProgram, vertex_shader.id());
+	glAttachShader(shaderProgram, fragment_shader.id());
 	glLinkProgram(shaderProgram);
 	// check for linking errors
+	int success;
+	char infoLog[512];
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 	if (!success) {
 		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
 		spdlog::error("[ERROR::SHADER::PROGRAM::LINKING_FAILED]:\n{}", infoLog);
 	}
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	vertex_shader.clear();
+	fragment_shader.clear();
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
-
 
 
 	graphics::gl::VAO VAO;

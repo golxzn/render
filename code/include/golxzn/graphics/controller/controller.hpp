@@ -2,7 +2,7 @@
 
 #include <functional>
 
-#include <golxzn/graphics/controller/object.hpp>
+#include <golxzn/graphics/types/shader.hpp>
 
 namespace golxzn::graphics {
 
@@ -17,7 +17,7 @@ public:
 		virtual bool initialize() = 0;
 		virtual void destroy() = 0;
 
-		virtual ctrl::object::ref make_shader(const std::string_view type, const std::string_view code) = 0;
+		virtual ctrl::object::ref make_shader(const types::shader::type type, const std::string_view code) = 0;
 		virtual ctrl::object::ref make_program() = 0;
 		virtual ctrl::object::ref make_texture(const std::string &path) = 0;
 

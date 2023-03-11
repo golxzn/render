@@ -36,14 +36,53 @@ void gl_impl::destroy() {
 	glfwTerminate();
 }
 
-ctrl::object::ref gl_impl::make_shader(const std::string_view type, const std::string_view code) {
-	if (type.empty() || code.empty()) {
-		spdlog::error("[{}]: Shader {} cannot be empty.",
-			class_name, (type.empty() ? "type" : "code"));
+ctrl::object::ref gl_impl::make_shader(const types::shader::type type, const std::string_view code) {
+	using namespace types;
+
+	if (const bool invalid_type{ type == shader::type::invalid }; invalid_type || code.empty()) {
+		spdlog::error("[{}]: Shader {}",
+			class_name, (invalid_type ? "type is invalid" : "code cannot be empty."));
 		return nullptr;
 	}
 
+	static const core::umap<shader::type, GLenum> type_map{
+		{ shader::type::vertex, GL_VERTEX_SHADER },
+		{ shader::type::tesselation_control, GL_TESS_CONTROL_SHADER },
+		{ shader::type::tesselation_evaluation, GL_TESS_EVALUATION_SHADER },
+		{ shader::type::geometry, GL_GEOMETRY_SHADER },
+		{ shader::type::fragment, GL_FRAGMENT_SHADER },
+		{ shader::type::compute, GL_COMPUTE_SHADER },
+	};
 
+	if (const auto found{ type_map.find(type) }; found != std::end(type_map)) {
+		auto obj{ std::make_shared<ctrl::object>(
+			static_cast<core::u32>(glCreateShader(found->second))) };
+
+		obj->set_deleter([](ctrl::object &obj) {
+			glDeleteShader(obj.id()); // could cause a crash. :thonk: about it.
+		});
+		obj->set_property<types::shader::type>("type", type);
+		obj->set_property<GLenum>("gl_type", found->second);
+
+		const auto code_cstr{ code.data() };
+		const auto id{ obj->id() };
+		glShaderSource(id, 1, &code_cstr, nullptr);
+		glCompileShader(id);
+
+		int success{};
+		glGetShaderiv(id, GL_COMPILE_STATUS, &success);
+		if (!success) {
+			static constexpr size_t buffer_size{ 512 };
+			std::string info_log(buffer_size, '\0');
+			glGetShaderInfoLog(id, buffer_size, nullptr, &info_log[0]);
+			spdlog::error("[{}] Compilation error:\n {}", info_log);
+			return nullptr;
+		}
+
+		return obj;
+	}
+
+	spdlog::error("[{}]: Shader type is invalid", class_name);
 	return nullptr;
 }
 ctrl::object::ref gl_impl::make_program() {

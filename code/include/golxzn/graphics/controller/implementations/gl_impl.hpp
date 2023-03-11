@@ -12,13 +12,15 @@ public:
 	bool initialize() override;
 	void destroy() override;
 
-	ctrl::object::ref make_shader(const std::string_view type, const std::string_view code) override;
+	ctrl::object::ref make_shader(const types::shader::type type, const std::string_view code) override;
 	ctrl::object::ref make_program() override;
 	ctrl::object::ref make_texture(const std::string &path) override;
 
 	void viewport(const core::u32 x, const core::u32 y,
 		const core::u32 width, const core::u32 height) noexcept override;
 
+private:
+	
 };
 
 } // namespace golxzn::graphics
