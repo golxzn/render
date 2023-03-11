@@ -1,8 +1,8 @@
 #pragma once
 
-#include <golxzn/render/engines/opengl/VBO.hpp>
+#include <golxzn/graphics/engines/opengl/VBO.hpp>
 
-namespace golxzn::render::gl {
+namespace golxzn::graphics::gl {
 
 class VAO final {
 public:
@@ -26,4 +26,4 @@ private:
 	core::u32 mId{ invalid_id };
 };
 
-} // namespace golxzn::render::gl
+} // namespace golxzn::graphics::gl

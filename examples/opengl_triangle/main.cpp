@@ -1,98 +1,56 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
+#include <spdlog/spdlog.h>
 
 #include <golxzn/core/resources/manager.hpp>
-#include <golxzn/render/engines/opengl/VAO.hpp>
-#include <golxzn/render/engines/opengl/EBO.hpp>
+#include <golxzn/render.hpp>
+#include <golxzn/graphics/engines/opengl/VAO.hpp>
+#include <golxzn/graphics/engines/opengl/EBO.hpp>
 
 #include <iostream>
 
 using namespace golxzn;
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
-// settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
-
-constexpr const char *const vertexShaderSource{
-R"glsl(#version 330 core\n"
-layout (location = 0) in vec3 aPos;
-void main() {
-	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-}
-)glsl"
-};
-constexpr const char *const fragmentShaderSource{
-R"glsl(#version 330 core
-out vec4 FragColor;
-void main() {
-	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-}
-)glsl"
-};
 
 int main() {
 	golxzn::core::res_man::initialize("opengl_triangle");
+	golxzn::graphics::controller::initialize(golxzn::graphics::controller::api_type::opengl);
 
-	// glfw: initialize and configure
-	// ------------------------------
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-#ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-	// glfw window creation
-	// --------------------
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-	if (window == NULL)
-	{
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
-		return -1;
-	}
-	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-	// glad: load all OpenGL function pointers
-	// ---------------------------------------
-	if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		return -1;
-	}
-
+	const auto vs_code{ golxzn::core::res_man::load_string("res://shaders/default.vs.glsl") };
+	spdlog::info("Loaded vertex shader code size: {}", vs_code.size());
+	const auto fs_code{ golxzn::core::res_man::load_string("res://shaders/default.fs.glsl") };
+	spdlog::info("Loaded fragment shader code size: {}", fs_code.size());
 
 	// build and compile our shader program
 	// ------------------------------------
 	// vertex shader
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+
+	const auto *const vs_code_cstr{ vs_code.c_str() };
+	glShaderSource(vertexShader, 1, &vs_code_cstr, NULL);
 	glCompileShader(vertexShader);
 	// check for shader compile errors
 	int success;
 	char infoLog[512];
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
+	if (!success) {
 		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+		spdlog::error("[ERROR::SHADER::VERTEX::COMPILATION_FAILED]:\n{}", infoLog);
 	}
 	// fragment shader
 	unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+
+	const auto *const fs_code_cstr{ fs_code.c_str() };
+	glShaderSource(fragmentShader, 1, &fs_code_cstr, NULL);
 	glCompileShader(fragmentShader);
 	// check for shader compile errors
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
 	if (!success)
 	{
 		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+		spdlog::error("[ERROR::SHADER::FRAGMENT::COMPILATION_FAILED]:\n{}", infoLog);
 	}
 	// link shaders
 	unsigned int shaderProgram = glCreateProgram();
@@ -103,53 +61,49 @@ int main() {
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 	if (!success) {
 		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+		spdlog::error("[ERROR::SHADER::PROGRAM::LINKING_FAILED]:\n{}", infoLog);
 	}
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
-	std::vector<core::f16> vertices{
+
+
+
+	graphics::gl::VAO VAO;
+
+	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+	VAO.bind();
+	graphics::gl::VBO VBO{ std::vector<core::f16>{
 		 0.5f,  0.5f, 0.0f,  // top right
 		 0.5f, -0.5f, 0.0f,  // bottom right
 		-0.5f, -0.5f, 0.0f,  // bottom left
 		-0.5f,  0.5f, 0.0f   // top left
-	};
-	std::vector<core::u32> indices{  // note that we start from 0!
+	} };
+	graphics::gl::EBO EBO{ std::vector<core::u32> {  // note that we start from 0!
 		0, 1, 3,  // first Triangle
 		1, 2, 3   // second Triangle
-	};
-
-	render::gl::VAO VAO;
-
-	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-	VAO.bind();
-	render::gl::VBO VBO{ vertices };
-	render::gl::EBO EBO{ indices };
+	} };
 
 	VAO.link_attribute(VBO, 0, 3, GL_FLOAT, 3 * sizeof(core::f16), (void*)0);
 
-	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
 	VBO.unbind();
-
-	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-	// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	VAO.unbind();
 
 
 	// uncomment this call to draw in wireframe polygons.
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	auto api{ golxzn::graphics::controller::api() };
+	if (api == nullptr) {
+		spdlog::critical("No render API");
+		return -1;
+	}
+
 	// render loop
 	// -----------
-	while (!glfwWindowShouldClose(window)) {
-		// input
-		// -----
-		processInput(window);
+	while (!api->window_should_close()) {
 
 		// render
 		// ------
@@ -165,7 +119,7 @@ int main() {
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
-		glfwSwapBuffers(window);
+		api->swap_window_buffers();
 		glfwPollEvents();
 	}
 
@@ -176,9 +130,6 @@ int main() {
 	EBO.clean();
 	glDeleteProgram(shaderProgram);
 
-	// glfw: terminate, clearing all previously allocated GLFW resources.
-	// ------------------------------------------------------------------
-	glfwTerminate();
 	return 0;
 }
 
@@ -187,12 +138,4 @@ int main() {
 void processInput(GLFWwindow *window) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
-}
-
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* , int width, int height) {
-	// make sure the viewport matches the new window dimensions; note that width and
-	// height will be significantly larger than specified on retina displays.
-	glViewport(0, 0, width, height);
 }

@@ -3,7 +3,7 @@
 #include <vector>
 #include <golxzn/core/types.hpp>
 
-namespace golxzn::render::gl {
+namespace golxzn::graphics::gl {
 
 core::u32 generate_buffer() noexcept;
 void destroy_buffer(core::u32 id) noexcept;
@@ -64,4 +64,4 @@ protected:
 	core::u32 mId{ invalid_id };
 };
 
-} // namespace golxzn::render::gl
+} // namespace golxzn::graphics::gl

@@ -1,7 +1,7 @@
 #include <glad/gl.h>
-#include <golxzn/render/engines/opengl/VBO.hpp>
+#include <golxzn/graphics/engines/opengl/VBO.hpp>
 
-namespace golxzn::render::gl {
+namespace golxzn::graphics::gl {
 
 namespace vbo_local {
 static constexpr core::u32 target{ GL_ARRAY_BUFFER };
@@ -22,4 +22,4 @@ void VBO::unbind() const noexcept {
 	base_type::unbind(vbo_local::target);
 }
 
-} // namespace golxzn::render::gl
+} // namespace golxzn::graphics::gl

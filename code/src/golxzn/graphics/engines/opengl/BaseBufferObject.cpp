@@ -1,7 +1,7 @@
 #include <glad/gl.h>
-#include "golxzn/render/engines/opengl/BaseBufferObject.hpp"
+#include "golxzn/graphics/engines/opengl/BaseBufferObject.hpp"
 
-namespace golxzn::render::gl {
+namespace golxzn::graphics::gl {
 
 core::u32 generate_buffer() noexcept {
 	core::u32 id;
@@ -19,4 +19,4 @@ void bind_buffer(core::u32 id, core::u32 target) noexcept {
 }
 
 
-} // namespace golxzn::render::gl
+} // namespace golxzn::graphics::gl

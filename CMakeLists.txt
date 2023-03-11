@@ -20,7 +20,7 @@ add_library(golxzn::render ALIAS ${target})
 include(GenerateExportHeader)
 generate_export_header(${target}
 	BASE_NAME ${target}
-	EXPORT_FILE_NAME export/golxzn/render/export.hpp
+	EXPORT_FILE_NAME export/golxzn/graphics/export.hpp
 	CUSTOM_CONTENT_FROM_VARIABLE pragma_suppress_c4251
 )
 if(NOT BUILD_SHARED_LIBS)

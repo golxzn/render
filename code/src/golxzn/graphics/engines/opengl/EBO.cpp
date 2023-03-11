@@ -1,7 +1,7 @@
 #include <glad/gl.h>
-#include "golxzn/render/engines/opengl/EBO.hpp"
+#include "golxzn/graphics/engines/opengl/EBO.hpp"
 
-namespace golxzn::render::gl {
+namespace golxzn::graphics::gl {
 
 namespace ebo_local {
 static constexpr core::u32 target{ GL_ELEMENT_ARRAY_BUFFER };
@@ -24,4 +24,4 @@ void EBO::unbind() const noexcept {
 	base_type::unbind(ebo_local::target);
 }
 
-} // namespace golxzn::render::gl
+} // namespace golxzn::graphics::gl

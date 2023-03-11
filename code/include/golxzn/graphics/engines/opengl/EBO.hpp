@@ -1,8 +1,8 @@
 #pragma once
 
-#include <golxzn/render/engines/opengl/BaseBufferObject.hpp>
+#include <golxzn/graphics/engines/opengl/BaseBufferObject.hpp>
 
-namespace golxzn::render::gl {
+namespace golxzn::graphics::gl {
 
 struct EBO : public BaseBufferObject<core::u32> {
 	using base_type = BaseBufferObject<core::u32>;
@@ -17,4 +17,4 @@ struct EBO : public BaseBufferObject<core::u32> {
 
 using ElementBufferObject = EBO;
 
-} // namespace golxzn::render::gl
+} // namespace golxzn::graphics::gl

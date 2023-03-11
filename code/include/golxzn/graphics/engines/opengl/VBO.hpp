@@ -1,8 +1,8 @@
 #pragma once
 
-#include <golxzn/render/engines/opengl/BaseBufferObject.hpp>
+#include <golxzn/graphics/engines/opengl/BaseBufferObject.hpp>
 
-namespace golxzn::render::gl {
+namespace golxzn::graphics::gl {
 
 struct VBO : public BaseBufferObject<core::f16> {
 	using base_type = BaseBufferObject<core::f16>;
@@ -17,4 +17,4 @@ struct VBO : public BaseBufferObject<core::f16> {
 
 using VertexBufferObject = VBO;
 
-} // namespace golxzn::render::gl
+} // namespace golxzn::graphics::gl

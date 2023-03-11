@@ -1,7 +1,7 @@
 #include <glad/gl.h>
-#include "golxzn/render/engines/opengl/VAO.hpp"
+#include "golxzn/graphics/engines/opengl/VAO.hpp"
 
-namespace golxzn::render::gl {
+namespace golxzn::graphics::gl {
 
 VAO::VAO() noexcept {
 	glGenVertexArrays(1, &mId);
@@ -36,4 +36,4 @@ bool VAO::valid() const noexcept {
 	return mId != invalid_id;
 }
 
-} // namespace golxzn::render::gl
+} // namespace golxzn::graphics::gl
