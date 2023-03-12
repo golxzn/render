@@ -53,7 +53,7 @@ public:
 	type get_type() const noexcept;
 	status get_status() const noexcept;
 	const std::string &get_code() const noexcept;
-	types::object::ref to_object() const noexcept;
+	object::ref to_object() const noexcept;
 
 	status set_code(std::string &&code);
 	status set_code(std::string &&code, const type shader_type);
@@ -69,7 +69,7 @@ private:
 	status mStatus{ status::invalid };
 	std::string mPath;
 	std::string mCode;
-	types::object::ref mObject;
+	object::ref mObject;
 };
 
 } // namespace golxzn::graphics::types

@@ -55,7 +55,7 @@ protected:
 		}
 		mId = generate_buffer();
 		bind(target);
-		assign_buffer(mId, target, data.size() * sizeof(T), data.data(), usage);
+		assign_buffer(mId, target, data.size() * sizeof(T), data.begin(), usage);
 		unbind(target);
 	}
 	void assign(const std::vector<T> &data, const core::u32 target, const core::u32 usage) noexcept {

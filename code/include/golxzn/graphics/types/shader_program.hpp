@@ -55,14 +55,14 @@ public:
 	core::u32 id() const noexcept;
 	status get_status() const noexcept;
 	bool valid() const noexcept;
-	types::object::ref to_object() const noexcept;
+	object::ref to_object() const noexcept;
 
 private:
 	status mStatus{ status::invalid };
-	types::object::ref mObject;
+	object::ref mObject;
 	std::vector<shader::ref> mAttachedShaders;
 
-	bool erase_shader(const types::object::ref &shader_obj) noexcept;
+	bool erase_shader(const object::ref &shader_obj) noexcept;
 };
 
 } // namespace golxzn::graphics::types

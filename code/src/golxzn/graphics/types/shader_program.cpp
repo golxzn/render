@@ -203,7 +203,7 @@ core::u32 shader_program::id() const noexcept {
 	if (mObject) {
 		return mObject->id();
 	}
-	return types::object::invalid_id;
+	return object::invalid_id;
 }
 shader_program::status shader_program::get_status() const noexcept {
 	return mStatus;
@@ -211,11 +211,11 @@ shader_program::status shader_program::get_status() const noexcept {
 bool shader_program::valid() const noexcept {
 	return mObject != nullptr && mObject->valid();
 }
-types::object::ref shader_program::to_object() const noexcept {
+object::ref shader_program::to_object() const noexcept {
 	return mObject;
 }
 
-bool shader_program::erase_shader(const types::object::ref &shader_obj) noexcept {
+bool shader_program::erase_shader(const object::ref &shader_obj) noexcept {
 	if (shader_obj == nullptr) {
 		spdlog::warn("[{}] [{}] shader_obj is nullptr", class_name, full_name());
 		return false;
