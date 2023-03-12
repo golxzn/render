@@ -9,12 +9,11 @@
 
 #include <iostream>
 
-using namespace golxzn;
-
 void processInput(GLFWwindow *window);
 
 
 int main() {
+	using namespace golxzn;
 	using namespace types_literals;
 	core::res_man::initialize("opengl_triangle");
 	graphics::controller::initialize(graphics::controller::api_type::opengl);
