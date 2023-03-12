@@ -4,7 +4,7 @@ project(golxzn_examples LANGUAGES CXX)
 
 # @todo: Normalize this shit. Looks really invalid
 
-add_executable(golxzn_examples ${CMAKE_CURRENT_SOURCE_DIR}/opengl_triangle/main.cpp)
+add_executable(golxzn_examples ${CMAKE_CURRENT_SOURCE_DIR}/opengl_rectangle/main.cpp)
 set_target_properties(golxzn_examples PROPERTIES
 	CXX_STANDARD ${GOLXZNR_CXX_STANDARD}
 )
