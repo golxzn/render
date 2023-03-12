@@ -5,7 +5,7 @@
 #include <golxzn/graphics/window/window.hpp>
 #include <golxzn/graphics/engines/opengl/VAO.hpp>
 #include <golxzn/graphics/engines/opengl/EBO.hpp>
-#include <golxzn/graphics/types/shader.hpp>
+#include <golxzn/graphics/types/shader_program.hpp>
 
 #include <iostream>
 
@@ -18,28 +18,13 @@ int main() {
 	golxzn::core::res_man::initialize("opengl_triangle");
 	golxzn::graphics::controller::initialize(golxzn::graphics::controller::api_type::opengl);
 
-	golxzn::graphics::types::shader vertex_shader{ "res://shaders/default.vs.glsl" };
-	golxzn::graphics::types::shader fragment_shader{ "res://shaders/default.fs.glsl" };
+	auto vertex_shader{ golxzn::graphics::types::shader::make("res://shaders/default.vs.glsl") };
+	auto fragment_shader{ golxzn::graphics::types::shader::make("res://shaders/default.fs.glsl") };
 
-	// link shaders
-	unsigned int shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertex_shader.id());
-	glAttachShader(shaderProgram, fragment_shader.id());
-	glLinkProgram(shaderProgram);
-	// check for linking errors
-	int success;
-	char infoLog[512];
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		spdlog::error("[ERROR::SHADER::PROGRAM::LINKING_FAILED]:\n{}", infoLog);
+	auto program{ golxzn::graphics::types::shader_program::make({vertex_shader, fragment_shader}) };
+	if (program->get_status() == golxzn::graphics::program_status::need_to_link) {
+		program->link();
 	}
-	vertex_shader.clear();
-	fragment_shader.clear();
-
-	// set up vertex data (and buffer(s)) and configure vertex attributes
-	// ------------------------------------------------------------------
-
 
 	graphics::gl::VAO VAO;
 
@@ -81,11 +66,12 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// draw our first triangle
-		glUseProgram(shaderProgram);
+		program->use();
 		VAO.bind(); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 		//glDrawArrays(GL_TRIANGLES, 0, 6);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		// glBindVertexArray(0); // no need to unbind it every time
+		program->unuse();
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
@@ -98,7 +84,7 @@ int main() {
 	VAO.clean();
 	VBO.clean();
 	EBO.clean();
-	glDeleteProgram(shaderProgram);
+	program->clear();
 
 	return 0;
 }

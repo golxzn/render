@@ -72,9 +72,8 @@ ctrl::object::ref gl_impl::make_shader(const types::shader::type type, const std
 		int success{};
 		glGetShaderiv(id, GL_COMPILE_STATUS, &success);
 		if (!success) {
-			static constexpr size_t buffer_size{ 512 };
-			std::string info_log(buffer_size, '\0');
-			glGetShaderInfoLog(id, buffer_size, nullptr, &info_log[0]);
+			std::string info_log(info_log_size, '\0');
+			glGetShaderInfoLog(id, info_log_size, nullptr, &info_log[0]);
 			spdlog::error("[{}] Compilation error:\n {}", info_log);
 			return nullptr;
 		}
@@ -86,14 +85,82 @@ ctrl::object::ref gl_impl::make_shader(const types::shader::type type, const std
 	return nullptr;
 }
 ctrl::object::ref gl_impl::make_program() {
-	return nullptr;
+	return ctrl::object::make(glCreateProgram(), [](ctrl::object &obj) {
+		glDeleteProgram(obj.id());
+	});
 }
 ctrl::object::ref gl_impl::make_texture(const std::string &path) {
 	return nullptr;
 }
 
+bool gl_impl::attach_shader(const ctrl::object::ref &program, const ctrl::object::ref &shader) {
+	if (!check_program_and_shader(program, shader)) {
+		return false;
+	}
+	glAttachShader(program->id(), shader->id());
+	return true;
+}
+bool gl_impl::detach_shader(const ctrl::object::ref &program, const ctrl::object::ref &shader) {
+	if (!check_program_and_shader(program, shader)) {
+		return false;
+	}
+	glDetachShader(program->id(), shader->id());
+	return true;
+}
+bool gl_impl::link_program(const ctrl::object::ref &program) {
+	if (program == nullptr) {
+		spdlog::error("[{}]: Program is null", class_name);
+		return false;
+	}
+	const auto id{ program->id() };
+	if (glIsProgram(id) == GL_FALSE) {
+		spdlog::error("[{}]: {} is not a valid program", class_name, id);
+		return false;
+	}
+
+	glLinkProgram(id);
+
+	int success{};
+	glGetProgramiv(id, GL_LINK_STATUS, &success);
+	if (!success) {
+		std::string info_log(info_log_size, '\0');
+		glGetProgramInfoLog(id, info_log_size, nullptr, &info_log[0]);
+		spdlog::error("[{}] Cannot link program: \n{}", info_log);
+		return false;
+	}
+
+	return true;
+}
+void gl_impl::use_program(const ctrl::object::ref &program) {
+	glUseProgram(program != nullptr ? program->id() : ctrl::object::invalid_id);
+}
+
 void gl_impl::viewport(const core::u32 x, const core::u32 y, const core::u32 width, const core::u32 height) noexcept {
 	glViewport(x, y, width, height);
+}
+
+bool gl_impl::check_program_and_shader(const ctrl::object::ref &program, const ctrl::object::ref &shader) const {
+	if (program == nullptr || shader == nullptr) {
+		if (program == nullptr && shader == nullptr) {
+			spdlog::error("[{}]: Program and shader are null", class_name);
+		} else {
+			spdlog::error("[{}]: {}", class_name,
+				(program == nullptr ? "program is null" : ""),
+				(shader == nullptr ? "shader is null" : "")
+			);
+		}
+		return false;
+	}
+
+	if (glIsProgram(program->id()) == GL_FALSE) {
+		spdlog::error("[{}]: {} is not a valid program", class_name, program->id());
+		return false;
+	}
+	if (glIsShader(shader->id()) == GL_FALSE) {
+		spdlog::error("[{}]: {} is not a valid shader", class_name, program->id());
+		return false;
+	}
+	return true;
 }
 
 } // namespace golxzn::graphics

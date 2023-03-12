@@ -2,7 +2,13 @@
 
 namespace golxzn::graphics::ctrl {
 
-object::object(const core::u32 id) noexcept : mId{ id } { }
+object::ref object::make(const core::u32 id, deleter &&deleter) {
+	return std::make_shared<object>(id, std::move(deleter));
+}
+
+object::object(const core::u32 id, deleter &&deleter) noexcept
+	: mId{ id }, mDeleter{ std::move(deleter) } { }
+
 object::~object() {
 	if (mDeleter) mDeleter(*this);
 }

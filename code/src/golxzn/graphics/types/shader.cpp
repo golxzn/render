@@ -8,6 +8,24 @@
 
 namespace golxzn::graphics::types {
 
+shader::ref shader::make(const std::string_view path) {
+	return std::make_shared<shader>(path);
+}
+shader::ref shader::make(std::string &&code, const type shader_type) {
+	return std::make_shared<shader>(std::move(code), shader_type);
+}
+
+shader::shader(const shader &other)
+	: mType{ other.mType }, mStatus{ other.mStatus }, mCode{ other.mCode }, mObject{ other.mObject } {
+}
+
+shader::shader(shader &&other) noexcept
+	: mType{ other.mType }
+	, mStatus{ other.mStatus }
+	, mCode{ std::move(other.mCode) }
+	, mObject{ std::move(other.mObject) } {
+	other.clear();
+}
 
 shader::shader(const std::string_view path)
 	: shader{ core::res_man::load_string(path), get_type_by_extension(path) } {
@@ -17,6 +35,35 @@ shader::shader(std::string &&code, const type shader_type)
 	: mType{ shader_type }
 	, mCode{ std::move(code) } {
 	compile();
+}
+
+shader::~shader() {
+	clear();
+}
+
+shader &shader::operator=(const shader &other) {
+	if (this == &other) {
+		return *this;
+	}
+	clear();
+	mType = other.mType;
+	mStatus = other.mStatus;
+	mCode = other.mCode;
+	mObject = other.mObject;
+	return *this;
+}
+
+shader &shader::operator=(shader &&other) noexcept {
+	if (this == &other) {
+		return *this;
+	}
+	clear();
+	mType = other.mType;
+	mStatus = other.mStatus;
+	mCode = std::move(other.mCode);
+	mObject = std::move(other.mObject);
+	other.clear();
+	return *this;
 }
 
 shader::status shader::compile() {
@@ -31,7 +78,7 @@ shader::status shader::compile() {
 	return mStatus;
 }
 
-void shader::clear() {
+void shader::clear() noexcept {
 	mStatus = status::invalid;
 	mType = type::invalid;
 	mCode.clear();

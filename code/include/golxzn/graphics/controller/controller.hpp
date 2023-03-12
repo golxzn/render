@@ -21,6 +21,11 @@ public:
 		virtual ctrl::object::ref make_program() = 0;
 		virtual ctrl::object::ref make_texture(const std::string &path) = 0;
 
+		virtual bool attach_shader(const ctrl::object::ref &program, const ctrl::object::ref &shader) = 0;
+		virtual bool detach_shader(const ctrl::object::ref &program, const ctrl::object::ref &shader) = 0;
+		virtual bool link_program(const ctrl::object::ref &program) = 0;
+		virtual void use_program(const ctrl::object::ref &program) = 0;
+
 		virtual void viewport(const core::u32 x, const core::u32 y,
 			const core::u32 width, const core::u32 height) noexcept = 0;
 	};

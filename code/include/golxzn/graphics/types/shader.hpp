@@ -1,13 +1,14 @@
 #pragma once
 
-#include <golxzn/core/types.hpp>
-#include <golxzn/graphics/controller/object.hpp>
+#include "golxzn/graphics/controller/object.hpp"
 
 namespace golxzn::graphics::types {
 
 class shader {
 	static constexpr std::string_view class_name{ "graphics::types::shader" };
 public:
+	using ref = core::sptr<shader>;
+
 	enum class type : core::u8 {
 		invalid,
 
@@ -30,12 +31,22 @@ public:
 		count // always last
 	};
 
+	static ref make(const std::string_view path);
+	static ref make(std::string &&code, const type shader_type);
+
 	shader() = default;
+	shader(const shader &other);
+	shader(shader &&other) noexcept;
+
 	explicit shader(const std::string_view path);
 	shader(std::string &&code, const type shader_type);
+	~shader();
+
+	shader &operator=(const shader &other);
+	shader &operator=(shader &&other) noexcept;
 
 	status compile();
-	void clear();
+	void clear() noexcept;
 
 	core::u32 id() const noexcept;
 	type get_type() const noexcept;

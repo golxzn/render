@@ -11,10 +11,13 @@ public:
 	using ref = core::sptr<object>;
 	using deleter = std::function<void(object &)>;
 
+	static constexpr auto default_deleter{ [](object&) {} };
 	static constexpr core::u32 invalid_id{ 0 };
 
+	static ref make(const core::u32 id = invalid_id, deleter &&deleter = default_deleter);
+
 	object() = default;
-	explicit object(const core::u32 id) noexcept;
+	explicit object(const core::u32 id, deleter &&deleter = default_deleter) noexcept;
 	~object();
 
 	void set_deleter(deleter &&deleter) noexcept;
@@ -45,7 +48,7 @@ public:
 
 private:
 	core::u32 mId{ invalid_id };
-	deleter mDeleter{ [](object &) {} };
+	deleter mDeleter{ default_deleter };
 	core::umap<std::string, std::any> mProperties;
 };
 
