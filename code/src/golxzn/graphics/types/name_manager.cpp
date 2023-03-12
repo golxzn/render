@@ -39,7 +39,7 @@ void name_manager::free_name(const std::string &name) noexcept {
 		return;
 	}
 
-	if (const auto found{ mGivenNames.find(name) }; found == std::end(mGivenNames)) {
+	if (const auto found{ mGivenNames.find(name) }; found != std::end(mGivenNames)) {
 		auto &ids{ found->second };
 		ids.erase(id.value());
 		if (ids.empty()) {
@@ -115,13 +115,23 @@ named::~named() {
 	name_manager::free_name(mName);
 }
 
-named::named(named &&other) noexcept : mName{ std::move(other.mName) } {}
+named::named(const named &other)
+	: mName{ name_manager::create_name(other.name()) } {}
 
-named &named::operator=(named &&other) noexcept {
-	if (this != &other) {
-		mName = std::move(other.mName);
+named &named::operator=(const named &other) {
+	if (this == &other) {
+		return *this;
 	}
+
+	copy_from(other);
 	return *this;
+}
+
+void named::copy_from(const named &other) noexcept {
+	rename(other.name());
+}
+void named::move_from(named &&other) noexcept {
+	mName = std::move(other.mName);
 }
 
 void named::rename(const std::string &name) noexcept {

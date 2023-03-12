@@ -38,6 +38,9 @@ public:
 	named &operator=(const named &other);
 	named &operator=(named &&other) noexcept = default;
 
+	void copy_from(const named &other) noexcept;
+	void move_from(named &&other) noexcept;
+
 	void rename(const std::string &name) noexcept;
 	const std::string &full_name() const noexcept;
 	std::string name() const noexcept;
