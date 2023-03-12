@@ -1,6 +1,6 @@
 #pragma once
 
-#include "golxzn/graphics/controller/object.hpp"
+#include "golxzn/graphics/types/object.hpp"
 
 namespace golxzn::graphics::types {
 
@@ -52,7 +52,7 @@ public:
 	type get_type() const noexcept;
 	status get_status() const noexcept;
 	const std::string &get_code() const noexcept;
-	ctrl::object::ref to_object() const noexcept;
+	types::object::ref to_object() const noexcept;
 
 	status set_code(std::string &&code);
 	status set_code(std::string &&code, const type shader_type);
@@ -67,7 +67,7 @@ private:
 	type mType{ type::invalid };
 	status mStatus{ status::invalid };
 	std::string mCode;
-	ctrl::object::ref mObject;
+	types::object::ref mObject;
 };
 
 } // namespace golxzn::graphics::types

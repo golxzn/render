@@ -4,7 +4,7 @@ set(root ${CMAKE_CURRENT_SOURCE_DIR})
 include(${root}/cmake/prelude.cmake)
 
 project(golxzn_render
-	VERSION 0.3.1
+	VERSION 0.3.2
 	DESCRIPTION "Render provider"
 	HOMEPAGE_URL https://github.com/golxzn/render
 	LANGUAGES C CXX
@@ -49,7 +49,7 @@ target_include_directories(${target} SYSTEM
 		"$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/export>"
 )
 
-include(${GOLXZNR_DEPENDENCIED_DIR}/import.cmake)
+include(${GOLXZNR_DEPENDENCIES_DIR}/import.cmake)
 target_link_libraries(${target} PUBLIC ${dependencies})
 target_include_directories(${target} PUBLIC ${include_directories})
 

@@ -1,6 +1,6 @@
-#include "golxzn/graphics/controller/object.hpp"
+#include "golxzn/graphics/types/object.hpp"
 
-namespace golxzn::graphics::ctrl {
+namespace golxzn::graphics::types {
 
 object::ref object::make(const core::u32 id, deleter &&deleter) {
 	return std::make_shared<object>(id, std::move(deleter));
@@ -20,4 +20,4 @@ void object::set_deleter(deleter &&deleter) noexcept {
 core::u32 object::id() const noexcept { return mId; }
 bool object::valid() const noexcept { return mId != invalid_id; }
 
-} // namespace golxzn::graphics::ctrl
+} // namespace golxzn::graphics::types

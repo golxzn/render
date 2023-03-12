@@ -89,7 +89,7 @@ core::u32 shader::id() const noexcept {
 	if (valid()) {
 		return mObject->id();
 	}
-	return ctrl::object::invalid_id;
+	return types::object::invalid_id;
 }
 shader::type shader::get_type() const noexcept {
 	return mType;
@@ -100,7 +100,7 @@ shader::status shader::get_status() const noexcept {
 const std::string &shader::get_code() const noexcept {
 	return mCode;
 }
-ctrl::object::ref shader::to_object() const noexcept {
+types::object::ref shader::to_object() const noexcept {
 	return mObject;
 }
 

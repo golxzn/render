@@ -17,14 +17,14 @@ public:
 		virtual bool initialize() = 0;
 		virtual void destroy() = 0;
 
-		virtual ctrl::object::ref make_shader(const types::shader::type type, const std::string_view code) = 0;
-		virtual ctrl::object::ref make_program() = 0;
-		virtual ctrl::object::ref make_texture(const std::string &path) = 0;
+		virtual types::object::ref make_shader(const types::shader::type type, const std::string_view code) = 0;
+		virtual types::object::ref make_program() = 0;
+		virtual types::object::ref make_texture(const std::string &path) = 0;
 
-		virtual bool attach_shader(const ctrl::object::ref &program, const ctrl::object::ref &shader) = 0;
-		virtual bool detach_shader(const ctrl::object::ref &program, const ctrl::object::ref &shader) = 0;
-		virtual bool link_program(const ctrl::object::ref &program) = 0;
-		virtual void use_program(const ctrl::object::ref &program) = 0;
+		virtual bool attach_shader(const types::object::ref &program, const types::object::ref &shader) = 0;
+		virtual bool detach_shader(const types::object::ref &program, const types::object::ref &shader) = 0;
+		virtual bool link_program(const types::object::ref &program) = 0;
+		virtual void use_program(const types::object::ref &program) = 0;
 
 		virtual void viewport(const core::u32 x, const core::u32 y,
 			const core::u32 width, const core::u32 height) noexcept = 0;

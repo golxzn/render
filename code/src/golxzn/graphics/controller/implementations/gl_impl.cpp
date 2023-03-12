@@ -36,7 +36,7 @@ void gl_impl::destroy() {
 	glfwTerminate();
 }
 
-ctrl::object::ref gl_impl::make_shader(const types::shader::type type, const std::string_view code) {
+types::object::ref gl_impl::make_shader(const types::shader::type type, const std::string_view code) {
 	using namespace types;
 
 	if (const bool invalid_type{ type == shader::type::invalid }; invalid_type || code.empty()) {
@@ -55,10 +55,10 @@ ctrl::object::ref gl_impl::make_shader(const types::shader::type type, const std
 	};
 
 	if (const auto found{ type_map.find(type) }; found != std::end(type_map)) {
-		auto obj{ std::make_shared<ctrl::object>(
+		auto obj{ std::make_shared<types::object>(
 			static_cast<core::u32>(glCreateShader(found->second))) };
 
-		obj->set_deleter([](ctrl::object &obj) {
+		obj->set_deleter([](types::object &obj) {
 			glDeleteShader(obj.id()); // could cause a crash. :thonk: about it.
 		});
 		obj->set_property<types::shader::type>("type", type);
@@ -84,30 +84,30 @@ ctrl::object::ref gl_impl::make_shader(const types::shader::type type, const std
 	spdlog::error("[{}]: Shader type is invalid", class_name);
 	return nullptr;
 }
-ctrl::object::ref gl_impl::make_program() {
-	return ctrl::object::make(glCreateProgram(), [](ctrl::object &obj) {
+types::object::ref gl_impl::make_program() {
+	return types::object::make(glCreateProgram(), [](types::object &obj) {
 		glDeleteProgram(obj.id());
 	});
 }
-ctrl::object::ref gl_impl::make_texture(const std::string &path) {
+types::object::ref gl_impl::make_texture(const std::string &path) {
 	return nullptr;
 }
 
-bool gl_impl::attach_shader(const ctrl::object::ref &program, const ctrl::object::ref &shader) {
+bool gl_impl::attach_shader(const types::object::ref &program, const types::object::ref &shader) {
 	if (!check_program_and_shader(program, shader)) {
 		return false;
 	}
 	glAttachShader(program->id(), shader->id());
 	return true;
 }
-bool gl_impl::detach_shader(const ctrl::object::ref &program, const ctrl::object::ref &shader) {
+bool gl_impl::detach_shader(const types::object::ref &program, const types::object::ref &shader) {
 	if (!check_program_and_shader(program, shader)) {
 		return false;
 	}
 	glDetachShader(program->id(), shader->id());
 	return true;
 }
-bool gl_impl::link_program(const ctrl::object::ref &program) {
+bool gl_impl::link_program(const types::object::ref &program) {
 	if (program == nullptr) {
 		spdlog::error("[{}]: Program is null", class_name);
 		return false;
@@ -131,15 +131,15 @@ bool gl_impl::link_program(const ctrl::object::ref &program) {
 
 	return true;
 }
-void gl_impl::use_program(const ctrl::object::ref &program) {
-	glUseProgram(program != nullptr ? program->id() : ctrl::object::invalid_id);
+void gl_impl::use_program(const types::object::ref &program) {
+	glUseProgram(program != nullptr ? program->id() : types::object::invalid_id);
 }
 
 void gl_impl::viewport(const core::u32 x, const core::u32 y, const core::u32 width, const core::u32 height) noexcept {
 	glViewport(x, y, width, height);
 }
 
-bool gl_impl::check_program_and_shader(const ctrl::object::ref &program, const ctrl::object::ref &shader) const {
+bool gl_impl::check_program_and_shader(const types::object::ref &program, const types::object::ref &shader) const {
 	if (program == nullptr || shader == nullptr) {
 		if (program == nullptr && shader == nullptr) {
 			spdlog::error("[{}]: Program and shader are null", class_name);

@@ -13,21 +13,21 @@ public:
 	bool initialize() override;
 	void destroy() override;
 
-	ctrl::object::ref make_shader(const types::shader::type type, const std::string_view code) override;
-	ctrl::object::ref make_program() override;
-	ctrl::object::ref make_texture(const std::string &path) override;
+	types::object::ref make_shader(const types::shader::type type, const std::string_view code) override;
+	types::object::ref make_program() override;
+	types::object::ref make_texture(const std::string &path) override;
 
-	bool attach_shader(const ctrl::object::ref &program, const ctrl::object::ref &shader) override;
-	bool detach_shader(const ctrl::object::ref &program, const ctrl::object::ref &shader) override;
-	bool link_program(const ctrl::object::ref &program) override;
-	void use_program(const ctrl::object::ref &program) override;
+	bool attach_shader(const types::object::ref &program, const types::object::ref &shader) override;
+	bool detach_shader(const types::object::ref &program, const types::object::ref &shader) override;
+	bool link_program(const types::object::ref &program) override;
+	void use_program(const types::object::ref &program) override;
 
 	void viewport(const core::u32 x, const core::u32 y,
 		const core::u32 width, const core::u32 height) noexcept override;
 
 private:
 
-	bool check_program_and_shader(const ctrl::object::ref &program, const ctrl::object::ref &shader) const;
+	bool check_program_and_shader(const types::object::ref &program, const types::object::ref &shader) const;
 };
 
 } // namespace golxzn::graphics

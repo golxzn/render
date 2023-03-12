@@ -4,7 +4,7 @@
 #include <optional>
 #include <golxzn/core/types.hpp>
 
-namespace golxzn::graphics::ctrl {
+namespace golxzn::graphics::types {
 
 class object {
 public:
@@ -48,8 +48,9 @@ public:
 
 private:
 	core::u32 mId{ invalid_id };
+	std::string mName;
 	deleter mDeleter{ default_deleter };
 	core::umap<std::string, std::any> mProperties;
 };
 
-} // namespace golxzn::graphics::ctrl
+} // namespace golxzn::graphics::types
