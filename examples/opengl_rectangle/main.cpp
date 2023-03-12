@@ -15,14 +15,15 @@ void processInput(GLFWwindow *window);
 
 
 int main() {
-	golxzn::core::res_man::initialize("opengl_triangle");
-	golxzn::graphics::controller::initialize(golxzn::graphics::controller::api_type::opengl);
+	using namespace types_literals;
+	core::res_man::initialize("opengl_triangle");
+	graphics::controller::initialize(graphics::controller::api_type::opengl);
 
-	auto vertex_shader{ golxzn::graphics::types::shader::make("res://shaders/default.vs.glsl") };
-	auto fragment_shader{ golxzn::graphics::types::shader::make("res://shaders/default.fs.glsl") };
+	auto vertex_shader{ graphics::types::shader::make("res://shaders/default.vs.glsl") };
+	auto fragment_shader{ graphics::types::shader::make("res://shaders/default.fs.glsl") };
 
-	auto program{ golxzn::graphics::types::shader_program::make({vertex_shader, fragment_shader}) };
-	if (program->get_status() == golxzn::graphics::program_status::need_to_link) {
+	auto program{ graphics::types::shader_program::make({vertex_shader, fragment_shader}) };
+	if (program->get_status() == graphics::program_status::need_to_link) {
 		program->link();
 	}
 
@@ -31,26 +32,28 @@ int main() {
 	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
 	VAO.bind();
 	graphics::gl::VBO VBO{ std::vector<core::f16>{
-		 0.5f,  0.5f, 0.0f,  // top right
-		 0.5f, -0.5f, 0.0f,  // bottom right
-		-0.5f, -0.5f, 0.0f,  // bottom left
-		-0.5f,  0.5f, 0.0f   // top left
+		// X     Y     Z      R     G     B
+		 0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 1.0f,   // top right
+		 0.5f, -0.5f, 0.0f,  0.9f, 0.0f, 0.0f,   // bottom right
+		-0.5f, -0.5f, 0.0f,  1.0f, 0.5f, 0.2f,   // bottom left
+		-0.5f,  0.5f, 0.0f,  0.0f, 0.0f, 0.9f,   // top left
 	} };
 	graphics::gl::EBO EBO{ std::vector<core::u32> {  // note that we start from 0!
 		0, 1, 3,  // first Triangle
 		1, 2, 3   // second Triangle
 	} };
 
-	VAO.link_attribute(VBO, 0, 3, GL_FLOAT, 3 * sizeof(core::f16), (void*)0);
+	VAO.link_attribute(VBO, 0, 3, GL_FLOAT, 6 * sizeof(core::f16), (void*)0);
+	VAO.link_attribute(VBO, 1, 3, GL_FLOAT, 6 * sizeof(core::f16), (void*)(3 * sizeof(core::f16)));
 
 	VBO.unbind();
 	VAO.unbind();
 
 
 	// uncomment this call to draw in wireframe polygons.
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	auto window{ golxzn::graphics::window::api() };
+	auto window{ graphics::window::api() };
 	if (window == nullptr) {
 		spdlog::critical("No window API");
 		return -1;
