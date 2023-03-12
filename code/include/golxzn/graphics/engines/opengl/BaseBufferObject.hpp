@@ -17,6 +17,9 @@ public:
 	static constexpr core::u32 invalid_id{ 0 };
 
 	BaseBufferObject() = default;
+	explicit BaseBufferObject(std::initializer_list<T> &&data, const core::u32 target, const core::u32 usage) noexcept {
+		assign(std::move(data), target, usage);
+	}
 	explicit BaseBufferObject(const std::vector<T> &data, const core::u32 target, const core::u32 usage) noexcept {
 		assign(data, target, usage);
 	}
@@ -46,6 +49,15 @@ public:
 	}
 
 protected:
+	void assign(std::initializer_list<T> &&data, const core::u32 target, const core::u32 usage) noexcept {
+		if (valid()) {
+			clean();
+		}
+		mId = generate_buffer();
+		bind(target);
+		assign_buffer(mId, target, data.size() * sizeof(T), data.data(), usage);
+		unbind(target);
+	}
 	void assign(const std::vector<T> &data, const core::u32 target, const core::u32 usage) noexcept {
 		if (valid()) {
 			clean();

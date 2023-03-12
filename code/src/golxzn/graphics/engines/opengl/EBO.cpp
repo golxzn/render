@@ -7,11 +7,20 @@ namespace ebo_local {
 static constexpr core::u32 target{ GL_ELEMENT_ARRAY_BUFFER };
 } // namespace ebo_local
 
+
+EBO::EBO(std::initializer_list<core::u32> &&data) noexcept
+	: base_type{ std::move(data), ebo_local::target, GL_STATIC_DRAW } {
+	bind();
+}
 EBO::EBO(const std::vector<core::u32> &data) noexcept
 	: base_type{ data, ebo_local::target, GL_STATIC_DRAW } {
 	bind();
 }
 
+void EBO::assign(std::initializer_list<core::u32> &&data) noexcept {
+	base_type::assign(std::move(data), ebo_local::target, GL_STATIC_DRAW);
+	bind();
+}
 void EBO::assign(const std::vector<core::u32> &data) noexcept {
 	base_type::assign(data, ebo_local::target, GL_STATIC_DRAW);
 	bind();

@@ -1,10 +1,11 @@
 #pragma once
 
 #include "golxzn/graphics/types/object.hpp"
+#include "golxzn/graphics/types/name_manager.hpp"
 
 namespace golxzn::graphics::types {
 
-class shader {
+class shader : public named {
 	static constexpr std::string_view class_name{ "graphics::types::shader" };
 public:
 	using ref = core::sptr<shader>;
@@ -32,14 +33,14 @@ public:
 	};
 
 	static ref make(const std::string_view path);
-	static ref make(std::string &&code, const type shader_type);
+	static ref make(const std::string &name, std::string &&code, const type shader_type);
 
 	shader() = default;
 	shader(const shader &other);
 	shader(shader &&other) noexcept;
 
 	explicit shader(const std::string_view path);
-	shader(std::string &&code, const type shader_type);
+	shader(const std::string &name, std::string &&code, const type shader_type);
 	~shader();
 
 	shader &operator=(const shader &other);
@@ -66,6 +67,7 @@ public:
 private:
 	type mType{ type::invalid };
 	status mStatus{ status::invalid };
+	std::string mPath;
 	std::string mCode;
 	types::object::ref mObject;
 };

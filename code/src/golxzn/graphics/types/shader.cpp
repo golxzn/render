@@ -11,16 +11,21 @@ namespace golxzn::graphics::types {
 shader::ref shader::make(const std::string_view path) {
 	return std::make_shared<shader>(path);
 }
-shader::ref shader::make(std::string &&code, const type shader_type) {
-	return std::make_shared<shader>(std::move(code), shader_type);
+shader::ref shader::make(const std::string &name, std::string &&code, const type shader_type) {
+	return std::make_shared<shader>(name, std::move(code), shader_type);
 }
 
 shader::shader(const shader &other)
-	: mType{ other.mType }, mStatus{ other.mStatus }, mCode{ other.mCode }, mObject{ other.mObject } {
+	: named{ other }
+	, mType{ other.mType }
+	, mStatus{ other.mStatus }
+	, mCode{ other.mCode }
+	, mObject{ other.mObject } {
 }
 
 shader::shader(shader &&other) noexcept
-	: mType{ other.mType }
+	: named{ std::move(other) }
+	, mType{ other.mType }
 	, mStatus{ other.mStatus }
 	, mCode{ std::move(other.mCode) }
 	, mObject{ std::move(other.mObject) } {
@@ -28,11 +33,13 @@ shader::shader(shader &&other) noexcept
 }
 
 shader::shader(const std::string_view path)
-	: shader{ core::res_man::load_string(path), get_type_by_extension(path) } {
+	: shader{ core::fs::path{ path }.stem().string(), core::res_man::load_string(path), get_type_by_extension(path) } {
+	mPath = path;
 }
 
-shader::shader(std::string &&code, const type shader_type)
-	: mType{ shader_type }
+shader::shader(const std::string &name, std::string &&code, const type shader_type)
+	: named{ name }
+	, mType{ shader_type }
 	, mCode{ std::move(code) } {
 	compile();
 }
@@ -46,6 +53,7 @@ shader &shader::operator=(const shader &other) {
 		return *this;
 	}
 	clear();
+	copy_from(other);
 	mType = other.mType;
 	mStatus = other.mStatus;
 	mCode = other.mCode;
@@ -62,6 +70,7 @@ shader &shader::operator=(shader &&other) noexcept {
 	mStatus = other.mStatus;
 	mCode = std::move(other.mCode);
 	mObject = std::move(other.mObject);
+	move_from(std::move(other));
 	other.clear();
 	return *this;
 }
@@ -73,7 +82,7 @@ shader::status shader::compile() {
 		return mStatus;
 	}
 
-	spdlog::critical("[{}] controller::api is nullptr", class_name);
+	spdlog::critical("[{}] [{}] controller::api is nullptr", class_name, full_name());
 	mStatus = status::invalid;
 	return mStatus;
 }
@@ -106,7 +115,7 @@ types::object::ref shader::to_object() const noexcept {
 
 shader::status shader::set_code(std::string &&code) {
 	if (code.empty()) {
-		spdlog::warn("[{}] set_code: Shader code is empty", class_name);
+		spdlog::warn("[{}] [{}] set_code: Shader code is empty", class_name, full_name());
 		clear();
 		return mStatus;
 	}
@@ -119,7 +128,7 @@ shader::status shader::set_code(std::string &&code, const type shader_type) {
 	mType = shader_type;
 	if (core::traits::any_from(mType, type::count, type::invalid)) {
 		// maybe it's a new shader
-		spdlog::warn("[{}] set_code: {}", class_name,
+		spdlog::warn("[{}] [{}] set_code: {}", class_name, full_name(),
 			mType == type::count ? "AW DO NOT USE type::count AS A TYPE!" : "Invalid type");
 		clear();
 		return mStatus;

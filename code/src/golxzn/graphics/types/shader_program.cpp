@@ -5,29 +5,36 @@
 
 namespace golxzn::graphics::types {
 
-shader_program::ref shader_program::make() {
-	return std::make_shared<shader_program>();
+shader_program::ref shader_program::make(const std::string &name) {
+	return std::make_shared<shader_program>(name);
 }
-shader_program::ref shader_program::make(std::initializer_list<shader> &&shaders) {
-	return std::make_shared<shader_program>(std::move(shaders));
+shader_program::ref shader_program::make(const std::string &name,
+	std::initializer_list<shader> &&shaders) {
+	return std::make_shared<shader_program>(name, std::move(shaders));
 }
-shader_program::ref shader_program::make(std::initializer_list<shader::ref> &&shaders) {
-	return std::make_shared<shader_program>(std::move(shaders));
+shader_program::ref shader_program::make(const std::string &name,
+	std::initializer_list<shader::ref> &&shaders) {
+	return std::make_shared<shader_program>(name, std::move(shaders));
+}
+shader_program::ref shader_program::make(const std::string &name,
+	std::initializer_list<std::string> &&shaders) {
+	return std::make_shared<shader_program>(name, std::move(shaders));
 }
 
 
-shader_program::shader_program() {
+shader_program::shader_program(const std::string &name) : named{ name } {
 	if (auto api{ controller::api() }; api) {
 		mObject = api->make_program();
 		mStatus = valid() ? status::need_to_link : status::invalid;
 		return;
 	}
 
-	spdlog::critical("[{}] controller::api is nullptr", class_name);
+	spdlog::critical("[{}] [{}] controller::api is nullptr", class_name, full_name());
 	mStatus = status::invalid;
 }
 
-shader_program::shader_program(std::initializer_list<shader> &&shaders) : shader_program{} {
+shader_program::shader_program(const std::string &name, std::initializer_list<shader> &&shaders)
+	: shader_program{ name } {
 	if (!valid()) {
 		return;
 	}
@@ -40,7 +47,8 @@ shader_program::shader_program(std::initializer_list<shader> &&shaders) : shader
 	}
 }
 
-shader_program::shader_program(std::initializer_list<shader::ref> &&shaders) : shader_program{} {
+shader_program::shader_program(const std::string &name, std::initializer_list<shader::ref> &&shaders)
+	: shader_program{ name } {
 	if (!valid()) {
 		return;
 	}
@@ -48,6 +56,20 @@ shader_program::shader_program(std::initializer_list<shader::ref> &&shaders) : s
 	mAttachedShaders.reserve(shaders.size());
 	for (auto &&shader : shaders) {
 		if (const auto status{ attach(std::move(shader)) }; status != status::attach_success) {
+			return;
+		}
+	}
+}
+
+shader_program::shader_program(const std::string &name, std::initializer_list<std::string> &&shaders)
+	: shader_program{ name } {
+	if (!valid()) {
+		return;
+	}
+
+	mAttachedShaders.reserve(shaders.size());
+	for (auto &&shader : shaders) {
+		if (const auto status{ attach(shader::make(std::move(shader))) }; status != status::attach_success) {
 			return;
 		}
 	}
@@ -81,17 +103,19 @@ shader_program::status shader_program::attach(const shader &shader_obj) noexcept
 
 shader_program::status shader_program::attach(shader::ref shader_ref) noexcept {
 	if (!valid()) {
-		spdlog::warn("[{}] shader program is not valid", class_name);
+		spdlog::warn("[{}] [{}] shader program is not valid", class_name, full_name());
 		mStatus = status::invalid;
 		return mStatus;
 	}
 	if (shader_ref != nullptr && !shader_ref->valid()) {
-		spdlog::warn("[{}] Cannot attach invalid shader", class_name);
+		spdlog::warn("[{}] [{}] Cannot attach invalid shader '{}'",
+			class_name, full_name(), shader_ref->full_name());
 		return shader_program::status::attach_failure;
 	}
 
 	if (is_attached(shader_ref)) {
-		spdlog::warn("[{}] shader is already attached to the shader program", class_name);
+		spdlog::warn("[{}] [{}] the shader '{}' is already attached to the shader program",
+			class_name, full_name(), shader_ref->full_name());
 		return shader_program::status::attach_already;
 	}
 
@@ -109,7 +133,7 @@ shader_program::status shader_program::attach(shader::ref shader_ref) noexcept {
 
 shader_program::status shader_program::detach(const shader &shader_obj) noexcept {
 	if (!valid()) {
-		spdlog::warn("[{}] shader program is not valid", class_name);
+		spdlog::warn("[{}] [{}] shader program is not valid", class_name, full_name());
 		mStatus = status::invalid;
 		return mStatus;
 	}
@@ -133,7 +157,7 @@ shader_program::status shader_program::detach(const shader &shader_obj) noexcept
 
 shader_program::status shader_program::detach(shader::ref shader_ref) noexcept {
 	if (shader_ref == nullptr) {
-		spdlog::warn("[{}] shader_ref is nullptr", class_name);
+		spdlog::warn("[{}] [{}] shader_ref is nullptr", class_name, full_name());
 		return status::detach_failure;
 	}
 	return detach(*shader_ref);
@@ -141,13 +165,14 @@ shader_program::status shader_program::detach(shader::ref shader_ref) noexcept {
 
 shader_program::status shader_program::link() noexcept {
 	if (!valid()) {
-		spdlog::warn("[{}] shader program is not valid", class_name);
+		spdlog::warn("[{}] [{}] the shader program is not valid", class_name, full_name());
 		mStatus = status::invalid;
 		return mStatus;
 	}
 
 	if (mAttachedShaders.empty()) {
-		spdlog::warn("[{}] shader program does not have attached shader", class_name);
+		spdlog::warn("[{}] [{}] the shader program does not have attached shaders",
+			class_name, full_name());
 		mStatus = status::link_failure;
 		return mStatus;
 	}
@@ -192,7 +217,7 @@ types::object::ref shader_program::to_object() const noexcept {
 
 bool shader_program::erase_shader(const types::object::ref &shader_obj) noexcept {
 	if (shader_obj == nullptr) {
-		spdlog::warn("[{}] shader_obj is nullptr", class_name);
+		spdlog::warn("[{}] [{}] shader_obj is nullptr", class_name, full_name());
 		return false;
 	}
 
@@ -201,7 +226,8 @@ bool shader_program::erase_shader(const types::object::ref &shader_obj) noexcept
 	auto found{ std::remove_if(std::begin(mAttachedShaders), end,
 		[shader_id](auto reference) { return reference->id() == shader_id; }) };
 	if (found == end) {
-		spdlog::warn("[{}] shader is not attached to the shader program", class_name);
+		spdlog::warn("[{}] [{}] the shader '{}' is not attached to the shader program",
+			class_name, full_name(), shader_obj->id());
 		return false;
 	}
 

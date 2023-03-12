@@ -4,7 +4,7 @@
 
 namespace golxzn::graphics::types {
 
-class shader_program {
+class shader_program : named {
 	static constexpr const std::string_view class_name{ "graphics::types::shader_program" };
 public:
 	using ref = std::shared_ptr<shader_program>;
@@ -25,13 +25,15 @@ public:
 		detach_failure,
 	};
 
-	static ref make();
-	static ref make(std::initializer_list<shader> &&shaders);
-	static ref make(std::initializer_list<shader::ref> &&shaders);
+	static ref make(const std::string &name);
+	static ref make(const std::string &name, std::initializer_list<shader> &&shaders);
+	static ref make(const std::string &name, std::initializer_list<shader::ref> &&shaders);
+	static ref make(const std::string &name, std::initializer_list<std::string> &&shaders);
 
-	shader_program();
-	explicit shader_program(std::initializer_list<shader> &&shaders);
-	explicit shader_program(std::initializer_list<shader::ref> &&shaders);
+	shader_program(const std::string &name);
+	explicit shader_program(const std::string &name, std::initializer_list<shader> &&shaders);
+	explicit shader_program(const std::string &name, std::initializer_list<shader::ref> &&shaders);
+	explicit shader_program(const std::string &name, std::initializer_list<std::string> &&shaders);
 
 	void clear() noexcept;
 
