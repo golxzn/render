@@ -24,7 +24,6 @@
 			"cacheVariables": {
 				"GOLXZNR_DEVELOPER_MODE": true,
 				"GOLXZNR_BUILD_EXAMPLES": false,
-				"BUILD_TESTING": true,
 				"CMAKE_EXPORT_COMPILE_COMMANDS": true
 			}
 		},
@@ -34,7 +33,6 @@
 			"binaryDir": "${sourceDir}/build/${presetName}",
 			"cacheVariables": {
 				"GOLXZNR_DEVELOPER_MODE": false,
-				"BUILD_TESTING": false,
 				"GOLXZNR_BUILD_EXAMPLES": true,
 				"CMAKE_EXPORT_COMPILE_COMMANDS": true,
 				"CMAKE_SKIP_INSTALL_RULES": true

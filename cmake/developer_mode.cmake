@@ -6,10 +6,6 @@ endif()
 
 include(CTest)
 
-if(BUILD_TESTING)
-	add_subdirectory(${GOLXZNR_TESTS_DIR})
-endif()
-
 # set(autodir cmake/automatic)
 # if(BUILD_MCSS_DOCS)
 # 	include(${autodir}/docs.cmake)
