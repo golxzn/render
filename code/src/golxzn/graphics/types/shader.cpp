@@ -78,6 +78,7 @@ shader &shader::operator=(shader &&other) noexcept {
 shader::status shader::compile() {
 	if (auto api{ controller::api() }; api) {
 		mObject = api->make_shader(mType, mCode);
+		mObject->set_property("name", full_name());
 		mStatus = valid() ? status::compile_success : status::compile_failure;
 		return mStatus;
 	}
@@ -94,7 +95,7 @@ void shader::clear() noexcept {
 	mObject.reset();
 }
 
-core::u32 shader::id() const noexcept {
+object::id_t shader::id() const noexcept {
 	if (valid()) {
 		return mObject->id();
 	}

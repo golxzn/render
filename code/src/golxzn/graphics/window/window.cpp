@@ -34,7 +34,7 @@ void window::implementation::set_title(const std::string_view title) noexcept {
 
 bool window::initialize(const core::u32 width, const core::u32 height, const std::string_view title) noexcept {
 	if (active()) {
-		spdlog::warn("[{}]: Window already active", class_name);
+		spdlog::warn("[{}] Window already active", class_name);
 		impl->resize(width, height);
 		impl->set_title(title);
 		return false;

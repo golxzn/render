@@ -1,7 +1,6 @@
 #include <spdlog/spdlog.h>
 
 #include "golxzn/graphics/types/shader_program.hpp"
-#include "golxzn/graphics/controller/controller.hpp"
 
 namespace golxzn::graphics::types {
 
@@ -199,7 +198,9 @@ void shader_program::unuse() const {
 	}
 }
 
-core::u32 shader_program::id() const noexcept {
+
+
+object::id_t shader_program::id() const noexcept {
 	if (mObject) {
 		return mObject->id();
 	}

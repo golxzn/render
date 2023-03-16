@@ -9,12 +9,12 @@ bool glfw_impl::initialize(const core::u32 width, const core::u32 height, const 
 		return false;
 	}
 
-	spdlog::info("[{}]: Creating window", class_name);
+	spdlog::info("[{}] Creating window", class_name);
 	mWindow = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
 	if (mWindow == nullptr) {
 		const char *error{ nullptr };
 		const auto error_id{ glfwGetError(&error) };
-		spdlog::critical("[{}]: Failed to create GLFW window ({}): {}", class_name, error_id, error);
+		spdlog::critical("[{}] Failed to create GLFW window ({}): {}", class_name, error_id, error);
 		destroy();
 		return false;
 	}

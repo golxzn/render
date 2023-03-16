@@ -1,6 +1,7 @@
 #pragma once
 
 #include "golxzn/graphics/types/shader.hpp"
+#include "golxzn/graphics/controller/controller.hpp"
 
 namespace golxzn::graphics::types {
 
@@ -52,7 +53,10 @@ public:
 	void use() const;
 	void unuse() const;
 
-	core::u32 id() const noexcept;
+	template<class T>
+	void set_uniform(const std::string_view name, const T &value) const;
+
+	object::id_t id() const noexcept;
 	status get_status() const noexcept;
 	bool valid() const noexcept;
 	object::ref to_object() const noexcept;
@@ -64,6 +68,13 @@ private:
 
 	bool erase_shader(const object::ref &shader_obj) noexcept;
 };
+
+template<class T>
+void shader_program::set_uniform(const std::string_view name, const T &value) const {
+	if (auto api{ controller::api() }; api) {
+		api->set_uniform(mObject, name, value, typeid(T));
+	}
+}
 
 } // namespace golxzn::graphics::types
 

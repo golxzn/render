@@ -15,19 +15,47 @@ public:
 
 	types::object::ref make_shader(const types::shader::type type, const std::string_view code) override;
 	types::object::ref make_program() override;
-	types::object::ref make_texture(const std::string &path) override;
+	types::object::ref make_texture() override;
 
 	bool attach_shader(const types::object::ref &program, const types::object::ref &shader) override;
 	bool detach_shader(const types::object::ref &program, const types::object::ref &shader) override;
 	bool link_program(const types::object::ref &program) override;
 	void use_program(const types::object::ref &program) override;
 
+	void set_uniform(const types::object::ref &program, const std::string_view name,
+		const std::any value, const std::type_info &info) override;
+
+	bool make_texture_image_2d(types::object::ref texture, const types::texture::bytes &data) override;
+
+	bool make_texture_image_2d(types::object::ref texture,
+		const types::texture::cubemap_array<types::texture::bytes> &data) override;
+
+	void generate_mip_maps(const types::object::ref &texture) override;
+
+	bool bind_texture(const types::object::ref &texture, const core::u32 unit) override;
+	bool unbind_texture(const types::object::ref &texture) override;
+
+	void set_raw_texture_parameter(const types::object::ref &program,
+		const std::type_info &param_type, const std::any param_value) override;
+
 	void viewport(const core::u32 x, const core::u32 y,
 		const core::u32 width, const core::u32 height) noexcept override;
 
+
 private:
+	core::u32 max_texture_units{ 0 };
 
 	bool check_program_and_shader(const types::object::ref &program, const types::object::ref &shader) const;
+
+	void set_texture_depth_stencil_mode(const core::u32 target, const std::any mode) const;
+	void set_texture_base_level(const core::u32 target, const std::any level) const;
+	void set_texture_compare_function(const core::u32 target, const std::any function) const;
+	void set_texture_compare_mode(const core::u32 target, const std::any mode) const;
+	void set_texture_min_filter(const core::u32 target, const std::any filter) const;
+	void set_texture_mag_filter(const core::u32 target, const std::any filter) const;
+	void set_texture_lod(const core::u32 target, const types::texture::lod::level level, const std::any value) const;
+	void set_texture_swizzle(const core::u32 target, const types::texture::swizzle::type type, const std::any channel) const;
+	void set_texture_wrap(const core::u32 target, const types::texture::wrap::type type, const std::any wrap) const;
 };
 
 } // namespace golxzn::graphics

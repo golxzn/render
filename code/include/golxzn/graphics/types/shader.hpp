@@ -49,7 +49,7 @@ public:
 	status compile();
 	void clear() noexcept;
 
-	core::u32 id() const noexcept;
+	object::id_t id() const noexcept;
 	type get_type() const noexcept;
 	status get_status() const noexcept;
 	const std::string &get_code() const noexcept;
