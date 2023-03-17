@@ -10,10 +10,10 @@ namespace golxzn::graphics::types {
 texture::ref texture::make(const type tex_type, const std::string &path) {
 	return std::make_shared<texture>(tex_type, path);
 }
-texture::ref texture::make(const std::string &name, bytes &&data) {
+texture::ref texture::make(const std::string &name, core::bytes &&data) {
 	return std::make_shared<texture>(name, std::move(data));
 }
-texture::ref texture::make(const std::string &name, cubemap_array<bytes> &&data) {
+texture::ref texture::make(const std::string &name, cubemap_array<core::bytes> &&data) {
 	return std::make_shared<texture>(name, std::move(data));
 }
 
@@ -48,7 +48,7 @@ texture::texture(const type tex_type, const std::string &path)
 	generate();
 }
 
-texture::texture(const std::string &name, bytes &&data)
+texture::texture(const std::string &name, core::bytes &&data)
 	: named{ name } {
 
 	if (!make_texture(type::texture_2d)) return;
@@ -57,7 +57,7 @@ texture::texture(const std::string &name, bytes &&data)
 	generate();
 }
 
-texture::texture(const std::string &name, cubemap_array<bytes> &&data)
+texture::texture(const std::string &name, cubemap_array<core::bytes> &&data)
 	: named{ name } {
 
 	if (!make_texture(type::cube_map)) return;
@@ -104,28 +104,28 @@ core::u32 texture::height() const noexcept {
 	return mObject->get_property<core::u32>(param_height).value_or(0);
 }
 
-void texture::set_data(const bytes &data) {
+void texture::set_data(const core::bytes &data) {
 	if (!valid()) return;
 	if (get_type() != type::texture_2d) {
 		mObject->set_property(param_type, type::texture_2d);
 	}
 	mObject->set_property(param_data, data);
 }
-void texture::set_data(bytes &&data) {
+void texture::set_data(core::bytes &&data) {
 	if (!valid()) return;
 	if (get_type() != type::texture_2d) {
 		mObject->set_property(param_type, type::texture_2d);
 	}
 	mObject->set_property(param_data, std::move(data));
 }
-void texture::set_data(const cubemap_array<bytes> &data) {
+void texture::set_data(const cubemap_array<core::bytes> &data) {
 	if (!valid()) return;
 	if (get_type() != type::cube_map) {
 		mObject->set_property(param_type, type::cube_map);
 	}
 	mObject->set_property(param_data, data);
 }
-void texture::set_data(cubemap_array<bytes> &&data) {
+void texture::set_data(cubemap_array<core::bytes> &&data) {
 	if (!valid()) return;
 	if (get_type() != type::cube_map) {
 		mObject->set_property(param_type, type::cube_map);
@@ -162,7 +162,7 @@ bool texture::generate(const bool setup_default_params) {
 				spdlog::error("[{}] [{}] The texture has no path", class_name, full_name());
 				return false;
 			}
-			cubemap_array<bytes> data;
+			cubemap_array<core::bytes> data;
 			const auto paths{ optional_paths.value() };
 			std::transform(std::begin(paths), std::end(paths), std::begin(data), [this] (const auto &path) {
 				spdlog::debug("[{}] [{}] Loading cubemap face: {}", class_name, full_name(), path);

@@ -2,18 +2,15 @@
 #include "golxzn/common.hpp"
 
 #include "golxzn/graphics/controller/implementations/gl_impl.hpp"
-
-#include <golxzn/graphics/window/window.hpp>
+#include "golxzn/graphics/controller/opengl/VAO.hpp"
+#include "golxzn/graphics/controller/opengl/VBO.hpp"
+#include "golxzn/graphics/controller/opengl/EBO.hpp"
+#include "golxzn/graphics/window/window.hpp"
+#include "golxzn/graphics/types/shader_program.hpp"
 
 void GLAPIENTRY
-MessageCallback(
-	GLenum source,
-	GLenum type,
-	GLuint id,
-	GLenum severity,
-	GLsizei length,
-	const GLchar* message,
-	const void* userParam)
+MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+	const GLchar* message, const void* userParam)
 {
 	static const golxzn::core::umap<GLenum, std::string_view> sources{
 		{ GL_DEBUG_SOURCE_API, "API" },
@@ -145,6 +142,71 @@ types::object::ref gl_impl::make_texture() {
 	});
 }
 
+types::object::ref gl_impl::make_mesh(const std::vector<types::vertex> &vertices, const std::vector<core::u32> &indices) {
+	if (vertices.empty() || indices.empty()) {
+		spdlog::error("[{}] Mesh cannot be empty", class_name);
+		return nullptr;
+	}
+
+	core::u32 VAO;
+	core::u32 VBO;
+	core::u32 EBO;
+
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	if (!indices.empty()) {
+		glGenBuffers(1, &EBO);
+	}
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(types::vertex), vertices.data(), GL_STATIC_DRAW);
+
+	if (!indices.empty()) {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(core::u32), indices.data(), GL_STATIC_DRAW);
+	}
+
+	core::u32 attribute_pos{};
+	const auto make_attribute = [&attribute_pos](const GLint size, const GLuint offset, const GLenum type = GL_FLOAT, const GLboolean normalized = GL_FALSE) {
+		glVertexAttribPointer(attribute_pos, size, type, normalized, sizeof(types::vertex), reinterpret_cast<GLvoid *>(offset));
+		glEnableVertexAttribArray(attribute_pos);
+		++attribute_pos;
+	};
+
+	make_attribute(3, offsetof(types::vertex, position));
+	make_attribute(3, offsetof(types::vertex, normal));
+	make_attribute(2, offsetof(types::vertex, UV));
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	if (!indices.empty()) {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	}
+
+	auto obj{ types::object::make(VAO, [](types::object &obj) {
+		if (const auto VBO{ obj.get_property<core::u32>("VBO") }; VBO.has_value()) {
+			glDeleteBuffers(1, &VBO.value());
+		}
+		if (const auto EBO{ obj.get_property<core::u32>("EBO") }; EBO.has_value()) {
+			glDeleteBuffers(1, &EBO.value());
+		}
+
+		const auto VAO{ obj.id() };
+		glDeleteVertexArrays(1, &VAO);
+	}) };
+
+	obj->set_property<core::u32>("VAO", VAO);
+	obj->set_property<core::u32>("VBO", VBO);
+	obj->set_property<core::u32>("vertices_count", static_cast<core::u32>(vertices.size()));
+	if (!indices.empty()) {
+		obj->set_property<core::u32>("EBO", EBO);
+		obj->set_property<core::u32>("indices_count", static_cast<core::u32>(indices.size()));
+	}
+
+	return obj;
+}
+
 bool gl_impl::attach_shader(const types::object::ref &program, const types::object::ref &shader) {
 	if (!check_program_and_shader(program, shader)) {
 		return false;
@@ -201,6 +263,10 @@ void gl_impl::set_uniform(const types::object::ref &program, const std::string_v
 	}
 
 	const auto location{ glGetUniformLocation(id, name.data()) };
+	if (location == -1) {
+		spdlog::warn("[{}] Cannot find uniform '{}'", class_name, name);
+		return;
+	}
 	if (info == typeid(core::f16)) {
 		glUniform1f(location, std::any_cast<core::f16>(value));
 	} else if (info == typeid(core::f32)) {
@@ -220,7 +286,7 @@ void gl_impl::set_uniform(const types::object::ref &program, const std::string_v
 	}
 }
 
-bool gl_impl::make_texture_image_2d(types::object::ref texture, const types::texture::bytes &data) {
+bool gl_impl::make_texture_image_2d(types::object::ref texture, const core::bytes &data) {
 	if (texture == nullptr || !texture->valid()) {
 		spdlog::error("[{}] Texture is null or invalid", class_name);
 		return false;
@@ -276,7 +342,7 @@ bool gl_impl::make_texture_image_2d(types::object::ref texture, const types::tex
 }
 
 bool gl_impl::make_texture_image_2d(types::object::ref texture,
-	const types::texture::cubemap_array<types::texture::bytes> &data) {
+	const types::texture::cubemap_array<core::bytes> &data) {
 
 	if (texture == nullptr || !texture->valid()) {
 		spdlog::error("[{}] Texture is null or invalid", class_name);
@@ -451,6 +517,29 @@ void gl_impl::set_raw_texture_parameter(const types::object::ref &texture,
 }
 
 
+void gl_impl::draw_mesh(const types::object::ref &mesh) {
+	if (mesh == nullptr || !mesh->valid()) {
+		spdlog::warn("[{}] Failed to draw an invalid mesh", class_name);
+		return;
+	}
+
+	const auto VAO{ mesh->get_property<core::u32>("VAO") };
+	if (!VAO.has_value()) {
+		const auto name{ mesh->get_property<std::string>("name").value_or("unknown") };
+		spdlog::error("[{}] Failed to draw the '{}' mesh, the VAO is not set", name, class_name);
+	}
+
+	glBindVertexArray(VAO.value());
+
+	if (const auto indices_count{ mesh->get_property<core::u32>("indices_count") }; indices_count.has_value()) {
+		glDrawElements(GL_TRIANGLES, indices_count.value(), GL_UNSIGNED_INT, 0);
+	} else {
+		const auto vertices_count{ mesh->get_property<core::u32>("vertices_count") };
+		glDrawArrays(GL_TRIANGLES, 0, vertices_count.value());
+	}
+
+	glBindVertexArray(0);
+}
 
 void gl_impl::viewport(const core::u32 x, const core::u32 y, const core::u32 width, const core::u32 height) noexcept {
 	glViewport(x, y, width, height);

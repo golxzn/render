@@ -4,6 +4,7 @@
 
 #include <golxzn/graphics/types/shader.hpp>
 #include <golxzn/graphics/types/texture.hpp>
+#include <golxzn/graphics/types/mesh.hpp>
 
 namespace golxzn::graphics {
 
@@ -21,6 +22,8 @@ public:
 		virtual types::object::ref make_shader(const types::shader::type type, const std::string_view code) = 0;
 		virtual types::object::ref make_program() = 0;
 		virtual types::object::ref make_texture() = 0;
+		virtual types::object::ref make_mesh(const std::vector<types::vertex> &vertices,
+			const std::vector<core::u32> &indices) = 0;
 
 		// Shader stuff
 		virtual bool attach_shader(const types::object::ref &program, const types::object::ref &shader) = 0;
@@ -34,11 +37,10 @@ public:
 			const std::any value, const std::type_info &info) = 0;
 
 		// Texture stuff
-		virtual bool make_texture_image_2d(types::object::ref texture,
-			const types::texture::bytes &data) = 0;
+		virtual bool make_texture_image_2d(types::object::ref texture, const core::bytes &data) = 0;
 
 		virtual bool make_texture_image_2d(types::object::ref texture,
-			const types::texture::cubemap_array<types::texture::bytes> &data) = 0;
+			const types::texture::cubemap_array<core::bytes> &data) = 0;
 
 		virtual void generate_mip_maps(const types::object::ref &texture) = 0;
 
@@ -49,6 +51,9 @@ public:
 		void set_texture_parameter(const types::object::ref &texture, const V value) {
 			set_raw_texture_parameter(texture, typeid(T), value);
 		}
+
+		// Mesh stuff
+		virtual void draw_mesh(const types::object::ref &mesh) = 0;
 
 		virtual void viewport(const core::u32 x, const core::u32 y,
 			const core::u32 width, const core::u32 height) noexcept = 0;

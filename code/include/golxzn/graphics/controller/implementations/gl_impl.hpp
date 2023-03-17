@@ -16,6 +16,7 @@ public:
 	types::object::ref make_shader(const types::shader::type type, const std::string_view code) override;
 	types::object::ref make_program() override;
 	types::object::ref make_texture() override;
+	types::object::ref make_mesh(const std::vector<types::vertex> &vertices, const std::vector<core::u32> &indices) override;
 
 	bool attach_shader(const types::object::ref &program, const types::object::ref &shader) override;
 	bool detach_shader(const types::object::ref &program, const types::object::ref &shader) override;
@@ -25,10 +26,10 @@ public:
 	void set_uniform(const types::object::ref &program, const std::string_view name,
 		const std::any value, const std::type_info &info) override;
 
-	bool make_texture_image_2d(types::object::ref texture, const types::texture::bytes &data) override;
+	bool make_texture_image_2d(types::object::ref texture, const core::bytes &data) override;
 
 	bool make_texture_image_2d(types::object::ref texture,
-		const types::texture::cubemap_array<types::texture::bytes> &data) override;
+		const types::texture::cubemap_array<core::bytes> &data) override;
 
 	void generate_mip_maps(const types::object::ref &texture) override;
 
@@ -38,9 +39,10 @@ public:
 	void set_raw_texture_parameter(const types::object::ref &program,
 		const std::type_info &param_type, const std::any param_value) override;
 
+	void draw_mesh(const types::object::ref &mesh) override;
+
 	void viewport(const core::u32 x, const core::u32 y,
 		const core::u32 width, const core::u32 height) noexcept override;
-
 
 private:
 	core::u32 max_texture_units{ 0 };

@@ -1,5 +1,5 @@
 #include <glad/gl.h>
-#include "golxzn/graphics/engines/opengl/VAO.hpp"
+#include "golxzn/graphics/controller/opengl/VAO.hpp"
 
 namespace golxzn::graphics::gl {
 

@@ -7,7 +7,7 @@ set(GOLXZNR_PACKAGE_NAME GolxznRender)
 set(GOLXZNR_INCLUDE_DIR ${root}/code/include)
 set(GOLXZNR_SOURCES_DIR ${root}/code/src)
 set(GOLXZNR_EXAMPLES_DIR ${root}/examples)
-set(GOLXZNR_EXAMPLE_TARGET opengl/texture CACHE STRING "Example folder to build")
+set(GOLXZNR_EXAMPLE_TARGET opengl/mesh CACHE STRING "Example folder to build")
 set(GOLXZNR_DEPENDENCIES_DIR ${root}/dependencies)
 set(GOLXZNR_CXX_STANDARD 17)
 

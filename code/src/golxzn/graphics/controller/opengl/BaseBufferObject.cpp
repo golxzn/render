@@ -1,5 +1,5 @@
 #include <glad/gl.h>
-#include "golxzn/graphics/engines/opengl/BaseBufferObject.hpp"
+#include "golxzn/graphics/controller/opengl/BaseBufferObject.hpp"
 
 namespace golxzn::graphics::gl {
 

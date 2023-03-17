@@ -3,13 +3,10 @@
 #include <golxzn/core/resources/manager.hpp>
 #include <golxzn/render.hpp>
 #include <golxzn/graphics/window/window.hpp>
-#include <golxzn/graphics/engines/opengl/VAO.hpp>
-#include <golxzn/graphics/engines/opengl/EBO.hpp>
 #include <golxzn/graphics/types/shader_program.hpp>
 
-#include <iostream>
-
-void processInput(GLFWwindow *window);
+#include <golxzn/graphics/controller/opengl/VAO.hpp>
+#include <golxzn/graphics/controller/opengl/EBO.hpp>
 
 
 int main() {
@@ -89,11 +86,4 @@ int main() {
 	program->clear();
 
 	return 0;
-}
-
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window) {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
 }

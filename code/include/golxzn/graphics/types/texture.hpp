@@ -19,7 +19,6 @@ public:
 	static constexpr std::string_view param_height{ "height" };
 
 	using ref = std::shared_ptr<texture>;
-	using bytes = std::vector<core::u8>;
 	template<class T>
 	using cubemap_array = std::array<T, cube_map_faces>;
 
@@ -45,12 +44,12 @@ public:
 	};
 
 	static ref make(const type tex_type, const std::string &path);
-	static ref make(const std::string &name, bytes &&data);
-	static ref make(const std::string &name, cubemap_array<bytes> &&data);
+	static ref make(const std::string &name, core::bytes &&data);
+	static ref make(const std::string &name, cubemap_array<core::bytes> &&data);
 
 	explicit texture(const type tex_type, const std::string &path);
-	explicit texture(const std::string &name, bytes &&data);
-	explicit texture(const std::string &name, cubemap_array<bytes> &&data);
+	explicit texture(const std::string &name, core::bytes &&data);
+	explicit texture(const std::string &name, cubemap_array<core::bytes> &&data);
 
 	void bind(const core::u32 unit = 0) const noexcept;
 	void unbind() const noexcept;
@@ -61,10 +60,10 @@ public:
 	core::u32 width() const noexcept;
 	core::u32 height() const noexcept;
 
-	void set_data(const bytes &data);
-	void set_data(bytes &&data);
-	void set_data(const cubemap_array<bytes> &data);
-	void set_data(cubemap_array<bytes> &&data);
+	void set_data(const core::bytes &data);
+	void set_data(core::bytes &&data);
+	void set_data(const cubemap_array<core::bytes> &data);
+	void set_data(cubemap_array<core::bytes> &&data);
 
 	bool generate(const bool setup_default_params = true);
 	bool generate_mip_maps();

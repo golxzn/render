@@ -1,5 +1,5 @@
 #include <glad/gl.h>
-#include "golxzn/graphics/engines/opengl/EBO.hpp"
+#include "golxzn/graphics/controller/opengl/EBO.hpp"
 
 namespace golxzn::graphics::gl {
 

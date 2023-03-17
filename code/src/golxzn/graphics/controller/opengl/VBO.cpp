@@ -1,5 +1,5 @@
 #include <glad/gl.h>
-#include <golxzn/graphics/engines/opengl/VBO.hpp>
+#include <golxzn/graphics/controller/opengl/VBO.hpp>
 
 namespace golxzn::graphics::gl {
 

@@ -5,6 +5,7 @@
 #include <golxzn/graphics/window/window.hpp>
 #include <golxzn/graphics/types/shader_program.hpp>
 #include <golxzn/graphics/types/texture.hpp>
+#include <golxzn/graphics/types/mesh.hpp>
 
 #include <golxzn/graphics/controller/opengl/VAO.hpp>
 #include <golxzn/graphics/controller/opengl/EBO.hpp>
@@ -32,8 +33,8 @@ int main() {
 	spdlog::info("Max texture image units {}", max_texture_image_units);
 
 	auto program{ graphics::types::shader_program::make("default", {
-		"res://shaders/texture.vert",
-		"res://shaders/texture.frag",
+		"res://shaders/mesh.vert",
+		"res://shaders/mesh.frag",
 	}) };
 	if (program->get_status() == graphics::program_status::need_to_link) {
 		program->link();
@@ -133,29 +134,26 @@ int main() {
 	cube_map_vbo.unbind();
 	cube_map_vao.unbind();
 
-	graphics::gl::VAO VAO;
-
-	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-	VAO.bind();
-	graphics::gl::VBO VBO{
-		//  X         Y        Z         U         V
-		 0.5_f16,  0.5_f16, 0.0_f16,  2.0_f16,  1.5_f16,   // top right
-		 0.5_f16, -0.5_f16, 0.0_f16,  2.0_f16, -0.5_f16,   // bottom right
-		-0.5_f16, -0.5_f16, 0.0_f16,  0.0_f16, -0.5_f16,   // bottom left
-		-0.5_f16,  0.5_f16, 0.0_f16,  0.0_f16,  1.5_f16,   // top left
+	spdlog::info("Creating mesh plane");
+	using graphics::types::vertex;
+	graphics::types::mesh plane_mesh{ "plane",
+		std::vector<vertex>{ // Vertices
+			{ glm::vec3{  0.5_f16,  0.5_f16, 0.0_f16 }, glm::vec3{ 1.f, 1.f, 1.f }, glm::vec2{ 2.0_f16,  1.5_f16 } },   // top right
+			{ glm::vec3{  0.5_f16, -0.5_f16, 0.0_f16 }, glm::vec3{ 1.f, 1.f, 1.f }, glm::vec2{ 2.0_f16, -0.5_f16 } },   // bottom right
+			{ glm::vec3{ -0.5_f16, -0.5_f16, 0.0_f16 }, glm::vec3{ 1.f, 1.f, 1.f }, glm::vec2{ 0.0_f16, -0.5_f16 } },   // bottom left
+			{ glm::vec3{ -0.5_f16,  0.5_f16, 0.0_f16 }, glm::vec3{ 1.f, 1.f, 1.f }, glm::vec2{ 0.0_f16,  1.5_f16 } },   // top left
+		},
+		std::vector<core::u32>{ // Indices
+			0_u32, 1_u32, 3_u32,  // first triangle
+			1_u32, 2_u32, 3_u32   // second triangle
+		},
+		program,
+		nullptr, // Material
+		{ // Textures
+			std::make_pair("diffuse0", diffuse0),
+			std::make_pair("diffuse1", diffuse1),
+		}
 	};
-	graphics::gl::EBO EBO{  // note that we start from 0!
-		0_u32, 1_u32, 3_u32,  // first Triangle
-		1_u32, 2_u32, 3_u32   // second Triangle
-	};
-
-	static constexpr auto stride{ 5 * sizeof(core::f16) };
-
-	VAO.link_attribute(VBO, 0, 3, GL_FLOAT, stride, (void*)0);
-	VAO.link_attribute(VBO, 1, 2, GL_FLOAT, stride, (void*)(3 * sizeof(core::f16)));
-
-	VBO.unbind();
-	VAO.unbind();
 
 	static constexpr glm::vec3 up{ 0.0_f16, 1.0_f16, 0.0_f16 };
 
@@ -220,26 +218,18 @@ int main() {
 
 
 
-		diffuse0->bind(1);
-		diffuse1->bind(0);
-		program->use();
-
 		view = glm::lookAt(
 			camera_pos,
 			glm::vec3(0.0_f16, 0.0_f16, 0.0_f16),
 			glm::vec3(0.0_f16, 1.0_f16, 0.0_f16)
 		);
+		program->use();
 		program->set_uniform("projection", projection);
 		program->set_uniform("view", view);
 		program->set_uniform("model", model);
-
-		VAO.bind();
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		VAO.unbind();
-
 		program->unuse();
-		diffuse1->unbind();
-		diffuse0->unbind();
+
+		plane_mesh.draw();
 
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -248,10 +238,7 @@ int main() {
 		glfwPollEvents();
 	}
 
-	// optional: de-allocate all resources once they've outlived their purpose:
-	// ------------------------------------------------------------------------
-	VAO.clean();
-	VBO.clean();
-	EBO.clean();
+	cube_map_vbo.clean();
+	cube_map_vao.clean();
 	program->clear();
 }
