@@ -168,12 +168,12 @@ shader::type shader::get_type_by_extension(const std::string_view filename) noex
 
 std::string_view shader::get_extension(const type type) noexcept {
 	switch (type) {
-		case type::vertex:                 return ".vs";
-		case type::tesselation_control:    return ".tcs";
-		case type::tesselation_evaluation: return ".tes";
-		case type::geometry:               return ".gs";
-		case type::fragment:               return ".fs";
-		case type::compute:                return ".cs";
+		case type::vertex:                 return ".vert";
+		case type::tesselation_control:    return ".tesc";
+		case type::tesselation_evaluation: return ".tese";
+		case type::geometry:               return ".geom";
+		case type::fragment:               return ".frag";
+		case type::compute:                return ".comp";
 		case type::count:
 			spdlog::warn("[{}] get_extension: DO NOT USE type::count!", class_name);
 			break;

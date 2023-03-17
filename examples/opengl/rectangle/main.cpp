@@ -19,8 +19,8 @@ int main() {
 	graphics::controller::initialize(graphics::controller::api_type::opengl);
 
 	auto program{ graphics::types::shader_program::make("default", {
-		"res://shaders/default.vs.glsl",
-		"res://shaders/default.fs.glsl",
+		"res://shaders/default.vert",
+		"res://shaders/default.frag",
 	}) };
 	if (program->get_status() == graphics::program_status::need_to_link) {
 		program->link();

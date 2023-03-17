@@ -31,8 +31,8 @@ int main() {
 	spdlog::info("Max texture image units {}", max_texture_image_units);
 
 	auto program{ graphics::types::shader_program::make("default", {
-		"res://shaders/texture.vs.glsl",
-		"res://shaders/texture.fs.glsl",
+		"res://shaders/texture.vert",
+		"res://shaders/texture.frag",
 	}) };
 	if (program->get_status() == graphics::program_status::need_to_link) {
 		program->link();
@@ -64,8 +64,8 @@ int main() {
 
 
 	auto cube_map_shader{ graphics::types::shader_program::make("cube_map", {
-		"res://shaders/cube_map.vs.glsl",
-		"res://shaders/cube_map.fs.glsl",
+		"res://shaders/cube_map.vert",
+		"res://shaders/cube_map.frag",
 	}) };
 	if (cube_map_shader->get_status() == graphics::program_status::need_to_link) {
 		cube_map_shader->link();
