@@ -24,6 +24,9 @@ shader_program::ref shader_program::make(const std::string &name,
 shader_program::shader_program(const std::string &name) : named{ name } {
 	if (auto api{ controller::api() }; api) {
 		mObject = api->make_program();
+		if (mObject != nullptr) {
+			mObject->set_property("name", full_name());
+		}
 		mStatus = valid() ? status::need_to_link : status::invalid;
 		return;
 	}
@@ -178,6 +181,7 @@ shader_program::status shader_program::link() noexcept {
 
 	if (auto api{ controller::api() }; api) {
 		if (api->link_program(mObject)) {
+			spdlog::info("[{}] [{}] Shader program linked successfully", class_name, full_name());
 			mStatus = status::link_success;
 			return mStatus;
 		}
@@ -188,6 +192,11 @@ shader_program::status shader_program::link() noexcept {
 }
 
 void shader_program::use() const {
+	if (!valid()) {
+		spdlog::warn("[{}] Cannot use the '{}' shader program. It is invalid", class_name, full_name());
+		return;
+	}
+
 	if (auto api{ controller::api() }; api) {
 		api->use_program(mObject);
 	}

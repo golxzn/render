@@ -32,13 +32,23 @@ public:
 		const core::sptr<material> &material = {},
 		const core::umap<std::string, core::sptr<texture>> &textures = {});
 
+	bool valid() const noexcept;
+
 	void set_shader_program(const core::sptr<shader_program> &shader_program);
 	void set_vertices(std::vector<vertex> &&vertices, std::vector<core::u32> &&indices);
 	void set_material(const core::sptr<material> &material);
 	void add_texture(const std::string &name, core::sptr<texture> texture);
 	void remove_texture(const std::string &name);
 
+	void enable_depth_test(bool enable = true);
+
 	void draw();
+
+	const std::vector<vertex> &get_vertices() const;
+	const std::vector<core::u32> &get_indices() const;
+	core::sptr<shader_program> get_shader_program();
+	core::sptr<material> get_material();
+	const core::umap<std::string, core::sptr<texture>> &get_textures() const;
 
 private:
 	object::ref mObject;

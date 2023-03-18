@@ -30,11 +30,16 @@ MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei 
 	const auto str_severity{ severities.at(severity) };
 	const auto str_source{ sources.at(source) };
 
+	std::string msg{ "empty message" };
+	if (message != nullptr) {
+		msg = message;
+	}
+
 	if (type == GL_DEBUG_TYPE_ERROR) {
-		spdlog::error("[GL] [{}] [{}] ID: {}; message: {}", str_severity, str_source, id, message);
+		spdlog::error("[GL] [{}] [{}] ID: {}; message: {}", str_severity, str_source, id, msg);
 		return;
 	}
-	spdlog::info("[GL] [{}] [{}] ID: {}; message: {}", str_severity, str_source, id, message);
+	spdlog::info("[GL] [{}] [{}] ID: {}; message: {}", str_severity, str_source, id, msg);
 }
 namespace golxzn::graphics {
 
@@ -114,10 +119,12 @@ types::object::ref gl_impl::make_shader(const types::shader::type type, const st
 
 		int success{};
 		glGetShaderiv(id, GL_COMPILE_STATUS, &success);
-		if (!success) {
-			std::string info_log(info_log_size, '\0');
-			glGetShaderInfoLog(id, info_log_size, nullptr, &info_log[0]);
-			spdlog::error("[{}] Compilation error:\n {}", info_log);
+		if (success == GL_FALSE) {
+			char info_log[512]{};
+			GLsizei length{};
+			glGetShaderInfoLog(id, info_log_size, &length, info_log);
+			spdlog::error("[{}] Compilation error:\n {}", class_name,
+				std::string{ info_log, info_log + length });
 			return nullptr;
 		}
 
@@ -143,7 +150,7 @@ types::object::ref gl_impl::make_texture() {
 }
 
 types::object::ref gl_impl::make_mesh(const std::vector<types::vertex> &vertices, const std::vector<core::u32> &indices) {
-	if (vertices.empty() || indices.empty()) {
+	if (vertices.empty()) {
 		spdlog::error("[{}] Mesh cannot be empty", class_name);
 		return nullptr;
 	}
@@ -263,10 +270,11 @@ void gl_impl::set_uniform(const types::object::ref &program, const std::string_v
 	}
 
 	const auto location{ glGetUniformLocation(id, name.data()) };
-	if (location == -1) {
-		spdlog::warn("[{}] Cannot find uniform '{}'", class_name, name);
-		return;
-	}
+	// if (location == -1) {
+		// spdlog::warn("[{}] Cannot find uniform '{}' in the '{}' program",
+		// 	class_name, name, program->get_property<std::string>("name").value_or("unnamed"));
+		// return;
+	// }
 	if (info == typeid(core::f16)) {
 		glUniform1f(location, std::any_cast<core::f16>(value));
 	} else if (info == typeid(core::f32)) {
@@ -277,7 +285,7 @@ void gl_impl::set_uniform(const types::object::ref &program, const std::string_v
 		glUniform1ui(location, std::any_cast<core::u32>(value));
 	} else if (info == typeid(glm::vec3)) {
 		auto vec{ std::any_cast<glm::vec3>(value) };
-		glUniform3fv(location, vec.length(), glm::value_ptr(vec));
+		glUniform3fv(location, 1, glm::value_ptr(vec));
 	} else if (info == typeid(glm::mat4)) {
 		auto mat{ std::any_cast<glm::mat4>(value) };
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
@@ -529,6 +537,11 @@ void gl_impl::draw_mesh(const types::object::ref &mesh) {
 		spdlog::error("[{}] Failed to draw the '{}' mesh, the VAO is not set", name, class_name);
 	}
 
+	const auto depth_test{ mesh->get_property<bool>("depth_test").value_or(false) };
+	if (depth_test) {
+		glEnable(GL_DEPTH_TEST);
+	}
+
 	glBindVertexArray(VAO.value());
 
 	if (const auto indices_count{ mesh->get_property<core::u32>("indices_count") }; indices_count.has_value()) {
@@ -539,6 +552,10 @@ void gl_impl::draw_mesh(const types::object::ref &mesh) {
 	}
 
 	glBindVertexArray(0);
+
+	if (depth_test) {
+		glDisable(GL_DEPTH_TEST);
+	}
 }
 
 void gl_impl::viewport(const core::u32 x, const core::u32 y, const core::u32 width, const core::u32 height) noexcept {

@@ -8,13 +8,18 @@ namespace golxzn::graphics::types {
 
 struct material : public named {
 	static constexpr auto smallest_string_length{ sizeof("a:0,0,0:0,0,0:0,0,0:0") - 1 };
-
 	static const material default_material;
+
+	using ref = std::shared_ptr<material>;
 
 	glm::vec3 ambient;
 	glm::vec3 diffuse;
 	glm::vec3 specular;
 	core::f16 shininess;
+
+	static ref make(const std::string &name, const glm::vec3 &ambient, const glm::vec3 &diffuse,
+		const glm::vec3 &specular, const core::f16 shininess);
+	static ref make(const std::string &str);
 
 	material(const std::string &name, const glm::vec3 &ambient, const glm::vec3 &diffuse,
 		const glm::vec3 &specular, const core::f16 shininess);

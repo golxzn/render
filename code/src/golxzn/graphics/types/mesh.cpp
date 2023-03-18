@@ -14,8 +14,10 @@ mesh::mesh(const std::string &name,
 		const core::sptr<shader_program> &shader_program,
 		const core::sptr<material> &material,
 		const core::umap<std::string, core::sptr<texture>> &textures)
-	: named{ name }, mVertices{ vertices }, mIndices{ indices }, mShaderProgram{ shader_program }
+	: named{ name }, mVertices{ vertices }, mIndices{ indices }
 	, mMaterial{ material }, mTextures{ textures } {
+
+	set_shader_program(shader_program);
 	generate();
 }
 
@@ -27,11 +29,20 @@ mesh::mesh(const std::string &name,
 		const core::umap<std::string, core::sptr<texture>> &textures)
 	: named{ name }, mVertices{ std::move(vertices) }, mIndices{ std::move(indices) }
 	, mShaderProgram{ shader_program }, mMaterial{ material }, mTextures{ textures } {
+
+	set_shader_program(shader_program);
 	generate();
+}
+
+bool mesh::valid() const noexcept {
+	return mObject != nullptr && mObject->valid();
 }
 
 void mesh::set_shader_program(const core::sptr<shader_program> &shader_program) {
 	mShaderProgram = shader_program;
+	if (mShaderProgram && program_status::need_to_link == mShaderProgram->get_status()) {
+		mShaderProgram->link();
+	}
 }
 
 void mesh::set_vertices(std::vector<vertex> &&vertices, std::vector<core::u32> &&indices) {
@@ -52,8 +63,14 @@ void mesh::remove_texture(const std::string &name) {
 	mTextures.erase(name);
 }
 
+void mesh::enable_depth_test(bool enable) {
+	if (valid()) {
+		mObject->set_property("depth_test", enable);
+	}
+}
+
 void mesh::draw() {
-	if (mShaderProgram == nullptr) return;
+	if (mShaderProgram == nullptr || !valid()) return;
 
 	mShaderProgram->use();
 
@@ -63,6 +80,22 @@ void mesh::draw() {
 	}
 
 	mShaderProgram->unuse();
+}
+
+const std::vector<vertex> &mesh::get_vertices() const {
+	return mVertices;
+}
+const std::vector<core::u32> &mesh::get_indices() const {
+	return mIndices;
+}
+core::sptr<shader_program> mesh::get_shader_program() {
+	return mShaderProgram;
+}
+core::sptr<material> mesh::get_material() {
+	return mMaterial;
+}
+const core::umap<std::string, core::sptr<texture>> &mesh::get_textures() const {
+	return mTextures;
 }
 
 void mesh::generate() {
@@ -80,10 +113,10 @@ void mesh::generate() {
 void mesh::update_shader_program_uniforms() {
 
 	if (mMaterial != nullptr) {
-		mShaderProgram->set_uniform("material.ambient", mMaterial->ambient);
-		mShaderProgram->set_uniform("material.diffuse", mMaterial->diffuse);
-		mShaderProgram->set_uniform("material.specular", mMaterial->specular);
-		mShaderProgram->set_uniform("material.shininess", mMaterial->shininess);
+		mShaderProgram->set_uniform("u_material.ambient", mMaterial->ambient);
+		mShaderProgram->set_uniform("u_material.diffuse", mMaterial->diffuse);
+		mShaderProgram->set_uniform("u_material.specular", mMaterial->specular);
+		mShaderProgram->set_uniform("u_material.shininess", mMaterial->shininess);
 	}
 
 	if (mTextures.size() > 0) {
@@ -91,8 +124,6 @@ void mesh::update_shader_program_uniforms() {
 		auto texture_count{ 0_i32 };
 		for (const auto &[name, texture] : mTextures) {
 			if (texture != nullptr) {
-				spdlog::info("[{}] Binding texture '{}' at index {} as '{}'",
-					class_name, texture->full_name(), texture_count, name);
 				mShaderProgram->set_uniform(name, texture_count);
 				texture->bind(texture_count);
 				texture_count++;

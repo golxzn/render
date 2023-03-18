@@ -78,6 +78,11 @@ shader &shader::operator=(shader &&other) noexcept {
 shader::status shader::compile() {
 	if (auto api{ controller::api() }; api) {
 		mObject = api->make_shader(mType, mCode);
+		if (mObject == nullptr) {
+			spdlog::error("[{}] [{}] Failed to create shader object", class_name, full_name());
+			mStatus = status::invalid;
+			return mStatus;
+		}
 		mObject->set_property("name", full_name());
 		mStatus = valid() ? status::compile_success : status::compile_failure;
 		return mStatus;

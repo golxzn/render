@@ -12,6 +12,17 @@ const material material::default_material{ "default",
 	32.0f
 };
 
+material::ref material::make(const std::string &name, const glm::vec3 &ambient, const glm::vec3 &diffuse,
+	const glm::vec3 &specular, const core::f16 shininess) {
+	return std::make_shared<material>(name, ambient, diffuse, specular, shininess);
+}
+
+material::ref material::make(const std::string &str) {
+	return std::make_shared<material>(from_string(str));
+}
+
+
+
 material::material(const std::string &name, const glm::vec3 &ambient, const glm::vec3 &diffuse,
 	const glm::vec3 &specular, const core::f16 shininess)
 	: named{ name }, ambient{ ambient }, diffuse{ diffuse }
