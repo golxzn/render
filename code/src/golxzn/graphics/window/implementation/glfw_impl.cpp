@@ -33,6 +33,11 @@ void glfw_impl::swap_buffers() noexcept {
 	glfwSwapBuffers(mWindow);
 }
 
+void glfw_impl::resize(const core::u32 width, const core::u32 height, const bool update_viewport) noexcept {
+	implementation::resize(width, height, update_viewport);
+	glfwSetWindowSize(mWindow, width, height);
+}
+
 void glfw_impl::framebuffer_size_callback(GLFWwindow *, const int width, const int height) {
 	if (auto api{ window::api() }; api) {
 		api->resize(static_cast<core::u32>(width), static_cast<core::u32>(height));

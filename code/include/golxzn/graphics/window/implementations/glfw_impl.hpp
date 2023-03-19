@@ -16,6 +16,8 @@ public:
 	bool should_close() const noexcept override;
 	void swap_buffers() noexcept override;
 
+	void resize(const core::u32 width, const core::u32 height,
+			const bool update_viewport = true) noexcept override;
 private:
 	GLFWwindow *mWindow{ nullptr };
 
