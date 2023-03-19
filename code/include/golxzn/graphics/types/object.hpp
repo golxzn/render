@@ -48,12 +48,12 @@ public:
 
 	template<class T>
 	void set_property(const std::string_view key, const T &value) {
-		mProperties.emplace(std::string{ key }, std::make_any<T>(value));
+		mProperties.insert_or_assign(std::string{ key }, std::make_any<T>(value));
 	}
 
 	template<class T>
 	void set_property(const std::string_view key, T &&value) {
-		mProperties.emplace(std::string{ key }, std::make_any<T>(std::move(value)));
+		mProperties.insert_or_assign(std::string{ key }, std::make_any<T>(std::move(value)));
 	}
 
 private:

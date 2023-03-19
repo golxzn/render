@@ -22,6 +22,17 @@ class mesh : public named {
 public:
 	using ref = std::shared_ptr<mesh>;
 
+	static ref make(const std::string &name, const std::vector<vertex> &vertices, const std::vector<core::u32> &indices,
+		const core::sptr<shader_program> &shader_program = {},
+		const core::sptr<material> &material = {},
+		const core::umap<std::string, core::sptr<texture>> &textures = {});
+
+	static ref make(const std::string &name, std::vector<vertex> &&vertices, std::vector<core::u32> &&indices,
+		const core::sptr<shader_program> &shader_program = {},
+		const core::sptr<material> &material = {},
+		const core::umap<std::string, core::sptr<texture>> &textures = {});
+
+
 	mesh(const std::string &name, const std::vector<vertex> &vertices, const std::vector<core::u32> &indices,
 		const core::sptr<shader_program> &shader_program = {},
 		const core::sptr<material> &material = {},
@@ -40,7 +51,7 @@ public:
 	void add_texture(const std::string &name, core::sptr<texture> texture);
 	void remove_texture(const std::string &name);
 
-	void enable_depth_test(bool enable = true);
+	void depth_test(bool enable = true);
 
 	void draw();
 

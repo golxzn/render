@@ -8,6 +8,22 @@
 
 namespace golxzn::graphics::types {
 
+
+mesh::ref mesh::make(const std::string &name, const std::vector<vertex> &vertices, const std::vector<core::u32> &indices,
+		const core::sptr<shader_program> &shader_program, const core::sptr<material> &material,
+		const core::umap<std::string, core::sptr<texture>> &textures) {
+	return std::make_shared<mesh>(name, vertices, indices, shader_program, material, textures);
+}
+
+mesh::ref mesh::make(const std::string &name, std::vector<vertex> &&vertices, std::vector<core::u32> &&indices,
+		const core::sptr<shader_program> &shader_program,
+		const core::sptr<material> &material,
+		const core::umap<std::string, core::sptr<texture>> &textures) {
+	return std::make_shared<mesh>(name, std::move(vertices), std::move(indices), shader_program, material, textures);
+}
+
+
+
 mesh::mesh(const std::string &name,
 		const std::vector<vertex> &vertices,
 		const std::vector<core::u32> &indices,
@@ -19,6 +35,7 @@ mesh::mesh(const std::string &name,
 
 	set_shader_program(shader_program);
 	generate();
+	depth_test(true);
 }
 
 mesh::mesh(const std::string &name,
@@ -32,6 +49,7 @@ mesh::mesh(const std::string &name,
 
 	set_shader_program(shader_program);
 	generate();
+	depth_test(true);
 }
 
 bool mesh::valid() const noexcept {
@@ -63,14 +81,14 @@ void mesh::remove_texture(const std::string &name) {
 	mTextures.erase(name);
 }
 
-void mesh::enable_depth_test(bool enable) {
+void mesh::depth_test(bool enable) {
 	if (valid()) {
 		mObject->set_property("depth_test", enable);
 	}
 }
 
 void mesh::draw() {
-	if (mShaderProgram == nullptr || !valid()) return;
+	if (mShaderProgram == nullptr || !mShaderProgram->valid() || !valid()) return;
 
 	mShaderProgram->use();
 

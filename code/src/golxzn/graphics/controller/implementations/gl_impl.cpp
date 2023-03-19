@@ -12,6 +12,8 @@ void GLAPIENTRY
 MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
 	const GLchar* message, const void* userParam)
 {
+	if (type != GL_DEBUG_TYPE_ERROR) return;
+
 	static const golxzn::core::umap<GLenum, std::string_view> sources{
 		{ GL_DEBUG_SOURCE_API, "API" },
 		{ GL_DEBUG_SOURCE_WINDOW_SYSTEM, "window system" },
@@ -35,11 +37,7 @@ MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei 
 		msg = message;
 	}
 
-	if (type == GL_DEBUG_TYPE_ERROR) {
-		spdlog::error("[GL] [{}] [{}] ID: {}; message: {}", str_severity, str_source, id, msg);
-		return;
-	}
-	spdlog::info("[GL] [{}] [{}] ID: {}; message: {}", str_severity, str_source, id, msg);
+	spdlog::error("[GL] [{}] [{}] ID: {}; message: {}", str_severity, str_source, id, msg);
 }
 namespace golxzn::graphics {
 
@@ -283,12 +281,21 @@ void gl_impl::set_uniform(const types::object::ref &program, const std::string_v
 		glUniform1i(location, std::any_cast<core::i32>(value));
 	} else if (info == typeid(core::u32)) {
 		glUniform1ui(location, std::any_cast<core::u32>(value));
+	} else if (info == typeid(glm::vec2)) {
+		auto vec{ std::any_cast<glm::vec2>(value) };
+		glUniform2fv(location, 1, glm::value_ptr(vec));
 	} else if (info == typeid(glm::vec3)) {
 		auto vec{ std::any_cast<glm::vec3>(value) };
 		glUniform3fv(location, 1, glm::value_ptr(vec));
+	} else if (info == typeid(glm::vec4)) {
+		auto vec{ std::any_cast<glm::vec4>(value) };
+		glUniform4fv(location, 1, glm::value_ptr(vec));
 	} else if (info == typeid(glm::mat4)) {
 		auto mat{ std::any_cast<glm::mat4>(value) };
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
+	} else if (info == typeid(glm::mat3)) {
+		auto mat{ std::any_cast<glm::mat3>(value) };
+		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 	} else {
 		spdlog::error("[{}] Invalid uniform type: {}", class_name, info.name());
 	}

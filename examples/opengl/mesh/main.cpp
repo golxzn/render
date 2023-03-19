@@ -86,6 +86,7 @@ int main() {
 			std::make_pair("skybox", graphics::types::texture::make(graphics::types::texture::type::cube_map, "res://textures/cube_maps/skybox.jpg")),
 		}
 	};
+	cube_map_mesh.depth_test(false);
 
 	auto diffuse0{ graphics::types::texture::make(
 		graphics::types::texture::type::texture_2d, "res://textures/moaning_pink.jpg") };
@@ -113,7 +114,6 @@ int main() {
 		),
 		{} // no textures
 	};
-	teapot_mesh.enable_depth_test();
 
 	static constexpr glm::vec3 up{ 0.0_f16, 1.0_f16, 0.0_f16 };
 
