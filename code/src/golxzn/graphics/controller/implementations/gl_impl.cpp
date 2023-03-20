@@ -2,51 +2,77 @@
 #include "golxzn/common.hpp"
 
 #include "golxzn/graphics/controller/implementations/gl_impl.hpp"
-#include "golxzn/graphics/controller/capabilities_holder.hpp"
+#include "golxzn/graphics/mods/capabilities.hpp"
+#include "golxzn/graphics/mods/blend_holder.hpp"
 #include "golxzn/graphics/window/window.hpp"
 #include "golxzn/graphics/types/shader_program.hpp"
 
 namespace golxzn::graphics {
 
-const core::umap<capabilities, core::u32> gl_impl::gl_capability_map{
-	{ capabilities::blend,                          core::u32{ GL_BLEND }                           },
-	{ capabilities::color_logic_op,                 core::u32{ GL_COLOR_LOGIC_OP }                  },
-	{ capabilities::cull_face,                      core::u32{ GL_CULL_FACE }                       },
-	{ capabilities::debug_output,                   core::u32{ GL_DEBUG_OUTPUT }                    },
-	{ capabilities::debug_output_synchronous,       core::u32{ GL_DEBUG_OUTPUT_SYNCHRONOUS }        },
-	{ capabilities::depth_clamp,                    core::u32{ GL_DEPTH_CLAMP }                     },
-	{ capabilities::depth_test,                     core::u32{ GL_DEPTH_TEST }                      },
-	{ capabilities::dither,                         core::u32{ GL_DITHER }                          },
-	{ capabilities::framebuffer_srgb,               core::u32{ GL_FRAMEBUFFER_SRGB }                },
-	{ capabilities::line_smooth,                    core::u32{ GL_LINE_SMOOTH }                     },
-	{ capabilities::multisample,                    core::u32{ GL_MULTISAMPLE }                     },
-	{ capabilities::polygon_offset_fill,            core::u32{ GL_POLYGON_OFFSET_FILL }             },
-	{ capabilities::polygon_offset_line,            core::u32{ GL_POLYGON_OFFSET_LINE }             },
-	{ capabilities::polygon_offset_point,           core::u32{ GL_POLYGON_OFFSET_POINT }            },
-	{ capabilities::polygon_smooth,                 core::u32{ GL_POLYGON_SMOOTH }                  },
-	{ capabilities::primitive_restart,              core::u32{ GL_PRIMITIVE_RESTART }               },
-	{ capabilities::primitive_restart_fixed_index,  core::u32{ GL_PRIMITIVE_RESTART_FIXED_INDEX }   },
-	{ capabilities::rasterizer_discard,             core::u32{ GL_RASTERIZER_DISCARD }              },
-	{ capabilities::sample_alpha_to_coverage,       core::u32{ GL_SAMPLE_ALPHA_TO_COVERAGE }        },
-	{ capabilities::sample_alpha_to_one,            core::u32{ GL_SAMPLE_ALPHA_TO_ONE }             },
-	{ capabilities::sample_coverage,                core::u32{ GL_SAMPLE_COVERAGE }                 },
-	{ capabilities::sample_mask,                    core::u32{ GL_SAMPLE_MASK }                     },
-	{ capabilities::scissor_test,                   core::u32{ GL_SCISSOR_TEST }                    },
-	{ capabilities::stencil_test,                   core::u32{ GL_STENCIL_TEST }                    },
-	{ capabilities::texture_cube_map_seamless,      core::u32{ GL_TEXTURE_CUBE_MAP_SEAMLESS }       },
-	{ capabilities::program_point_size,             core::u32{ GL_PROGRAM_POINT_SIZE }              },
+const core::umap<mods::capabilities, core::u32> gl_impl::gl_capability_map{
+	{ mods::capabilities::blend,                          core::u32{ GL_BLEND }                           },
+	{ mods::capabilities::color_logic_op,                 core::u32{ GL_COLOR_LOGIC_OP }                  },
+	{ mods::capabilities::cull_face,                      core::u32{ GL_CULL_FACE }                       },
+	{ mods::capabilities::debug_output,                   core::u32{ GL_DEBUG_OUTPUT }                    },
+	{ mods::capabilities::debug_output_synchronous,       core::u32{ GL_DEBUG_OUTPUT_SYNCHRONOUS }        },
+	{ mods::capabilities::depth_clamp,                    core::u32{ GL_DEPTH_CLAMP }                     },
+	{ mods::capabilities::depth_test,                     core::u32{ GL_DEPTH_TEST }                      },
+	{ mods::capabilities::dither,                         core::u32{ GL_DITHER }                          },
+	{ mods::capabilities::framebuffer_srgb,               core::u32{ GL_FRAMEBUFFER_SRGB }                },
+	{ mods::capabilities::line_smooth,                    core::u32{ GL_LINE_SMOOTH }                     },
+	{ mods::capabilities::multisample,                    core::u32{ GL_MULTISAMPLE }                     },
+	{ mods::capabilities::polygon_offset_fill,            core::u32{ GL_POLYGON_OFFSET_FILL }             },
+	{ mods::capabilities::polygon_offset_line,            core::u32{ GL_POLYGON_OFFSET_LINE }             },
+	{ mods::capabilities::polygon_offset_point,           core::u32{ GL_POLYGON_OFFSET_POINT }            },
+	{ mods::capabilities::polygon_smooth,                 core::u32{ GL_POLYGON_SMOOTH }                  },
+	{ mods::capabilities::primitive_restart,              core::u32{ GL_PRIMITIVE_RESTART }               },
+	{ mods::capabilities::primitive_restart_fixed_index,  core::u32{ GL_PRIMITIVE_RESTART_FIXED_INDEX }   },
+	{ mods::capabilities::rasterizer_discard,             core::u32{ GL_RASTERIZER_DISCARD }              },
+	{ mods::capabilities::sample_alpha_to_coverage,       core::u32{ GL_SAMPLE_ALPHA_TO_COVERAGE }        },
+	{ mods::capabilities::sample_alpha_to_one,            core::u32{ GL_SAMPLE_ALPHA_TO_ONE }             },
+	{ mods::capabilities::sample_coverage,                core::u32{ GL_SAMPLE_COVERAGE }                 },
+	{ mods::capabilities::sample_mask,                    core::u32{ GL_SAMPLE_MASK }                     },
+	{ mods::capabilities::scissor_test,                   core::u32{ GL_SCISSOR_TEST }                    },
+	{ mods::capabilities::stencil_test,                   core::u32{ GL_STENCIL_TEST }                    },
+	{ mods::capabilities::texture_cube_map_seamless,      core::u32{ GL_TEXTURE_CUBE_MAP_SEAMLESS }       },
+	{ mods::capabilities::program_point_size,             core::u32{ GL_PROGRAM_POINT_SIZE }              },
 
 #if defined(GL_CLIP_DISTANCE)
-	{ capabilities::clip_distance,                  core::u32{ GL_CLIP_DISTANCE }                   },
+	{ mods::capabilities::clip_distance,                  core::u32{ GL_CLIP_DISTANCE }                   },
 #endif
 #if defined(GL_CLIP_DISTANCE)
-	{ capabilities::sample_shading,                 core::u32{ GL_SAMPLE_SHADING }                  },
+	{ mods::capabilities::sample_shading,                 core::u32{ GL_SAMPLE_SHADING }                  },
 #endif
-
 };
 
-void GLAPIENTRY debug_msg_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-	const GLchar* message, const void* userParam) {
+const core::umap<mods::blend::function, core::u32> gl_impl::gl_blend_function_map{
+	{ mods::blend::function::zero,                      core::u32{ GL_ZERO }                     },
+	{ mods::blend::function::one,                       core::u32{ GL_ONE }                      },
+	{ mods::blend::function::src_color,                 core::u32{ GL_SRC_COLOR }                },
+	{ mods::blend::function::one_minus_src_color,       core::u32{ GL_ONE_MINUS_SRC_COLOR }      },
+	{ mods::blend::function::dst_color,                 core::u32{ GL_DST_COLOR }                },
+	{ mods::blend::function::one_minus_dst_color,       core::u32{ GL_ONE_MINUS_DST_COLOR }      },
+	{ mods::blend::function::src_alpha,                 core::u32{ GL_SRC_ALPHA }                },
+	{ mods::blend::function::one_minus_src_alpha,       core::u32{ GL_ONE_MINUS_SRC_ALPHA }      },
+	{ mods::blend::function::dst_alpha,                 core::u32{ GL_DST_ALPHA }                },
+	{ mods::blend::function::one_minus_dst_alpha,       core::u32{ GL_ONE_MINUS_DST_ALPHA }      },
+	{ mods::blend::function::constant_color,            core::u32{ GL_CONSTANT_COLOR }           },
+	{ mods::blend::function::one_minus_constant_color,  core::u32{ GL_ONE_MINUS_CONSTANT_COLOR } },
+	{ mods::blend::function::constant_alpha,            core::u32{ GL_CONSTANT_ALPHA }           },
+	{ mods::blend::function::one_minus_constant_alpha,  core::u32{ GL_ONE_MINUS_CONSTANT_ALPHA } },
+};
+
+const core::umap<mods::blend::equation, core::u32> gl_impl::gl_blend_equation_map{
+	{ mods::blend::equation::add,                       core::u32{ GL_FUNC_ADD }              },
+	{ mods::blend::equation::subtract,                  core::u32{ GL_FUNC_SUBTRACT }         },
+	{ mods::blend::equation::reverse_subtract,          core::u32{ GL_FUNC_REVERSE_SUBTRACT } },
+	{ mods::blend::equation::min,                       core::u32{ GL_MIN }                   },
+	{ mods::blend::equation::max,                       core::u32{ GL_MAX }                   },
+};
+
+void GLAPIENTRY debug_msg_callback(GLenum source, GLenum type, GLuint id, GLenum severity,
+		[[maybe_unused]] GLsizei length, const GLchar *message, const void*) {
+
 	if (type != GL_DEBUG_TYPE_ERROR) return;
 
 	static const golxzn::core::umap<GLenum, std::string_view> sources{
@@ -99,7 +125,7 @@ bool gl_impl::initialize() {
 
 	if (spdlog::get_level() == spdlog::level::debug) {
 		// During init, enable debug output
-		enable(capabilities::debug_output);
+		enable(mods::capabilities::debug_output);
 		glDebugMessageCallback(debug_msg_callback, nullptr);
 	}
 
@@ -189,7 +215,7 @@ types::object::ref gl_impl::make_mesh(const std::vector<types::vertex> &vertices
 
 	core::u32 VAO;
 	core::u32 VBO;
-	core::u32 EBO;
+	[[maybe_unused]] core::u32 EBO;
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -578,14 +604,6 @@ void gl_impl::draw_mesh(const types::object::ref &mesh) {
 		spdlog::error("[{}] Failed to draw the '{}' mesh, the VAO is not set", name, class_name);
 	}
 
-	const auto capabilities{
-		mesh->get_property<capabilities_holder::caps_container>(capabilities_holder::parameter_name)
-			.value_or(capabilities_holder::caps_container{})
-	};
-	for (const auto cap : capabilities) {
-		enable(cap);
-	}
-
 	glBindVertexArray(VAO.value());
 
 	if (const auto indices_count{ mesh->get_property<core::u32>("indices_count") }; indices_count.has_value()) {
@@ -596,59 +614,55 @@ void gl_impl::draw_mesh(const types::object::ref &mesh) {
 	}
 
 	glBindVertexArray(0);
-
-	for (const auto cap : capabilities) {
-		disable(cap);
-	}
 }
 
 void gl_impl::viewport(const core::u32 x, const core::u32 y, const core::u32 width, const core::u32 height) noexcept {
 	glViewport(x, y, width, height);
 }
 
-void gl_impl::enable(const capabilities capability) {
+void gl_impl::enable(const mods::capabilities capability) {
 	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
 		glEnable(static_cast<GLenum>(found->second));
 	} else {
 		spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
 	}
 }
-void gl_impl::enable(const capabilities capability, const core::u32 value) {
+void gl_impl::enable(const mods::capabilities capability, const core::u32 value) {
 	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
 		glEnablei(static_cast<GLenum>(found->second), value);
 	} else {
 		spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
 	}
 }
-void gl_impl::disable(const capabilities capability) {
+void gl_impl::disable(const mods::capabilities capability) {
 	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
 		glDisable(static_cast<GLenum>(found->second));
 	} else {
 		spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
 	}
 }
-void gl_impl::disable(const capabilities capability, const core::u32 value) {
+void gl_impl::disable(const mods::capabilities capability, const core::u32 value) {
 	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
 		glDisablei(static_cast<GLenum>(found->second), value);
 	} else {
 		spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
 	}
 }
-bool gl_impl::is_enabled(const capabilities capability) const {
+bool gl_impl::is_enabled(const mods::capabilities capability) const {
 	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
 		return glIsEnabled(static_cast<GLenum>(found->second)) == GL_TRUE;
 	}
 	spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
 	return false;
 }
-bool gl_impl::is_enabled(const capabilities capability, const core::u32 value) const {
+bool gl_impl::is_enabled(const mods::capabilities capability, const core::u32 value) const {
 	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
 		return glIsEnabledi(static_cast<GLenum>(found->second), value) == GL_TRUE;
 	}
 	spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
 	return false;
 }
-core::i32 gl_impl::capability_value(const capabilities capability) const {
+core::i32 gl_impl::capability_value(const mods::capabilities capability) const {
 	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
 		core::i32 capability_value_out{};
 		glGetIntegerv(static_cast<GLenum>(found->second), &capability_value_out);
@@ -656,6 +670,60 @@ core::i32 gl_impl::capability_value(const capabilities capability) const {
 	}
 	spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
 	return false;
+}
+
+void gl_impl::set_blend_color(const glm::vec4 &color) noexcept {
+	glBlendColor(color.r, color.g, color.b, color.a);
+}
+
+void gl_impl::unset_blend_color() noexcept {
+	glBlendColor(0.f, 0.f, 0.f, 0.f);
+}
+
+void gl_impl::set_blend_function(const mods::blend::function src, const mods::blend::function dest) {
+	glBlendFunc(
+		static_cast<GLenum>(gl_blend_function_map.at(src)),
+		static_cast<GLenum>(gl_blend_function_map.at(dest))
+	);
+}
+
+void gl_impl::unset_blend_function() {
+	glBlendFunc(GL_ONE, GL_ZERO);
+}
+
+void gl_impl::set_blend_equation(const mods::blend::equation equation) {
+	glBlendEquation(static_cast<GLenum>(gl_blend_equation_map.at(equation)));
+}
+
+void gl_impl::unset_blend_equation() {
+	glBlendEquation(GL_FUNC_ADD);
+}
+
+void gl_impl::set_blend_function_separate(
+	const mods::blend::function src_rgb, const mods::blend::function dest_rgb,
+	const mods::blend::function src_alpha, const mods::blend::function dest_alpha) {
+	glBlendFuncSeparate(
+		static_cast<GLenum>(gl_blend_function_map.at(src_rgb)),
+		static_cast<GLenum>(gl_blend_function_map.at(dest_rgb)),
+		static_cast<GLenum>(gl_blend_function_map.at(src_alpha)),
+		static_cast<GLenum>(gl_blend_function_map.at(dest_alpha))
+	);
+}
+
+void gl_impl::unset_blend_function_separate() {
+	glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
+}
+
+void gl_impl::set_blend_equation_separate(
+		const mods::blend::equation equation_rgb, const mods::blend::equation equation_alpha) {
+	glBlendEquationSeparate(
+		static_cast<GLenum>(gl_blend_equation_map.at(equation_rgb)),
+		static_cast<GLenum>(gl_blend_equation_map.at(equation_alpha))
+	);
+}
+
+void gl_impl::unset_blend_equation_separate() {
+	glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 }
 
 bool gl_impl::check_program_and_shader(const types::object::ref &program, const types::object::ref &shader) const {

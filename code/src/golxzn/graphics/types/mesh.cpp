@@ -36,7 +36,7 @@ mesh::mesh(const std::string &name,
 
 	set_shader_program(shader_program);
 	generate();
-	enable(capabilities::depth_test);
+	get_mod<mods::mod_capabilities>()->set(mods::capabilities::depth_test);
 }
 
 mesh::mesh(const std::string &name,
@@ -50,7 +50,7 @@ mesh::mesh(const std::string &name,
 
 	set_shader_program(shader_program);
 	generate();
-	enable(capabilities::depth_test);
+	get_mod<mods::mod_capabilities>()->set(mods::capabilities::depth_test);
 }
 
 bool mesh::valid() const noexcept {
@@ -85,6 +85,7 @@ void mesh::remove_texture(const std::string &name) {
 void mesh::draw() {
 	if (mShaderProgram == nullptr || !mShaderProgram->valid() || !valid()) return;
 
+	enable_mods();
 	mShaderProgram->use();
 
 	update_shader_program_uniforms();
@@ -93,6 +94,7 @@ void mesh::draw() {
 	}
 
 	mShaderProgram->unuse();
+	disable_mods();
 }
 
 const std::vector<vertex> &mesh::get_vertices() const {
@@ -121,7 +123,6 @@ void mesh::generate() {
 
 	mObject = api->make_mesh(mVertices, mIndices);
 	mObject->set_property("name", full_name());
-	capabilities_holder::set_target(mObject);
 }
 
 void mesh::update_shader_program_uniforms() {

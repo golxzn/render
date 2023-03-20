@@ -4,7 +4,7 @@ set(root ${CMAKE_CURRENT_SOURCE_DIR})
 include(${root}/cmake/prelude.cmake)
 
 project(golxzn_render
-	VERSION 0.5.0
+	VERSION 0.6.0
 	DESCRIPTION "Render provider"
 	HOMEPAGE_URL https://github.com/golxzn/render
 	LANGUAGES C CXX

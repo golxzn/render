@@ -4,7 +4,7 @@
 #include <golxzn/core/types.hpp>
 #include "golxzn/graphics/types/object.hpp"
 #include "golxzn/graphics/types/name_manager.hpp"
-#include "golxzn/graphics/controller/capabilities_holder.hpp"
+#include "golxzn/graphics/mods/capabilities.hpp"
 
 namespace golxzn::graphics::types {
 
@@ -18,7 +18,7 @@ struct vertex {
 	glm::vec2 UV;
 };
 
-class mesh : public named, public capabilities_holder {
+class mesh : public named, public mods::holder {
 	static constexpr std::string_view class_name{ "graphics::types::mesh" };
 public:
 	using ref = std::shared_ptr<mesh>;

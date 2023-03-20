@@ -44,17 +44,41 @@ public:
 	void viewport(const core::u32 x, const core::u32 y,
 		const core::u32 width, const core::u32 height) noexcept override;
 
-	void enable(const capabilities capability) override;
-	void enable(const capabilities capability, const core::u32 value) override;
-	void disable(const capabilities capability) override;
-	void disable(const capabilities capability, const core::u32 value) override;
-	bool is_enabled(const capabilities capability) const override;
-	bool is_enabled(const capabilities capability, const core::u32 value) const override;
-	core::i32 capability_value(const capabilities capability) const override;
+	void enable(const mods::capabilities capability) override;
+	void enable(const mods::capabilities capability, const core::u32 value) override;
+	void disable(const mods::capabilities capability) override;
+	void disable(const mods::capabilities capability, const core::u32 value) override;
+	bool is_enabled(const mods::capabilities capability) const override;
+	bool is_enabled(const mods::capabilities capability, const core::u32 value) const override;
+	core::i32 capability_value(const mods::capabilities capability) const override;
+
+	void set_blend_color(const glm::vec4 &color) noexcept override;
+	void unset_blend_color() noexcept override;
+
+	void set_blend_function(const mods::blend::function src, const mods::blend::function dest) override;
+	void unset_blend_function() override;
+
+	void set_blend_equation(const mods::blend::equation equation) override;
+	void unset_blend_equation() override;
+
+	void set_blend_function_separate(
+			const mods::blend::function src_rgb,
+			const mods::blend::function dest_rgb,
+			const mods::blend::function src_alpha,
+			const mods::blend::function dest_alpha) override;
+	void unset_blend_function_separate() override;
+
+	void set_blend_equation_separate(
+			const mods::blend::equation equation_rgb,
+			const mods::blend::equation equation_alpha) override;
+	void unset_blend_equation_separate() override;
+
 
 private:
 	core::u32 max_texture_units{ 0 };
-	static const core::umap<capabilities, core::u32> gl_capability_map;
+	static const core::umap<mods::capabilities, core::u32> gl_capability_map;
+	static const core::umap<mods::blend::function, core::u32> gl_blend_function_map;
+	static const core::umap<mods::blend::equation, core::u32> gl_blend_equation_map;
 
 	bool check_program_and_shader(const types::object::ref &program, const types::object::ref &shader) const;
 

@@ -5,10 +5,6 @@
 #include "golxzn/graphics/types/shader_program.hpp"
 #include "golxzn/graphics/types/mesh.hpp"
 
-namespace golxzn::graphics {
-class Mesh;
-} // namespace golxzn::graphics
-
 /** @addtogroup graphics::extensions
  * @{
  */

@@ -1,3 +1,4 @@
+#include <spdlog/spdlog.h>
 #include "golxzn/graphics/controller/controller.hpp"
 
 #include "golxzn/graphics/controller/implementations/gl_impl.hpp"
@@ -20,6 +21,15 @@ core::umap<controller::api_type, controller::impl_maker> controller::api_initial
 	{ api_type::dx12,       &make_impl<std::nullptr_t> },
 };
 
+std::string_view controller::api_type_to_str(const api_type type) noexcept {
+	switch (type) {
+		case api_type::opengl:   return "OpenGL";
+		case api_type::vulkan:   return "Vulkan";
+		case api_type::dx12:     return "DirectX 12";
+		default:                 break;
+	}
+	return "Unknown";
+}
 
 bool controller::initialize(const api_type render_api) noexcept {
 	destroy();
@@ -30,6 +40,11 @@ bool controller::initialize(const api_type render_api) noexcept {
 			return success;
 		}
 		destroy();
+		spdlog::critical("[graphics::controller] Failed to initialize the {} render API!",
+			api_type_to_str(render_api));
+	} else {
+		spdlog::critical("[graphics::controller] The {} render API is not supported yet!",
+			api_type_to_str(render_api));
 	}
 	return active();
 }

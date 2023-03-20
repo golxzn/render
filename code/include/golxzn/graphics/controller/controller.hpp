@@ -8,7 +8,16 @@
 
 namespace golxzn::graphics {
 
+namespace mods {
 enum class capabilities;
+
+namespace blend {
+enum class function;
+enum class equation;
+} // namespace blend
+
+} // namespace mods
+
 
 class controller {
 public:
@@ -60,13 +69,36 @@ public:
 		virtual void viewport(const core::u32 x, const core::u32 y,
 			const core::u32 width, const core::u32 height) noexcept = 0;
 
-		virtual void enable(const capabilities capability) = 0;
-		virtual void enable(const capabilities capability, const core::u32 value) = 0;
-		virtual void disable(const capabilities capability) = 0;
-		virtual void disable(const capabilities capability, const core::u32 value) = 0;
-		virtual bool is_enabled(const capabilities capability) const = 0;
-		virtual bool is_enabled(const capabilities capability, const core::u32 value) const = 0;
-		virtual core::i32 capability_value(const capabilities capability) const = 0;
+		virtual void enable(const mods::capabilities capability) = 0;
+		virtual void enable(const mods::capabilities capability, const core::u32 value) = 0;
+		virtual void disable(const mods::capabilities capability) = 0;
+		virtual void disable(const mods::capabilities capability, const core::u32 value) = 0;
+		virtual bool is_enabled(const mods::capabilities capability) const = 0;
+		virtual bool is_enabled(const mods::capabilities capability, const core::u32 value) const = 0;
+		virtual core::i32 capability_value(const mods::capabilities capability) const = 0;
+
+		// Blend stuff
+		virtual void set_blend_color(const glm::vec4 &color) noexcept = 0;
+		virtual void unset_blend_color() noexcept = 0;
+
+		virtual void set_blend_function(const mods::blend::function src, const mods::blend::function dest) = 0;
+		virtual void unset_blend_function() = 0;
+
+		virtual void set_blend_equation(const mods::blend::equation equation) = 0;
+		virtual void unset_blend_equation() = 0;
+
+		virtual void set_blend_function_separate(
+			const mods::blend::function src_rgb,
+			const mods::blend::function dest_rgb,
+			const mods::blend::function src_alpha,
+			const mods::blend::function dest_alpha) = 0;
+		virtual void unset_blend_function_separate() = 0;
+
+		virtual void set_blend_equation_separate(
+			const mods::blend::equation equation_rgb,
+			const mods::blend::equation equation_alpha) = 0;
+		virtual void unset_blend_equation_separate() = 0;
+
 
 	protected:
 		virtual void set_raw_texture_parameter(const types::object::ref &texture,
@@ -78,6 +110,7 @@ public:
 		vulkan,
 		dx12,
 	};
+	static std::string_view api_type_to_str(const api_type type) noexcept;
 
 	static bool initialize(const api_type render_api) noexcept;
 	static void destroy() noexcept;
@@ -91,37 +124,5 @@ private:
 	static core::sptr<implementation> impl;
 	static core::umap<api_type, impl_maker> api_initializer;
 };
-
-enum class capabilities {
-	blend,
-	clip_distance,
-	color_logic_op,
-	cull_face,
-	debug_output,
-	debug_output_synchronous,
-	depth_clamp,
-	depth_test,
-	dither,
-	framebuffer_srgb,
-	line_smooth,
-	multisample,
-	polygon_offset_fill,
-	polygon_offset_line,
-	polygon_offset_point,
-	polygon_smooth,
-	primitive_restart,
-	primitive_restart_fixed_index,
-	rasterizer_discard,
-	sample_alpha_to_coverage,
-	sample_alpha_to_one,
-	sample_coverage,
-	sample_shading,
-	sample_mask,
-	scissor_test,
-	stencil_test,
-	texture_cube_map_seamless,
-	program_point_size,
-};
-
 
 } // namespace golxzn::graphics

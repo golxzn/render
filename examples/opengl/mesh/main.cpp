@@ -24,7 +24,9 @@ int main() {
 
 	spdlog::set_level(spdlog::level::debug);
 	core::res_man::initialize("opengl_triangle");
-	graphics::controller::initialize(graphics::controller::api_type::opengl);
+	if (!graphics::controller::initialize(graphics::controller::api_type::opengl)) {
+		return -1;
+	}
 
 	auto window{ graphics::window::api() };
 	if (window == nullptr) {
@@ -86,7 +88,8 @@ int main() {
 			std::make_pair("skybox", graphics::types::texture::make(graphics::types::texture::type::cube_map, "res://textures/cube_maps/skybox.jpg")),
 		}
 	};
-	cube_map_mesh.disable(graphics::capabilities::depth_test);
+	cube_map_mesh.get_mod<graphics::mods::mod_capabilities>()
+		->reset(graphics::mods::capabilities::depth_test);
 
 	auto diffuse0{ graphics::types::texture::make(
 		graphics::types::texture::type::texture_2d, "res://textures/moaning_pink.jpg") };
@@ -111,8 +114,7 @@ int main() {
 			glm::vec3{ 1.0_f16, 0.5_f16, 0.3_f16 }, // diffuse
 			glm::vec3{ 0.5_f16, 0.5_f16, 0.5_f16 }, // specular
 			32.0_f16 // shininess
-		),
-		{} // no textures
+		)
 	};
 
 	static constexpr glm::vec3 up{ 0.0_f16, 1.0_f16, 0.0_f16 };
