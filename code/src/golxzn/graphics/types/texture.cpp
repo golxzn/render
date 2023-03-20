@@ -34,7 +34,7 @@ texture::texture(const type tex_type, const std::string &path)
 		const auto ext{ path.substr(ext_pos) };
 		const auto path_without_ext{ path.substr(0, ext_pos) };
 		static constexpr std::string_view face_names[]{
-			"right", "left", "top", "bottom", "front", "back"
+			"right", "left", "bottom", "top", "front", "back"
 		};
 
 		for (core::u32 i{}; i < cube_map_faces; ++i) {

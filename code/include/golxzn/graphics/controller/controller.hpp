@@ -8,6 +8,8 @@
 
 namespace golxzn::graphics {
 
+enum class capabilities;
+
 class controller {
 public:
 	GOLXZN_STATIC_CLASS(controller);
@@ -58,6 +60,14 @@ public:
 		virtual void viewport(const core::u32 x, const core::u32 y,
 			const core::u32 width, const core::u32 height) noexcept = 0;
 
+		virtual void enable(const capabilities capability) = 0;
+		virtual void enable(const capabilities capability, const core::u32 value) = 0;
+		virtual void disable(const capabilities capability) = 0;
+		virtual void disable(const capabilities capability, const core::u32 value) = 0;
+		virtual bool is_enabled(const capabilities capability) const = 0;
+		virtual bool is_enabled(const capabilities capability, const core::u32 value) const = 0;
+		virtual core::i32 capability_value(const capabilities capability) const = 0;
+
 	protected:
 		virtual void set_raw_texture_parameter(const types::object::ref &texture,
 			const std::type_info &param_type, const std::any param_value) = 0;
@@ -81,5 +91,37 @@ private:
 	static core::sptr<implementation> impl;
 	static core::umap<api_type, impl_maker> api_initializer;
 };
+
+enum class capabilities {
+	blend,
+	clip_distance,
+	color_logic_op,
+	cull_face,
+	debug_output,
+	debug_output_synchronous,
+	depth_clamp,
+	depth_test,
+	dither,
+	framebuffer_srgb,
+	line_smooth,
+	multisample,
+	polygon_offset_fill,
+	polygon_offset_line,
+	polygon_offset_point,
+	polygon_smooth,
+	primitive_restart,
+	primitive_restart_fixed_index,
+	rasterizer_discard,
+	sample_alpha_to_coverage,
+	sample_alpha_to_one,
+	sample_coverage,
+	sample_shading,
+	sample_mask,
+	scissor_test,
+	stencil_test,
+	texture_cube_map_seamless,
+	program_point_size,
+};
+
 
 } // namespace golxzn::graphics

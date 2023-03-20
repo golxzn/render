@@ -86,7 +86,7 @@ int main() {
 			std::make_pair("skybox", graphics::types::texture::make(graphics::types::texture::type::cube_map, "res://textures/cube_maps/skybox.jpg")),
 		}
 	};
-	cube_map_mesh.depth_test(false);
+	cube_map_mesh.disable(graphics::capabilities::depth_test);
 
 	auto diffuse0{ graphics::types::texture::make(
 		graphics::types::texture::type::texture_2d, "res://textures/moaning_pink.jpg") };
@@ -107,7 +107,7 @@ int main() {
 			"res://shaders/mesh.frag",
 		}),
 		graphics::types::material::make("teapot_material",
-			glm::vec3{ 1.0_f16, 0.5_f16, 0.3_f16 }, // ambient
+			glm::vec3{ 0.55_f16, 0.55_f16, 0.55_f16 }, // ambient
 			glm::vec3{ 1.0_f16, 0.5_f16, 0.3_f16 }, // diffuse
 			glm::vec3{ 0.5_f16, 0.5_f16, 0.5_f16 }, // specular
 			32.0_f16 // shininess
@@ -128,7 +128,7 @@ int main() {
 
 	glm::mat4 model{ 1.0_f16 };
 
-	glm::vec3 camera_pos{ 0.0_f16, 0.0_f16, 3.0_f16 };
+	glm::vec3 camera_pos{ 0.0_f16, 1.0_f16, 3.0_f16 };
 	glm::mat4 view{ glm::lookAt(
 		camera_pos,
 		glm::vec3(model[3]),

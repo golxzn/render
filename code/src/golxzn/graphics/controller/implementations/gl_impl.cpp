@@ -2,16 +2,51 @@
 #include "golxzn/common.hpp"
 
 #include "golxzn/graphics/controller/implementations/gl_impl.hpp"
-#include "golxzn/graphics/controller/opengl/VAO.hpp"
-#include "golxzn/graphics/controller/opengl/VBO.hpp"
-#include "golxzn/graphics/controller/opengl/EBO.hpp"
+#include "golxzn/graphics/controller/capabilities_holder.hpp"
 #include "golxzn/graphics/window/window.hpp"
 #include "golxzn/graphics/types/shader_program.hpp"
 
-void GLAPIENTRY
-MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-	const GLchar* message, const void* userParam)
-{
+namespace golxzn::graphics {
+
+const core::umap<capabilities, core::u32> gl_impl::gl_capability_map{
+	{ capabilities::blend,                          core::u32{ GL_BLEND }                           },
+	{ capabilities::color_logic_op,                 core::u32{ GL_COLOR_LOGIC_OP }                  },
+	{ capabilities::cull_face,                      core::u32{ GL_CULL_FACE }                       },
+	{ capabilities::debug_output,                   core::u32{ GL_DEBUG_OUTPUT }                    },
+	{ capabilities::debug_output_synchronous,       core::u32{ GL_DEBUG_OUTPUT_SYNCHRONOUS }        },
+	{ capabilities::depth_clamp,                    core::u32{ GL_DEPTH_CLAMP }                     },
+	{ capabilities::depth_test,                     core::u32{ GL_DEPTH_TEST }                      },
+	{ capabilities::dither,                         core::u32{ GL_DITHER }                          },
+	{ capabilities::framebuffer_srgb,               core::u32{ GL_FRAMEBUFFER_SRGB }                },
+	{ capabilities::line_smooth,                    core::u32{ GL_LINE_SMOOTH }                     },
+	{ capabilities::multisample,                    core::u32{ GL_MULTISAMPLE }                     },
+	{ capabilities::polygon_offset_fill,            core::u32{ GL_POLYGON_OFFSET_FILL }             },
+	{ capabilities::polygon_offset_line,            core::u32{ GL_POLYGON_OFFSET_LINE }             },
+	{ capabilities::polygon_offset_point,           core::u32{ GL_POLYGON_OFFSET_POINT }            },
+	{ capabilities::polygon_smooth,                 core::u32{ GL_POLYGON_SMOOTH }                  },
+	{ capabilities::primitive_restart,              core::u32{ GL_PRIMITIVE_RESTART }               },
+	{ capabilities::primitive_restart_fixed_index,  core::u32{ GL_PRIMITIVE_RESTART_FIXED_INDEX }   },
+	{ capabilities::rasterizer_discard,             core::u32{ GL_RASTERIZER_DISCARD }              },
+	{ capabilities::sample_alpha_to_coverage,       core::u32{ GL_SAMPLE_ALPHA_TO_COVERAGE }        },
+	{ capabilities::sample_alpha_to_one,            core::u32{ GL_SAMPLE_ALPHA_TO_ONE }             },
+	{ capabilities::sample_coverage,                core::u32{ GL_SAMPLE_COVERAGE }                 },
+	{ capabilities::sample_mask,                    core::u32{ GL_SAMPLE_MASK }                     },
+	{ capabilities::scissor_test,                   core::u32{ GL_SCISSOR_TEST }                    },
+	{ capabilities::stencil_test,                   core::u32{ GL_STENCIL_TEST }                    },
+	{ capabilities::texture_cube_map_seamless,      core::u32{ GL_TEXTURE_CUBE_MAP_SEAMLESS }       },
+	{ capabilities::program_point_size,             core::u32{ GL_PROGRAM_POINT_SIZE }              },
+
+#if defined(GL_CLIP_DISTANCE)
+	{ capabilities::clip_distance,                  core::u32{ GL_CLIP_DISTANCE }                   },
+#endif
+#if defined(GL_CLIP_DISTANCE)
+	{ capabilities::sample_shading,                 core::u32{ GL_SAMPLE_SHADING }                  },
+#endif
+
+};
+
+void GLAPIENTRY debug_msg_callback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+	const GLchar* message, const void* userParam) {
 	if (type != GL_DEBUG_TYPE_ERROR) return;
 
 	static const golxzn::core::umap<GLenum, std::string_view> sources{
@@ -39,7 +74,6 @@ MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei 
 
 	spdlog::error("[GL] [{}] [{}] ID: {}; message: {}", str_severity, str_source, id, msg);
 }
-namespace golxzn::graphics {
 
 bool gl_impl::initialize() {
 	spdlog::info("[{}] Initializing OpenGL", class_name);
@@ -65,8 +99,8 @@ bool gl_impl::initialize() {
 
 	if (spdlog::get_level() == spdlog::level::debug) {
 		// During init, enable debug output
-		glEnable(GL_DEBUG_OUTPUT);
-		glDebugMessageCallback(MessageCallback, nullptr);
+		enable(capabilities::debug_output);
+		glDebugMessageCallback(debug_msg_callback, nullptr);
 	}
 
 	spdlog::info("[{}] Initialization has finished", class_name);
@@ -544,9 +578,12 @@ void gl_impl::draw_mesh(const types::object::ref &mesh) {
 		spdlog::error("[{}] Failed to draw the '{}' mesh, the VAO is not set", name, class_name);
 	}
 
-	const auto depth_test{ mesh->get_property<bool>("depth_test").value_or(false) };
-	if (depth_test) {
-		glEnable(GL_DEPTH_TEST);
+	const auto capabilities{
+		mesh->get_property<capabilities_holder::caps_container>(capabilities_holder::parameter_name)
+			.value_or(capabilities_holder::caps_container{})
+	};
+	for (const auto cap : capabilities) {
+		enable(cap);
 	}
 
 	glBindVertexArray(VAO.value());
@@ -560,13 +597,65 @@ void gl_impl::draw_mesh(const types::object::ref &mesh) {
 
 	glBindVertexArray(0);
 
-	if (depth_test) {
-		glDisable(GL_DEPTH_TEST);
+	for (const auto cap : capabilities) {
+		disable(cap);
 	}
 }
 
 void gl_impl::viewport(const core::u32 x, const core::u32 y, const core::u32 width, const core::u32 height) noexcept {
 	glViewport(x, y, width, height);
+}
+
+void gl_impl::enable(const capabilities capability) {
+	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
+		glEnable(static_cast<GLenum>(found->second));
+	} else {
+		spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
+	}
+}
+void gl_impl::enable(const capabilities capability, const core::u32 value) {
+	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
+		glEnablei(static_cast<GLenum>(found->second), value);
+	} else {
+		spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
+	}
+}
+void gl_impl::disable(const capabilities capability) {
+	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
+		glDisable(static_cast<GLenum>(found->second));
+	} else {
+		spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
+	}
+}
+void gl_impl::disable(const capabilities capability, const core::u32 value) {
+	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
+		glDisablei(static_cast<GLenum>(found->second), value);
+	} else {
+		spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
+	}
+}
+bool gl_impl::is_enabled(const capabilities capability) const {
+	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
+		return glIsEnabled(static_cast<GLenum>(found->second)) == GL_TRUE;
+	}
+	spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
+	return false;
+}
+bool gl_impl::is_enabled(const capabilities capability, const core::u32 value) const {
+	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
+		return glIsEnabledi(static_cast<GLenum>(found->second), value) == GL_TRUE;
+	}
+	spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
+	return false;
+}
+core::i32 gl_impl::capability_value(const capabilities capability) const {
+	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
+		core::i32 capability_value_out{};
+		glGetIntegerv(static_cast<GLenum>(found->second), &capability_value_out);
+		return capability_value_out;
+	}
+	spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
+	return false;
 }
 
 bool gl_impl::check_program_and_shader(const types::object::ref &program, const types::object::ref &shader) const {

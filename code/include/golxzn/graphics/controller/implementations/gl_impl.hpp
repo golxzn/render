@@ -44,8 +44,17 @@ public:
 	void viewport(const core::u32 x, const core::u32 y,
 		const core::u32 width, const core::u32 height) noexcept override;
 
+	void enable(const capabilities capability) override;
+	void enable(const capabilities capability, const core::u32 value) override;
+	void disable(const capabilities capability) override;
+	void disable(const capabilities capability, const core::u32 value) override;
+	bool is_enabled(const capabilities capability) const override;
+	bool is_enabled(const capabilities capability, const core::u32 value) const override;
+	core::i32 capability_value(const capabilities capability) const override;
+
 private:
 	core::u32 max_texture_units{ 0 };
+	static const core::umap<capabilities, core::u32> gl_capability_map;
 
 	bool check_program_and_shader(const types::object::ref &program, const types::object::ref &shader) const;
 

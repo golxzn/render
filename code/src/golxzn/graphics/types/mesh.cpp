@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <spdlog/spdlog.h>
 #include "golxzn/graphics/types/mesh.hpp"
 
@@ -35,7 +36,7 @@ mesh::mesh(const std::string &name,
 
 	set_shader_program(shader_program);
 	generate();
-	depth_test(true);
+	enable(capabilities::depth_test);
 }
 
 mesh::mesh(const std::string &name,
@@ -49,7 +50,7 @@ mesh::mesh(const std::string &name,
 
 	set_shader_program(shader_program);
 	generate();
-	depth_test(true);
+	enable(capabilities::depth_test);
 }
 
 bool mesh::valid() const noexcept {
@@ -79,12 +80,6 @@ void mesh::add_texture(const std::string &name, core::sptr<texture> texture) {
 
 void mesh::remove_texture(const std::string &name) {
 	mTextures.erase(name);
-}
-
-void mesh::depth_test(bool enable) {
-	if (valid()) {
-		mObject->set_property("depth_test", enable);
-	}
 }
 
 void mesh::draw() {
@@ -126,6 +121,7 @@ void mesh::generate() {
 
 	mObject = api->make_mesh(mVertices, mIndices);
 	mObject->set_property("name", full_name());
+	capabilities_holder::set_target(mObject);
 }
 
 void mesh::update_shader_program_uniforms() {
