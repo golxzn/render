@@ -2,8 +2,11 @@
 #include "golxzn/common.hpp"
 
 #include "golxzn/graphics/controller/implementations/gl_impl.hpp"
+
 #include "golxzn/graphics/mods/capabilities.hpp"
-#include "golxzn/graphics/mods/blend_holder.hpp"
+#include "golxzn/graphics/mods/blend.hpp"
+#include "golxzn/graphics/mods/depth.hpp"
+
 #include "golxzn/graphics/window/window.hpp"
 #include "golxzn/graphics/types/shader_program.hpp"
 
@@ -46,28 +49,38 @@ const core::umap<mods::capabilities, core::u32> gl_impl::gl_capability_map{
 };
 
 const core::umap<mods::blend::function, core::u32> gl_impl::gl_blend_function_map{
-	{ mods::blend::function::zero,                      core::u32{ GL_ZERO }                     },
-	{ mods::blend::function::one,                       core::u32{ GL_ONE }                      },
-	{ mods::blend::function::src_color,                 core::u32{ GL_SRC_COLOR }                },
-	{ mods::blend::function::one_minus_src_color,       core::u32{ GL_ONE_MINUS_SRC_COLOR }      },
-	{ mods::blend::function::dst_color,                 core::u32{ GL_DST_COLOR }                },
-	{ mods::blend::function::one_minus_dst_color,       core::u32{ GL_ONE_MINUS_DST_COLOR }      },
-	{ mods::blend::function::src_alpha,                 core::u32{ GL_SRC_ALPHA }                },
-	{ mods::blend::function::one_minus_src_alpha,       core::u32{ GL_ONE_MINUS_SRC_ALPHA }      },
-	{ mods::blend::function::dst_alpha,                 core::u32{ GL_DST_ALPHA }                },
-	{ mods::blend::function::one_minus_dst_alpha,       core::u32{ GL_ONE_MINUS_DST_ALPHA }      },
-	{ mods::blend::function::constant_color,            core::u32{ GL_CONSTANT_COLOR }           },
-	{ mods::blend::function::one_minus_constant_color,  core::u32{ GL_ONE_MINUS_CONSTANT_COLOR } },
-	{ mods::blend::function::constant_alpha,            core::u32{ GL_CONSTANT_ALPHA }           },
-	{ mods::blend::function::one_minus_constant_alpha,  core::u32{ GL_ONE_MINUS_CONSTANT_ALPHA } },
+	{ mods::blend::function::zero,                        core::u32{ GL_ZERO }                     },
+	{ mods::blend::function::one,                         core::u32{ GL_ONE }                      },
+	{ mods::blend::function::src_color,                   core::u32{ GL_SRC_COLOR }                },
+	{ mods::blend::function::one_minus_src_color,         core::u32{ GL_ONE_MINUS_SRC_COLOR }      },
+	{ mods::blend::function::dst_color,                   core::u32{ GL_DST_COLOR }                },
+	{ mods::blend::function::one_minus_dst_color,         core::u32{ GL_ONE_MINUS_DST_COLOR }      },
+	{ mods::blend::function::src_alpha,                   core::u32{ GL_SRC_ALPHA }                },
+	{ mods::blend::function::one_minus_src_alpha,         core::u32{ GL_ONE_MINUS_SRC_ALPHA }      },
+	{ mods::blend::function::dst_alpha,                   core::u32{ GL_DST_ALPHA }                },
+	{ mods::blend::function::one_minus_dst_alpha,         core::u32{ GL_ONE_MINUS_DST_ALPHA }      },
+	{ mods::blend::function::constant_color,              core::u32{ GL_CONSTANT_COLOR }           },
+	{ mods::blend::function::one_minus_constant_color,    core::u32{ GL_ONE_MINUS_CONSTANT_COLOR } },
+	{ mods::blend::function::constant_alpha,              core::u32{ GL_CONSTANT_ALPHA }           },
+	{ mods::blend::function::one_minus_constant_alpha,    core::u32{ GL_ONE_MINUS_CONSTANT_ALPHA } },
 };
 
 const core::umap<mods::blend::equation, core::u32> gl_impl::gl_blend_equation_map{
-	{ mods::blend::equation::add,                       core::u32{ GL_FUNC_ADD }              },
-	{ mods::blend::equation::subtract,                  core::u32{ GL_FUNC_SUBTRACT }         },
-	{ mods::blend::equation::reverse_subtract,          core::u32{ GL_FUNC_REVERSE_SUBTRACT } },
-	{ mods::blend::equation::min,                       core::u32{ GL_MIN }                   },
-	{ mods::blend::equation::max,                       core::u32{ GL_MAX }                   },
+	{ mods::blend::equation::add,                         core::u32{ GL_FUNC_ADD }                 },
+	{ mods::blend::equation::subtract,                    core::u32{ GL_FUNC_SUBTRACT }            },
+	{ mods::blend::equation::reverse_subtract,            core::u32{ GL_FUNC_REVERSE_SUBTRACT }    },
+	{ mods::blend::equation::min,                         core::u32{ GL_MIN }                      },
+	{ mods::blend::equation::max,                         core::u32{ GL_MAX }                      },
+};
+
+const core::umap<mods::depth::function, core::u32> gl_impl::gl_depth_function_map{
+	{ mods::depth::function::never,                       core::u32{ GL_NEVER }                    },
+	{ mods::depth::function::less,                        core::u32{ GL_LESS }                     },
+	{ mods::depth::function::equal,                       core::u32{ GL_EQUAL }                    },
+	{ mods::depth::function::lequal,                      core::u32{ GL_LEQUAL }                   },
+	{ mods::depth::function::greater,                     core::u32{ GL_GREATER }                  },
+	{ mods::depth::function::not_equal,                   core::u32{ GL_NOTEQUAL }                 },
+	{ mods::depth::function::gequal,                      core::u32{ GL_GEQUAL }                   },
 };
 
 void GLAPIENTRY debug_msg_callback(GLenum source, GLenum type, GLuint id, GLenum severity,
@@ -672,12 +685,14 @@ core::i32 gl_impl::capability_value(const mods::capabilities capability) const {
 	return false;
 }
 
-void gl_impl::set_blend_color(const glm::vec4 &color) noexcept {
+void gl_impl::set_blend_color(const glm::vec4 &color) {
 	glBlendColor(color.r, color.g, color.b, color.a);
 }
 
-void gl_impl::unset_blend_color() noexcept {
-	glBlendColor(0.f, 0.f, 0.f, 0.f);
+glm::vec4 gl_impl::get_blend_color() {
+	glm::vec4 color{};
+	glGetFloatv(GL_BLEND_COLOR, glm::value_ptr(color));
+	return color;
 }
 
 void gl_impl::set_blend_function(const mods::blend::function src, const mods::blend::function dest) {
@@ -687,16 +702,42 @@ void gl_impl::set_blend_function(const mods::blend::function src, const mods::bl
 	);
 }
 
-void gl_impl::unset_blend_function() {
-	glBlendFunc(GL_ONE, GL_ZERO);
+std::pair<mods::blend::function, mods::blend::function> gl_impl::get_blend_function() {
+	GLint src{}, dest{};
+	glGetIntegerv(GL_BLEND_SRC_RGB, &src);
+	glGetIntegerv(GL_BLEND_DST_RGB, &dest);
+
+	std::optional<mods::blend::function> found_src{};
+	std::optional<mods::blend::function> found_dest{};
+	for (const auto [func, value] : gl_blend_function_map) {
+		if (!found_src.has_value() && value == static_cast<GLuint>(src)) {
+			found_src = func;
+		}
+		if (!found_dest.has_value() && value == static_cast<GLuint>(dest)) {
+			found_dest = func;
+		}
+		if (found_src.has_value() && found_dest.has_value()) {
+			return std::make_pair(found_src.value(), found_dest.value());
+		}
+	}
+	spdlog::error("[{}] Unhandled blend function: src: {}, dest: {}", class_name, src, dest);
+	return std::make_pair(mods::blend::function::one, mods::blend::function::zero);
 }
 
 void gl_impl::set_blend_equation(const mods::blend::equation equation) {
 	glBlendEquation(static_cast<GLenum>(gl_blend_equation_map.at(equation)));
 }
 
-void gl_impl::unset_blend_equation() {
-	glBlendEquation(GL_FUNC_ADD);
+mods::blend::equation gl_impl::get_blend_equation() {
+	GLint equation{};
+	glGetIntegerv(GL_BLEND_EQUATION_RGB, &equation);
+	for (const auto [func, value] : gl_blend_equation_map) {
+		if (value == static_cast<GLuint>(equation)) {
+			return func;
+		}
+	}
+	spdlog::error("[{}] Unhandled blend equation: {}", class_name, equation);
+	return mods::blend::equation::add;
 }
 
 void gl_impl::set_blend_function_separate(
@@ -710,8 +751,46 @@ void gl_impl::set_blend_function_separate(
 	);
 }
 
-void gl_impl::unset_blend_function_separate() {
-	glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
+std::array<mods::blend::function, 4> gl_impl::get_blend_function_separate() {
+	GLint src_rgb{}, dest_rgb{}, src_alpha{}, dest_alpha{};
+	glGetIntegerv(GL_BLEND_SRC_RGB, &src_rgb);
+	glGetIntegerv(GL_BLEND_DST_RGB, &dest_rgb);
+	glGetIntegerv(GL_BLEND_SRC_ALPHA, &src_alpha);
+	glGetIntegerv(GL_BLEND_DST_ALPHA, &dest_alpha);
+
+	std::optional<mods::blend::function> found_src_rgb{};
+	std::optional<mods::blend::function> found_dest_rgb{};
+	std::optional<mods::blend::function> found_src_alpha{};
+	std::optional<mods::blend::function> found_dest_alpha{};
+	for (const auto [func, value] : gl_blend_function_map) {
+		if (!found_src_rgb.has_value() && value == static_cast<GLuint>(src_rgb)) {
+			found_src_rgb = func;
+		}
+		if (!found_dest_rgb.has_value() && value == static_cast<GLuint>(dest_rgb)) {
+			found_dest_rgb = func;
+		}
+		if (!found_src_alpha.has_value() && value == static_cast<GLuint>(src_alpha)) {
+			found_src_alpha = func;
+		}
+		if (!found_dest_alpha.has_value() && value == static_cast<GLuint>(dest_alpha)) {
+			found_dest_alpha = func;
+		}
+		if (found_src_rgb.has_value() && found_dest_rgb.has_value() &&
+			found_src_alpha.has_value() && found_dest_alpha.has_value()) {
+			return std::array<mods::blend::function, 4>{
+				found_src_rgb.value(), found_dest_rgb.value(),
+				found_src_alpha.value(), found_dest_alpha.value()
+			};
+		}
+	}
+	spdlog::error(
+		"[{}] Unhandled blend function: src_rgb: {}, dest_rgb: {}, src_alpha: {}, dest_alpha: {}",
+		class_name, src_rgb, dest_rgb, src_alpha, dest_alpha
+	);
+	return std::array<mods::blend::function, 4>{
+		mods::blend::function::one, mods::blend::function::zero,
+		mods::blend::function::one, mods::blend::function::zero
+	};
 }
 
 void gl_impl::set_blend_equation_separate(
@@ -722,8 +801,64 @@ void gl_impl::set_blend_equation_separate(
 	);
 }
 
-void gl_impl::unset_blend_equation_separate() {
-	glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
+std::pair<mods::blend::equation, mods::blend::equation> gl_impl::get_blend_equation_separate() {
+	GLint equation_rgb{}, equation_alpha{};
+	glGetIntegerv(GL_BLEND_EQUATION_RGB, &equation_rgb);
+	glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &equation_alpha);
+
+	std::optional<mods::blend::equation> found_equation_rgb{};
+	std::optional<mods::blend::equation> found_equation_alpha{};
+	for (const auto [func, value] : gl_blend_equation_map) {
+		if (!found_equation_rgb.has_value() && value == static_cast<GLuint>(equation_rgb)) {
+			found_equation_rgb = func;
+		}
+		if (!found_equation_alpha.has_value() && value == static_cast<GLuint>(equation_alpha)) {
+			found_equation_alpha = func;
+		}
+		if (found_equation_rgb.has_value() && found_equation_alpha.has_value()) {
+			return std::make_pair(found_equation_rgb.value(), found_equation_alpha.value());
+		}
+	}
+	spdlog::error("[{}] Unhandled blend equation: rgb: {}, alpha: {}", class_name, equation_rgb, equation_alpha);
+	return std::make_pair(mods::blend::equation::add, mods::blend::equation::add);
+}
+
+
+void gl_impl::set_depth_mask(const bool value) {
+	glDepthMask(value ? GL_TRUE : GL_FALSE);
+}
+bool gl_impl::get_depth_mask() const {
+	GLboolean value{};
+	glGetBooleanv(GL_DEPTH_WRITEMASK, &value);
+	return value == GL_TRUE;
+}
+
+void gl_impl::set_depth_function(const mods::depth::function func) {
+	if (auto found{ gl_depth_function_map.find(func) }; found != std::end(gl_depth_function_map)) {
+		glDepthFunc(found->second);
+	} else {
+		spdlog::error("[{}] Unhandled depth function: {:x}", class_name, static_cast<core::u32>(func));
+	}
+}
+mods::depth::function gl_impl::get_depth_function() const {
+	GLint value{};
+	glGetIntegerv(GL_DEPTH_FUNC, &value);
+	const auto found{ std::find_if(std::begin(gl_depth_function_map), std::end(gl_depth_function_map),
+		[value](const auto &item) { return static_cast<GLint>(item.second) == value; }) };
+	if (found != std::end(gl_depth_function_map)) {
+		return found->first;
+	}
+	spdlog::error("[{}] Unhandled depth function: {:x}", class_name, value);
+	return mods::depth::function::never;
+}
+
+void gl_impl::set_depth_range(const core::f16 min, const core::f16 max) {
+	glDepthRangef(std::max(0.0f, min), std::min(1.0f, max));
+}
+std::pair<core::f16, core::f16> gl_impl::get_depth_range() const {
+	core::f16 values[2]{};
+	glGetFloati_v(GL_DEPTH_RANGE, 2, values);
+	return std::make_pair(values[0], values[1]);
 }
 
 bool gl_impl::check_program_and_shader(const types::object::ref &program, const types::object::ref &shader) const {

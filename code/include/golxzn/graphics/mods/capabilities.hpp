@@ -48,6 +48,7 @@ public:
 
 private:
 	core::uset<capabilities> mCapabilities;
+	core::umap<capabilities, bool> mStates;
 };
 
 

@@ -18,7 +18,11 @@ bool mod_capabilities::is_set(const capabilities capability) const noexcept {
 void mod_capabilities::enable() {
 	if (auto api{ controller::api() }; api != nullptr) {
 		for (const auto capability : mCapabilities) {
-			api->enable(capability);
+			const bool enabled{ api->is_enabled(capability) };
+			mStates.insert_or_assign(capability, enabled);
+			if (!enabled) {
+				api->enable(capability);
+			}
 		}
 	}
 }
@@ -26,7 +30,12 @@ void mod_capabilities::enable() {
 void mod_capabilities::disable() {
 	if (auto api{ controller::api() }; api != nullptr) {
 		for (const auto capability : mCapabilities) {
-			api->disable(capability);
+			const auto found{ mStates.find(capability) };
+			// if it wasn't enabled before this mod was applied,
+			// then we disable it cuz we enabled it.
+			if (!found->second) {
+				api->disable(capability);
+			}
 		}
 	}
 }

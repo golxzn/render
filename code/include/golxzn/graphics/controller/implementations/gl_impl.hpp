@@ -52,33 +52,42 @@ public:
 	bool is_enabled(const mods::capabilities capability, const core::u32 value) const override;
 	core::i32 capability_value(const mods::capabilities capability) const override;
 
-	void set_blend_color(const glm::vec4 &color) noexcept override;
-	void unset_blend_color() noexcept override;
+	void set_blend_color(const glm::vec4 &color) override;
+	glm::vec4 get_blend_color() override;
 
 	void set_blend_function(const mods::blend::function src, const mods::blend::function dest) override;
-	void unset_blend_function() override;
+	std::pair<mods::blend::function, mods::blend::function> get_blend_function() override;
 
 	void set_blend_equation(const mods::blend::equation equation) override;
-	void unset_blend_equation() override;
+	mods::blend::equation get_blend_equation() override;
 
 	void set_blend_function_separate(
 			const mods::blend::function src_rgb,
 			const mods::blend::function dest_rgb,
 			const mods::blend::function src_alpha,
 			const mods::blend::function dest_alpha) override;
-	void unset_blend_function_separate() override;
+	std::array<mods::blend::function, 4> get_blend_function_separate() override;
 
 	void set_blend_equation_separate(
 			const mods::blend::equation equation_rgb,
 			const mods::blend::equation equation_alpha) override;
-	void unset_blend_equation_separate() override;
+	std::pair<mods::blend::equation, mods::blend::equation> get_blend_equation_separate() override;
 
+	void set_depth_mask(const bool value) override;
+	bool get_depth_mask() const override;
+
+	void set_depth_function(const mods::depth::function func) override;
+	mods::depth::function get_depth_function() const override;
+
+	void set_depth_range(const core::f16 min, const core::f16 max) override;
+	std::pair<core::f16, core::f16> get_depth_range() const override;
 
 private:
 	core::u32 max_texture_units{ 0 };
 	static const core::umap<mods::capabilities, core::u32> gl_capability_map;
 	static const core::umap<mods::blend::function, core::u32> gl_blend_function_map;
 	static const core::umap<mods::blend::equation, core::u32> gl_blend_equation_map;
+	static const core::umap<mods::depth::function, core::u32> gl_depth_function_map;
 
 	bool check_program_and_shader(const types::object::ref &program, const types::object::ref &shader) const;
 

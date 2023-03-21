@@ -164,13 +164,12 @@ int main() {
 		// ------
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		view = glm::mat4(glm::mat3(view));
-		auto cube_map_shader{ cube_map_mesh.get_shader_program() };
-		cube_map_shader->use();
-		cube_map_shader->set_uniform("projection", projection);
-		cube_map_shader->set_uniform("view", view);
-		cube_map_shader->unuse();
-
+		if (auto cube_map_shader{ cube_map_mesh.get_shader_program() }; cube_map_shader != nullptr) {
+			cube_map_shader->use();
+			cube_map_shader->set_uniform("projection", projection);
+			cube_map_shader->set_uniform("view", glm::mat4(glm::mat3(view)));
+			cube_map_shader->unuse();
+		}
 		cube_map_mesh.draw();
 
 		view = glm::lookAt(
@@ -179,12 +178,16 @@ int main() {
 			glm::vec3(0.0_f16, 1.0_f16, 0.0_f16)
 		);
 
-		auto teapot_mesh_shader{ teapot_mesh.get_shader_program() };
-		teapot_mesh_shader->use();
-		teapot_mesh_shader->set_uniform("projection", projection);
-		teapot_mesh_shader->set_uniform("view", view);
-		teapot_mesh_shader->set_uniform("model", model);
-		teapot_mesh_shader->unuse();
+		// Has to be first, before all other rendering (except for the cube map)
+		golxzn::render::gizmos::draw_infinity_grid(view, projection);
+
+		if (auto teapot_mesh_shader{ teapot_mesh.get_shader_program() }; teapot_mesh_shader != nullptr) {
+			teapot_mesh_shader->use();
+			teapot_mesh_shader->set_uniform("projection", projection);
+			teapot_mesh_shader->set_uniform("view", view);
+			teapot_mesh_shader->set_uniform("model", model);
+			teapot_mesh_shader->unuse();
+		}
 		teapot_mesh.draw();
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

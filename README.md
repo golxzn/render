@@ -1,9 +1,9 @@
 <br/>
-<!-- <p align="center">
-	<img src="assets/CuteCoreLogo.png" />
-</p> -->
 <h2 align="center">⚙️ just the <b>gxen</b> game engine <b>render</b> module ⚙️</h2>
 
+<p align="center">
+	<img src="docs/infinity_grid.gif" />
+</p>
 <br/>
 
 <h2>📜 Table of contents </h2>

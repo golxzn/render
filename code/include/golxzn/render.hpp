@@ -7,7 +7,8 @@
 namespace golxzn {
 
 using render = extendable_render_base<
-	graphics::extensions::primitives
+	graphics::extensions::primitives,
+	graphics::extensions::ext_gizmos
 >;
 
 } // namespace golxzn

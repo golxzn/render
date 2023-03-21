@@ -3,11 +3,11 @@
 namespace golxzn::graphics::mods {
 
 void holder::enable_mods() {
-	for (auto&& [key, mods] : mmodss) mods->enable();
+	for (auto&& [key, mods] : mMods) mods->enable();
 }
 
 void holder::disable_mods() {
-	for (auto&& [key, mods] : mmodss) mods->disable();
+	for (auto&& [key, mods] : mMods) mods->disable();
 }
 
 } // namespace golxzn::graphics::mods

@@ -16,11 +16,11 @@ public:
 
 	template<class T, std::enable_if_t<std::is_base_of_v<mod_interface, T>, bool> = false>
 	core::sptr<T> add_mod() {
-		if (auto found{ mmodss.find(typeid(T).name()) }; found != std::end(mmodss)) {
+		if (auto found{ mMods.find(typeid(T).name()) }; found != std::end(mMods)) {
 			return std::static_pointer_cast<T>(found->second);
 		}
 		if (auto mods{ std::make_shared<T>() }; mods != nullptr) {
-			mmodss.emplace(typeid(T).name(), mods);
+			mMods.emplace(typeid(T).name(), mods);
 			return mods;
 		}
 		return nullptr;
@@ -33,14 +33,28 @@ public:
 
 	template<class T, std::enable_if_t<std::is_base_of_v<mod_interface, T>, bool> = false>
 	void erase_mod() {
-		mmodss.erase(typeid(T).name());
+		mMods.erase(typeid(T).name());
 	}
 
 	void enable_mods();
 	void disable_mods();
 
 private:
-	core::umap<std::string, core::sptr<mod_interface>> mmodss;
+	core::umap<std::string, core::sptr<mod_interface>> mMods;
 };
+
+
+template<class T>
+struct cache_value {
+	T value{};
+	T previous{};
+
+	cache_value() = default;
+	explicit cache_value(const T val, const T prev) noexcept : value{ val }, previous{ prev } {}
+	explicit cache_value(const T val) noexcept : value{ val }, previous{ val } {}
+
+	bool changed() const noexcept { return value != previous; }
+};
+
 
 } // namespace golxzn::graphics::mods
