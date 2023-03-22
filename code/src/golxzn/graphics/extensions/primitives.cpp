@@ -20,13 +20,13 @@ void primitives::draw_line(const glm::vec2 &start, const glm::vec2 &end, const c
 
 	auto mesh{ get_line_mesh(default_circle_steps) };
 	if (mesh == nullptr || !mesh->valid()) {
-		spdlog::error("[{}] Failed to load circle mesh!", class_name);
+		spdlog::error("[{}] Failed to load line mesh!", class_name);
 		return;
 	}
 
 	auto shader{ mesh->get_shader_program() };
 	if (shader == nullptr || !shader->valid()) {
-		spdlog::error("[{}] Failed to load circle shader!", class_name);
+		spdlog::error("[{}] Failed to load line shader!", class_name);
 		return;
 	}
 
@@ -52,13 +52,13 @@ void primitives::draw_line(const glm::vec2 &start, const glm::vec2 &end, const c
 void primitives::draw_rectangle(const glm::vec2 &position, const glm::vec2 &size, const glm::vec4 &color) {
 	auto mesh{ get_rect_mesh() };
 	if (mesh == nullptr || !mesh->valid()) {
-		spdlog::error("[{}] Failed to load circle mesh!", class_name);
+		spdlog::error("[{}] Failed to load rectangle mesh!", class_name);
 		return;
 	}
 
 	auto shader{ mesh->get_shader_program() };
 	if (shader == nullptr || !shader->valid()) {
-		spdlog::error("[{}] Failed to load circle shader!", class_name);
+		spdlog::error("[{}] Failed to load rectangle shader!", class_name);
 		return;
 	}
 
@@ -133,7 +133,7 @@ types::mesh::ref primitives::get_line_mesh(const core::u32 steps) {
 		get_default_2d_shader()
 	) };
 	if (line != nullptr) {
-		line->depth_test(false);
+		line->get_mod<mods::mod_capabilities>()->reset(mods::capabilities::depth_test);
 		mCachedMeshes.emplace(name, line);
 	}
 	return line;
@@ -160,7 +160,7 @@ types::mesh::ref primitives::get_rect_mesh() {
 		get_default_2d_shader()
 	) };
 	if (rect != nullptr) {
-		rect->depth_test(false);
+		rect->get_mod<mods::mod_capabilities>()->reset(mods::capabilities::depth_test);
 		mCachedMeshes.emplace(name, rect);
 	}
 	return rect;
@@ -198,7 +198,7 @@ types::mesh::ref primitives::get_circle_mesh(const core::u32 steps) {
 
 	auto circle{ types::mesh::make(name, vertices, indices, get_default_2d_shader()) };
 	if (circle != nullptr) {
-		circle->depth_test(false);
+		circle->get_mod<mods::mod_capabilities>()->reset(mods::capabilities::depth_test);
 		mCachedMeshes.emplace(name, circle);
 	}
 	return circle;
@@ -217,8 +217,7 @@ types::shader_program::ref primitives::load_shader(const std::string &name) {
 		path + ".frag"
 	}) };
 
-	if (program && program->get_status() == program_status::need_to_link) {
-		program->link();
+	if (program && program->get_status() == program_status::link_success) {
 		mCachedShaders.emplace(name, program);
 		return program;
 	}
@@ -256,15 +255,15 @@ void main() {
 in vec4 v_color;
 out vec4 fragment_color;
 void main() {
-	fragment_color = v_color;
+	vec3 gamma_correction = pow(v_color.rgb, vec3(1.0 / 2.2));
+	fragment_color = vec4(v_color.rgb, v_color.a);
 }
 )glsl",
 			types::shader::type::fragment
 		),
 	}) };
 
-	if (program && program->get_status() == program_status::need_to_link) {
-		program->link();
+	if (program && program->get_status() == program_status::link_success) {
 		mCachedShaders.emplace(name, program);
 		return program;
 	}

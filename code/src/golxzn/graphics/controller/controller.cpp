@@ -31,12 +31,12 @@ std::string_view controller::api_type_to_str(const api_type type) noexcept {
 	return "Unknown";
 }
 
-bool controller::initialize(const api_type render_api) noexcept {
+bool controller::initialize(const api_type render_api, get_process_address_function function) noexcept {
 	destroy();
 
 	if (const auto found{ api_initializer.find(render_api) }; found != std::end(api_initializer)) {
 		impl = found->second();
-		if (const bool success{ impl->initialize() }; success) {
+		if (const bool success{ impl->initialize(function) }; success) {
 			return success;
 		}
 		destroy();

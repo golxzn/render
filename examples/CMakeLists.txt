@@ -10,6 +10,7 @@ load_sources_list(example_headers ${example_dir} ".h;.hpp")
 load_sources_list(example_sources ${example_dir} ".cpp")
 
 add_executable(golxzn_examples ${example_sources} ${example_headers})
+target_include_directories(golxzn_examples PUBLIC ${GOLXZNR_EXAMPLES_DIR}/common)
 set_target_properties(golxzn_examples PROPERTIES
 	CXX_STANDARD ${GOLXZNR_CXX_STANDARD}
 )

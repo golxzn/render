@@ -10,7 +10,7 @@ class gl_impl final : public controller::implementation {
 public:
 	~gl_impl() override = default;
 
-	bool initialize() override;
+	bool initialize(controller::get_process_address_function function) override;
 	void destroy() override;
 
 	types::object::ref make_shader(const types::shader::type type, const std::string_view code) override;

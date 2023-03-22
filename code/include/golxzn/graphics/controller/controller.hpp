@@ -25,12 +25,13 @@ enum class function;
 class controller {
 public:
 	GOLXZN_STATIC_CLASS(controller);
+	using get_process_address_function = void(*)(const char *name);
 
 	class implementation {
 	public:
 		virtual ~implementation() = default;
 
-		virtual bool initialize() = 0;
+		virtual bool initialize(get_process_address_function function) = 0;
 		virtual void destroy() = 0;
 
 		virtual types::object::ref make_shader(const types::shader::type type, const std::string_view code) = 0;
@@ -124,7 +125,7 @@ public:
 	};
 	static std::string_view api_type_to_str(const api_type type) noexcept;
 
-	static bool initialize(const api_type render_api) noexcept;
+	static bool initialize(const api_type render_api, get_process_address_function function) noexcept;
 	static void destroy() noexcept;
 	static bool active() noexcept;
 

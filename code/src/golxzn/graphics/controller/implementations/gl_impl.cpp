@@ -7,7 +7,6 @@
 #include "golxzn/graphics/mods/blend.hpp"
 #include "golxzn/graphics/mods/depth.hpp"
 
-#include "golxzn/graphics/window/window.hpp"
 #include "golxzn/graphics/types/shader_program.hpp"
 
 namespace golxzn::graphics {
@@ -114,23 +113,10 @@ void GLAPIENTRY debug_msg_callback(GLenum source, GLenum type, GLuint id, GLenum
 	spdlog::error("[GL] [{}] [{}] ID: {}; message: {}", str_severity, str_source, id, msg);
 }
 
-bool gl_impl::initialize() {
+bool gl_impl::initialize(controller::get_process_address_function function) {
 	spdlog::info("[{}] Initializing OpenGL", class_name);
-	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-#ifdef __APPLE__
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-	if (!window::initialize()) {
-		return false;
-	}
-
-	spdlog::info("[{}] Loading OpenGL function pointers", class_name);
-	if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress)) {
+	if (!gladLoadGL((GLADloadfunc)function)) {
 		spdlog::critical("[{}] Failed to initialize GLAD.", class_name);
 		destroy();
 		return false;
@@ -153,9 +139,7 @@ bool gl_impl::initialize() {
 	return true;
 }
 
-void gl_impl::destroy() {
-	glfwTerminate();
-}
+void gl_impl::destroy() { }
 
 types::object::ref gl_impl::make_shader(const types::shader::type type, const std::string_view code) {
 	using namespace types;

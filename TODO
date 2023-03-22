@@ -1,0 +1,40 @@
+[ ] Essential:
+  [ ] Text render;
+  [ ] Model;
+    [ ] Model parsing.
+  [ ] Camera;
+  [ ] Animated Texture;
+  [ ] Lighting:
+    [ ] Ambient light;
+    [ ] Directional light;
+    [ ] Point light;
+
+[ ] render:
+  [ ] primitives:
+    [ ] 2D stuff:
+      [ ] draw_triangle;
+      [*] draw_line;
+      [*] draw_rectangle;
+      [*] draw_circle;
+    [ ] 3D stuff:
+      [ ] draw_line;
+      [ ] draw_triangle;
+      [ ] draw_plane;
+      [ ] draw_cube;
+      [ ] draw_sphere;
+  [ ] gizmos:
+    [*] infinity grid;
+  [ ] text render module;
+
+[ ] resource management
+  [ ] Cache shaders;
+  [ ] Cache meshes;
+
+[ ] Advanced
+  [ ] Runtime shader code generator;
+  [ ] Configurable Vertex class & mesh;
+
+[*] Window:
+  [*] Remove the glfw initialization from gl_impl;
+  [*] Make the graphics library independent from glfw;
+

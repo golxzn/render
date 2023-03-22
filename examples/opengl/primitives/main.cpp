@@ -1,6 +1,6 @@
-#include <golxzn/common.hpp>
+#include "glfw_window.hpp"
+
 #include <golxzn/core/resources/manager.hpp>
-#include <golxzn/graphics/window/window.hpp>
 #include <golxzn/render.hpp>
 
 int main() {
@@ -12,15 +12,18 @@ int main() {
 	});
 
 	spdlog::set_level(spdlog::level::debug);
-	core::res_man::initialize("opengl_triangle");
-	graphics::controller::initialize(graphics::controller::api_type::opengl);
 
-	auto window{ graphics::window::api() };
-	if (window == nullptr) {
-		spdlog::critical("No window API");
+	core::res_man::initialize("opengl_primitives");
+
+	auto window{ window::initialize("golxzn | mesh") };
+	if (window == nullptr) return -1;
+
+	if (!graphics::controller::initialize(graphics::controller::api_type::opengl,
+			(graphics::controller::get_process_address_function)glfwGetProcAddress)) {
 		return -1;
 	}
-	window->resize(720, 720);
+
+	glfwSetWindowSize(window, 800, 800);
 
 	// uncomment this call to draw in wireframe polygons.
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -32,7 +35,7 @@ int main() {
 	// render loop
 	// -----------
 	glClearColor(0.999_f16, 0.666_f16, 0.777_f16, 1.0_f16);
-	while (!window->should_close()) {
+	while (!glfwWindowShouldClose(window)) {
 
 		current_frame = glfwGetTime();
 		delta = current_frame - last_frame;
@@ -56,7 +59,7 @@ int main() {
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		// -------------------------------------------------------------------------------
-		window->swap_buffers();
+		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 	spdlog::info("[main] exit");

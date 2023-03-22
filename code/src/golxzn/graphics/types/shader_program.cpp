@@ -27,7 +27,6 @@ shader_program::shader_program(const std::string &name) : named{ name } {
 		if (mObject != nullptr) {
 			mObject->set_property("name", full_name());
 		}
-		mStatus = valid() ? status::need_to_link : status::invalid;
 		return;
 	}
 
@@ -47,6 +46,7 @@ shader_program::shader_program(const std::string &name, std::initializer_list<sh
 			return;
 		}
 	}
+	link();
 }
 
 shader_program::shader_program(const std::string &name, std::initializer_list<shader::ref> &&shaders)
@@ -61,6 +61,7 @@ shader_program::shader_program(const std::string &name, std::initializer_list<sh
 			return;
 		}
 	}
+	link();
 }
 
 shader_program::shader_program(const std::string &name, std::initializer_list<std::string> &&shaders)
@@ -75,6 +76,7 @@ shader_program::shader_program(const std::string &name, std::initializer_list<st
 			return;
 		}
 	}
+	link();
 }
 
 void shader_program::clear() noexcept {

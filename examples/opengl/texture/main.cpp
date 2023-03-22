@@ -1,8 +1,7 @@
-#include <golxzn/common.hpp>
+#include "glfw_window.hpp"
 
 #include <golxzn/core/resources/manager.hpp>
 #include <golxzn/render.hpp>
-#include <golxzn/graphics/window/window.hpp>
 #include <golxzn/graphics/types/shader_program.hpp>
 #include <golxzn/graphics/types/texture.hpp>
 
@@ -18,12 +17,13 @@ int main() {
 	});
 
 	spdlog::set_level(spdlog::level::debug);
-	core::res_man::initialize("opengl_triangle");
-	graphics::controller::initialize(graphics::controller::api_type::opengl);
+	core::res_man::initialize("opengl_texture");
 
-	auto window{ graphics::window::api() };
-	if (window == nullptr) {
-		spdlog::critical("No window API");
+	auto window{ window::initialize("golxzn | mesh") };
+	if (window == nullptr) return -1;
+
+	if (!graphics::controller::initialize(graphics::controller::api_type::opengl,
+			(graphics::controller::get_process_address_function)glfwGetProcAddress)) {
 		return -1;
 	}
 
@@ -159,11 +159,9 @@ int main() {
 
 	static constexpr glm::vec3 up{ 0.0_f16, 1.0_f16, 0.0_f16 };
 
-	using win_impl = graphics::window::implementation;
-
 	glm::mat4 projection{ glm::perspective(
 		glm::radians(35.0_f16),
-		static_cast<float>(win_impl::default_width) / static_cast<float>(win_impl::default_height),
+		window::aspect,
 		0.001_f16,
 		1000.0_f16
 	) };
@@ -186,7 +184,7 @@ int main() {
 	// render loop
 	// -----------
 	glClearColor(0.999_f16, 0.666_f16, 0.777_f16, 1.0_f16);
-	while (!window->should_close()) {
+	while (!glfwWindowShouldClose(window)) {
 
 		current_frame = glfwGetTime();
 		delta = current_frame - last_frame;
@@ -241,10 +239,7 @@ int main() {
 		diffuse1->unbind();
 		diffuse0->unbind();
 
-
-		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		// -------------------------------------------------------------------------------
-		window->swap_buffers();
+		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
@@ -253,5 +248,8 @@ int main() {
 	VAO.clean();
 	VBO.clean();
 	EBO.clean();
+
+	cube_map_vbo.clean();
+	cube_map_vao.clean();
 	program->clear();
 }
