@@ -3,7 +3,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <golxzn/core/types.hpp>
-#include <golxzn/graphics/types/mesh.hpp>
+#include <golxzn/graphics/types/model/mesh.hpp>
 
 static const std::vector<golxzn::graphics::types::vertex> teapot_verices{
     { glm::vec3{  0.0479f,  0.1900f,  0.1425f }, glm::vec3{  0.2677f,  0.4803f,  0.8268f }, glm::vec2{} },

@@ -7,7 +7,7 @@
 #include "golxzn/graphics/mods/blend.hpp"
 #include "golxzn/graphics/mods/depth.hpp"
 
-#include "golxzn/graphics/types/shader_program.hpp"
+#include "golxzn/graphics/types/shader/program.hpp"
 
 namespace golxzn::graphics {
 

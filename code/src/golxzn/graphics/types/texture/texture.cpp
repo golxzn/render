@@ -1,7 +1,7 @@
 #include <spdlog/spdlog.h>
 #include <golxzn/core/resources/manager.hpp>
 
-#include "golxzn/graphics/types/texture.hpp"
+#include "golxzn/graphics/types/texture/texture.hpp"
 
 #include "golxzn/graphics/controller/controller.hpp"
 

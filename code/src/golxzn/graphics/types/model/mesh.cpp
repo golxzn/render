@@ -1,10 +1,10 @@
 #include <algorithm>
 #include <spdlog/spdlog.h>
-#include "golxzn/graphics/types/mesh.hpp"
+#include "golxzn/graphics/types/model/mesh.hpp"
 
-#include "golxzn/graphics/types/shader_program.hpp"
-#include "golxzn/graphics/types/texture.hpp"
-#include "golxzn/graphics/types/material.hpp"
+#include "golxzn/graphics/types/shader/program.hpp"
+#include "golxzn/graphics/types/texture/texture.hpp"
+#include "golxzn/graphics/types/model/material.hpp"
 #include "golxzn/graphics/controller/controller.hpp"
 
 namespace golxzn::graphics::types {

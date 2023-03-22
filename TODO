@@ -38,3 +38,5 @@
   [*] Remove the glfw initialization from gl_impl;
   [*] Make the graphics library independent from glfw;
 
+[ ] Quality & beauty
+  [ ] make::really::long::namespaces::shorter;

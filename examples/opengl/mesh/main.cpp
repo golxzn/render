@@ -2,10 +2,10 @@
 
 #include <golxzn/core/resources/manager.hpp>
 #include <golxzn/render.hpp>
-#include <golxzn/graphics/types/shader_program.hpp>
-#include <golxzn/graphics/types/texture.hpp>
-#include <golxzn/graphics/types/material.hpp>
-#include <golxzn/graphics/types/mesh.hpp>
+#include <golxzn/graphics/types/shader/program.hpp>
+#include <golxzn/graphics/types/texture/texture.hpp>
+#include <golxzn/graphics/types/model/material.hpp>
+#include <golxzn/graphics/types/model/mesh.hpp>
 
 #include <golxzn/graphics/controller/opengl/VAO.hpp>
 #include <golxzn/graphics/controller/opengl/EBO.hpp>

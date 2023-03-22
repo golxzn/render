@@ -2,9 +2,9 @@
 
 #include <functional>
 
-#include <golxzn/graphics/types/shader.hpp>
-#include <golxzn/graphics/types/texture.hpp>
-#include <golxzn/graphics/types/mesh.hpp>
+#include <golxzn/graphics/types/shader/shader.hpp>
+#include <golxzn/graphics/types/texture/texture.hpp>
+#include <golxzn/graphics/types/model/mesh.hpp>
 
 namespace golxzn::graphics {
 

@@ -2,8 +2,8 @@
 
 #include <glm/glm.hpp>
 
-#include "golxzn/graphics/types/shader_program.hpp"
-#include "golxzn/graphics/types/mesh.hpp"
+#include "golxzn/graphics/types/shader/program.hpp"
+#include "golxzn/graphics/types/model/mesh.hpp"
 
 /** @addtogroup graphics::extensions
  * @{

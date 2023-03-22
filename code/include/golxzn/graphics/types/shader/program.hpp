@@ -1,6 +1,6 @@
 #pragma once
 
-#include "golxzn/graphics/types/shader.hpp"
+#include "golxzn/graphics/types/shader/shader.hpp"
 #include "golxzn/graphics/controller/controller.hpp"
 
 namespace golxzn::graphics::types {

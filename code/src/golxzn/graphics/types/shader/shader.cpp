@@ -2,7 +2,7 @@
 #include <golxzn/core/resources/manager.hpp>
 #include <golxzn/core/utils/traits.hpp>
 
-#include "golxzn/graphics/types/shader.hpp"
+#include "golxzn/graphics/types/shader/shader.hpp"
 
 #include "golxzn/graphics/controller/controller.hpp"
 

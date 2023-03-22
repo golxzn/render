@@ -3,7 +3,7 @@
 
 #include "golxzn/graphics/extensions/primitives.hpp"
 
-#include "golxzn/graphics/types/mesh.hpp"
+#include "golxzn/graphics/types/model/mesh.hpp"
 #include "golxzn/graphics/controller/controller.hpp"
 
 
