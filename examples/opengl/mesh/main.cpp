@@ -1,5 +1,7 @@
 #include "glfw_window.hpp"
 
+#include <golxzn/core/types/time.hpp>
+#include <golxzn/core/types/clock.hpp>
 #include <golxzn/core/resources/manager.hpp>
 #include <golxzn/render.hpp>
 #include <golxzn/graphics/types/shader/program.hpp>
@@ -136,22 +138,18 @@ int main() {
 	// uncomment this call to draw in wireframe polygons.
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	core::f32 current_frame{ glfwGetTime() };
-	core::f32 last_frame{};
-	core::f32 delta{};
+	core::clock clock;
 
 	// render loop
 	// -----------
 	glClearColor(0.999_f16, 0.666_f16, 0.777_f16, 1.0_f16);
 	while (!glfwWindowShouldClose(window)) {
-		current_frame = glfwGetTime();
-		delta = current_frame - last_frame;
+		const auto delta{ clock.elapsed().seconds() };
 
 		if (delta < frame_time) {
 			glfwPollEvents();
 			continue;
 		}
-		last_frame = current_frame;
 
 		// model = glm::rotate_slow(model, glm::radians(1.0_f16), up);
 		const glm::mat3 rotator{

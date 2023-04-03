@@ -52,6 +52,28 @@ public:
 			const std::any value, const std::type_info &info) = 0;
 
 		// Texture stuff
+
+		// Texture 1D
+		virtual void set_texture_image_ext(types::object::ref texture,
+			const types::tex_target target, const core::i32 size,
+			const types::tex_format internal_format, const types::tex_data_format data_format,
+			const core::u8 *data) = 0;
+
+		// Texture 2D
+		virtual void set_texture_image_ext(types::object::ref texture,
+			const types::tex_target target, const glm::i32vec2 &size,
+			const types::tex_format internal_format, const types::tex_data_format data_format,
+			const core::u8 *data) = 0;
+
+		// Texture 3D
+		virtual void set_texture_image_ext(types::object::ref texture,
+			const types::tex_target target, const glm::i32vec3 &size,
+			const types::tex_format internal_format, const types::tex_data_format data_format,
+			const core::u8 *data) = 0;
+
+		virtual void set_texture_image(types::object::ref texture, const core::i32 width,
+			const core::i32 height, const core::i32 channels, const core::u8 *data) = 0;
+
 		virtual bool make_texture_image_2d(types::object::ref texture, const core::bytes &data) = 0;
 
 		virtual bool make_texture_image_2d(types::object::ref texture,

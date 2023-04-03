@@ -11,6 +11,95 @@
 
 namespace golxzn::graphics {
 
+const core::umap<types::tex_target, core::u32> gl_impl::gl_tex_target_map{
+	{ types::tex_target::texture_2d,                   core::u32{ GL_TEXTURE_2D }                  },
+	{ types::tex_target::proxy_texture_2d,             core::u32{ GL_PROXY_TEXTURE_2D }            },
+	{ types::tex_target::texture_1d_array,             core::u32{ GL_TEXTURE_1D_ARRAY }            },
+	{ types::tex_target::proxy_texture_1d_array,       core::u32{ GL_PROXY_TEXTURE_1D_ARRAY }      },
+	{ types::tex_target::texture_rectangle,            core::u32{ GL_TEXTURE_RECTANGLE }           },
+	{ types::tex_target::proxy_texture_rectangle,      core::u32{ GL_PROXY_TEXTURE_RECTANGLE }     },
+	{ types::tex_target::texture_cube_map_positive_x,  core::u32{ GL_TEXTURE_CUBE_MAP_POSITIVE_X } },
+	{ types::tex_target::texture_cube_map_negative_x,  core::u32{ GL_TEXTURE_CUBE_MAP_NEGATIVE_X } },
+	{ types::tex_target::texture_cube_map_positive_y,  core::u32{ GL_TEXTURE_CUBE_MAP_POSITIVE_Y } },
+	{ types::tex_target::texture_cube_map_negative_y,  core::u32{ GL_TEXTURE_CUBE_MAP_NEGATIVE_Y } },
+	{ types::tex_target::texture_cube_map_positive_z,  core::u32{ GL_TEXTURE_CUBE_MAP_POSITIVE_Z } },
+	{ types::tex_target::texture_cube_map_negative_z,  core::u32{ GL_TEXTURE_CUBE_MAP_NEGATIVE_Z } },
+	{ types::tex_target::proxy_texture_cube_map,       core::u32{ GL_PROXY_TEXTURE_CUBE_MAP }      },
+};
+
+const core::umap<types::tex_format, core::u32> gl_impl::gl_tex_format_map{
+	{ types::tex_format::RGBA_32f,                     core::u32{ GL_RGBA32F }                     },
+	{ types::tex_format::RGBA_32i,                     core::u32{ GL_RGBA32I }                     },
+	{ types::tex_format::RGBA_32ui,                    core::u32{ GL_RGBA32UI }                    },
+	{ types::tex_format::RGBA_16,                      core::u32{ GL_RGBA16 }                      },
+	{ types::tex_format::RGBA_16f,                     core::u32{ GL_RGBA16F }                     },
+	{ types::tex_format::RGBA_16i,                     core::u32{ GL_RGBA16I }                     },
+	{ types::tex_format::RGBA_16ui,                    core::u32{ GL_RGBA16UI }                    },
+	{ types::tex_format::RGBA_16_snorm,                core::u32{ GL_RGBA16_SNORM }                },
+	{ types::tex_format::RGBA_8,                       core::u32{ GL_RGBA8 }                       },
+	{ types::tex_format::RGBA_8i,                      core::u32{ GL_RGBA8I }                      },
+	{ types::tex_format::RGBA_8ui,                     core::u32{ GL_RGBA8UI }                     },
+	{ types::tex_format::RGBA_8_snorm,                 core::u32{ GL_RGBA8_SNORM }                 },
+	{ types::tex_format::SRGB_8_alpha8,                core::u32{ GL_SRGB8_ALPHA8 }                },
+	{ types::tex_format::SRGB_8,                       core::u32{ GL_SRGB8 }                       },
+	{ types::tex_format::RGB_32f,                      core::u32{ GL_RGB32F }                      },
+	{ types::tex_format::RGB_32i,                      core::u32{ GL_RGB32I }                      },
+	{ types::tex_format::RGB_32ui,                     core::u32{ GL_RGB32UI }                     },
+	{ types::tex_format::RGB_16,                       core::u32{ GL_RGB16 }                       },
+	{ types::tex_format::RGB_16f,                      core::u32{ GL_RGB16F }                      },
+	{ types::tex_format::RGB_16i,                      core::u32{ GL_RGB16I }                      },
+	{ types::tex_format::RGB_16ui,                     core::u32{ GL_RGB16UI }                     },
+	{ types::tex_format::RGB_16_snorm,                 core::u32{ GL_RGB16_SNORM }                 },
+	{ types::tex_format::RGB_8,                        core::u32{ GL_RGB8 }                        },
+	{ types::tex_format::RGB_8i,                       core::u32{ GL_RGB8I }                       },
+	{ types::tex_format::RGB_8ui,                      core::u32{ GL_RGB8UI }                      },
+	{ types::tex_format::RGB_8_snorm,                  core::u32{ GL_RGB8_SNORM }                  },
+	{ types::tex_format::RGB_10_a2,                    core::u32{ GL_RGB10_A2 }                    },
+	{ types::tex_format::RGB_10_a2ui,                  core::u32{ GL_RGB10_A2UI }                  },
+	{ types::tex_format::RGB_9_e5,                     core::u32{ GL_RGB9_E5 }                     },
+	{ types::tex_format::RG_32f,                       core::u32{ GL_RG32F }                       },
+	{ types::tex_format::RG_32i,                       core::u32{ GL_RG32I }                       },
+	{ types::tex_format::RG_32ui,                      core::u32{ GL_RG32UI }                      },
+	{ types::tex_format::RG_16,                        core::u32{ GL_RG16 }                        },
+	{ types::tex_format::RG_16f,                       core::u32{ GL_RG16F }                       },
+	{ types::tex_format::RG_8,                         core::u32{ GL_RG8 }                         },
+	{ types::tex_format::RG_8i,                        core::u32{ GL_RG8I }                        },
+	{ types::tex_format::RG_8ui,                       core::u32{ GL_RG8UI }                       },
+	{ types::tex_format::RG_16_snorm,                  core::u32{ GL_RG16_SNORM }                  },
+	{ types::tex_format::RG_8_snorm,                   core::u32{ GL_RG8_SNORM }                   },
+	{ types::tex_format::R11f_G11f_B10f,               core::u32{ GL_R11F_G11F_B10F }              },
+	{ types::tex_format::R_32f,                        core::u32{ GL_R32F }                        },
+	{ types::tex_format::R_32i,                        core::u32{ GL_R32I }                        },
+	{ types::tex_format::R_32ui,                       core::u32{ GL_R32UI }                       },
+	{ types::tex_format::R_16f,                        core::u32{ GL_R16F }                        },
+	{ types::tex_format::R_16i,                        core::u32{ GL_R16I }                        },
+	{ types::tex_format::R_16ui,                       core::u32{ GL_R16UI }                       },
+	{ types::tex_format::R_8,                          core::u32{ GL_R8 }                          },
+	{ types::tex_format::R_8i,                         core::u32{ GL_R8I }                         },
+	{ types::tex_format::R_8ui,                        core::u32{ GL_R8UI }                        },
+	{ types::tex_format::R_16_snorm,                   core::u32{ GL_R16_SNORM }                   },
+	{ types::tex_format::R_8_snorm,                    core::u32{ GL_R8_SNORM }                    },
+	{ types::tex_format::compressed_RG_RGTC2,          core::u32{ GL_COMPRESSED_RG_RGTC2 }         },
+	{ types::tex_format::compressed_signed_RG_RGTC2,   core::u32{ GL_COMPRESSED_SIGNED_RG_RGTC2 }  },
+	{ types::tex_format::compressed_red_RGTC1,         core::u32{ GL_COMPRESSED_RED_RGTC1 }        },
+	{ types::tex_format::compressed_signed_red_RGTC1,  core::u32{ GL_COMPRESSED_SIGNED_RED_RGTC1 } },
+	{ types::tex_format::depth_component_32f,          core::u32{ GL_DEPTH_COMPONENT32F }          },
+	{ types::tex_format::depth_component_24,           core::u32{ GL_DEPTH_COMPONENT24 }           },
+	{ types::tex_format::depth_component_16,           core::u32{ GL_DEPTH_COMPONENT16 }           },
+	{ types::tex_format::depth_32f_stencil_8,          core::u32{ GL_DEPTH32F_STENCIL8 }           },
+	{ types::tex_format::depth_24_stencil_8,           core::u32{ GL_DEPTH24_STENCIL8 }            },
+};
+
+const core::umap<types::tex_data_format, core::u32> gl_impl::gl_tex_data_format_map{
+	{ types::tex_data_format::RED,                     core::u32{ GL_RED }                         },
+	{ types::tex_data_format::RG,                      core::u32{ GL_RG }                          },
+	{ types::tex_data_format::RGB,                     core::u32{ GL_RGB }                         },
+	{ types::tex_data_format::BGR,                     core::u32{ GL_BGR }                         },
+	{ types::tex_data_format::RGBA,                    core::u32{ GL_RGBA }                        },
+	{ types::tex_data_format::BGRA,                    core::u32{ GL_BGRA }                        },
+};
+
+
 const core::umap<mods::capabilities, core::u32> gl_impl::gl_capability_map{
 	{ mods::capabilities::blend,                          core::u32{ GL_BLEND }                           },
 	{ mods::capabilities::color_logic_op,                 core::u32{ GL_COLOR_LOGIC_OP }                  },
@@ -81,6 +170,15 @@ const core::umap<mods::depth::function, core::u32> gl_impl::gl_depth_function_ma
 	{ mods::depth::function::not_equal,                   core::u32{ GL_NOTEQUAL }                 },
 	{ mods::depth::function::gequal,                      core::u32{ GL_GEQUAL }                   },
 };
+
+template<class ResultValue, class MapKey, class MapValue>
+constexpr ResultValue gl_value(const MapKey key, const core::umap<MapKey, MapValue> &map) {
+	if (const auto found{ map.find(key) }; found != map.end()) {
+		return static_cast<ResultValue>(found->second);
+	}
+	return ResultValue{ GL_NONE };
+}
+
 
 void GLAPIENTRY debug_msg_callback(GLenum source, GLenum type, GLuint id, GLenum severity,
 		[[maybe_unused]] GLsizei length, const GLchar *message, const void*) {
@@ -358,130 +456,95 @@ void gl_impl::set_uniform(const types::object::ref &program, const std::string_v
 	}
 }
 
+void gl_impl::set_texture_image_ext(types::object::ref texture,
+		const types::tex_target target, const core::i32 size,
+		const types::tex_format internal_format, const types::tex_data_format data_format,
+		const core::u8 *data) {
+	if (data == nullptr || size <= 0) {
+		spdlog::error("[{}] Texture data is null or width/height is less than zero", class_name);
+		return;
+	}
+	if (!setup_texture(texture, target, internal_format, data_format)) {
+		spdlog::error("[{}] Cannot setup texture", class_name);
+		return;
+	}
+
+	const auto gl_target{ gl_value<GLenum>(target, gl_tex_target_map) };
+	const auto gl_internal_format{ gl_value<GLenum>(internal_format, gl_tex_format_map) };
+	const auto gl_data_format{ gl_value<GLenum>(data_format, gl_tex_data_format_map) };
+
+	texture->set_property("width", size);
+
+	bind_texture(texture, 0);
+	glTexImage1D(gl_target, 0, gl_internal_format, size, 0, gl_data_format, GL_UNSIGNED_BYTE, data);
+	unbind_texture(texture);
+}
+
+void gl_impl::set_texture_image_ext(types::object::ref texture,
+		const types::tex_target target, const glm::i32vec2 &size,
+		const types::tex_format internal_format, const types::tex_data_format data_format,
+		const core::u8 *data) {
+	if (data == nullptr || size.x <= 0 || size.y <= 0) {
+		spdlog::error("[{}] Texture data is null or width/height is less than zero", class_name);
+		return;
+	}
+	if (!setup_texture(texture, target, internal_format, data_format)) {
+		spdlog::error("[{}] Cannot setup texture", class_name);
+		return;
+	}
+
+	const auto gl_target{ gl_value<GLenum>(target, gl_tex_target_map) };
+	const auto gl_internal_format{ gl_value<GLenum>(internal_format, gl_tex_format_map) };
+	const auto gl_data_format{ gl_value<GLenum>(data_format, gl_tex_data_format_map) };
+
+	texture->set_property("width", size.x);
+	texture->set_property("height", size.y);
+
+	bind_texture(texture, 0);
+	glTexImage2D(gl_target, 0, gl_internal_format, size.x, size.y, 0, gl_data_format, GL_UNSIGNED_BYTE, data);
+	unbind_texture(texture);
+}
+
+void gl_impl::set_texture_image_ext(types::object::ref texture,
+		const types::tex_target target, const glm::i32vec3 &size,
+		const types::tex_format internal_format, const types::tex_data_format data_format,
+		const core::u8 *data) {
+	if (data == nullptr || size.x <= 0 || size.y <= 0 || size.z <= 0) {
+		spdlog::error("[{}] Texture data is null or width/height is less than zero", class_name);
+		return;
+	}
+	if (!setup_texture(texture, target, internal_format, data_format)) {
+		spdlog::error("[{}] Cannot setup texture", class_name);
+		return;
+	}
+
+	const auto gl_target{ gl_value<GLenum>(target, gl_tex_target_map) };
+	const auto gl_internal_format{ gl_value<GLenum>(internal_format, gl_tex_format_map) };
+	const auto gl_data_format{ gl_value<GLenum>(data_format, gl_tex_data_format_map) };
+
+	texture->set_property("width", size.x);
+	texture->set_property("height", size.y);
+	texture->set_property("depth", size.z);
+
+	bind_texture(texture, 0);
+	glTexImage3D(gl_target, 0, gl_internal_format, size.x, size.y, size.z, 0, gl_data_format, GL_UNSIGNED_BYTE, data);
+	unbind_texture(texture);
+}
+
+void gl_impl::set_texture_image(types::object::ref texture, const core::i32 width,
+		const core::i32 height, const core::i32 channels, const core::u8 *data) {
+
+}
+
+
 bool gl_impl::make_texture_image_2d(types::object::ref texture, const core::bytes &data) {
-	if (texture == nullptr || !texture->valid()) {
-		spdlog::error("[{}] Texture is null or invalid", class_name);
-		return false;
-	}
-	if (data.empty()) {
-		spdlog::error("[{}] Texture data is empty", class_name);
-		return false;
-	}
-	using namespace golxzn::types_literals;
-
-	core::i32 width{}, height{}, channels{};
-	auto img{ stbi_load_from_memory(reinterpret_cast<const stbi_uc *>(data.data()), data.size(), &width, &height, &channels, 0) };
-	if(img == nullptr) {
-		spdlog::error("[{}] Cannot load texture image: {}", class_name, stbi_failure_reason());
-		return false;
-	}
-
-	const auto translate_format{ [] (const auto channels) -> GLint {
-		switch (channels) {
-		case 1: return GL_RED;
-		case 2: return GL_RG;
-		case 3: return GL_RGB;
-		case 4: return GL_RGBA;
-		default:
-			spdlog::error("[{}] Invalid texture format: {}", class_name, channels);
-			return GL_RGBA;
-		}
-	} };
-
-	spdlog::debug("[{}] Texture #{} dimensions: {}x{}", class_name, texture->id(), width, height);
-
-	texture->set_property("target", core::u32{ GL_TEXTURE_2D });
-	texture->set_property("width", width);
-	texture->set_property("height", height);
-
-	bind_texture(texture, 0);
-
-	const GLenum target{ GL_TEXTURE_2D };
-
-	if (texture->get_property<bool>("setup_default_params").value_or(false)) {
-		glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	}
-
-	const GLint format{ translate_format(channels) };
-	glTexImage2D(target, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, img);
-
-	unbind_texture(texture);
-	stbi_image_free(img);
-	return true;
+	return false;
 }
 
-bool gl_impl::make_texture_image_2d(types::object::ref texture,
-	const types::texture::cubemap_array<core::bytes> &data) {
-
-	if (texture == nullptr || !texture->valid()) {
-		spdlog::error("[{}] Texture is null or invalid", class_name);
-		return false;
-	}
-	if (std::any_of(std::begin(data), std::end(data), [](const auto &d) { return d.empty(); })) {
-		spdlog::error("[{}] Texture data is invalid", class_name);
-		return false;
-	}
-
-	using namespace golxzn::types_literals;
-
-	const auto translate_format{ [] (const auto channels) {
-		switch (channels) {
-		case 1: return GL_RED;
-		case 2: return GL_RG;
-		case 3: return GL_RGB;
-		case 4: return GL_RGBA;
-		default:
-			spdlog::error("[{}] Invalid texture format: {}", class_name, channels);
-			return GL_RGBA;
-		}
-	} };
-
-	texture->set_property("target", core::u32{ GL_TEXTURE_CUBE_MAP });
-
-	bind_texture(texture, 0);
-
-	const auto target{ GL_TEXTURE_CUBE_MAP };
-
-	if (texture->get_property<bool>("setup_default_params").value_or(false)) {
-		glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	}
-
-	static constexpr core::u32 targets_size{ 6 };
-	static constexpr GLenum targets[targets_size]{
-		GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-		GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-		GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-		GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-		GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-		GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
-	};
-
-	for (core::u32 id{}; id < targets_size; ++id) {
-		core::i32 width{}, height{}, channels{};
-		auto img{ stbi_load_from_memory(
-			reinterpret_cast<const stbi_uc *>(data[id].data()),
-			data[id].size(), &width, &height, &channels, 0)
-		};
-		if(img == nullptr) {
-			spdlog::error("[{}] Cannot load texture image: {}", class_name, stbi_failure_reason());
-			break;
-		}
-
-		const GLint format{ translate_format(channels) };
-		glTexImage2D(targets[id], 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, img);
-		stbi_image_free(img);
-	}
-
-	unbind_texture(texture);
-	return true;
+bool gl_impl::make_texture_image_2d(types::object::ref texture, const types::texture::cubemap_array<core::bytes> &data) {
+	return false;
 }
+
 
 void gl_impl::generate_mip_maps(const types::object::ref &texture) {
 	if (texture == nullptr) {
@@ -520,8 +583,8 @@ bool gl_impl::bind_texture(const types::object::ref &texture, const core::u32 un
 	}
 
 	const auto id{ static_cast<GLuint>(texture->id()) };
-	const auto target{ texture->get_property<core::u32>("target").value_or(GL_TEXTURE_2D) };
-	glBindTexture(static_cast<GLenum>(target), id);
+	const auto target{ texture->get_property<GLenum>("gl_target").value_or(GL_TEXTURE_2D) };
+	glBindTexture(target, id);
 
 	return true;
 }
@@ -531,8 +594,8 @@ bool gl_impl::unbind_texture(const types::object::ref &texture) {
 		return false;
 	}
 
-	const auto target{ texture->get_property<core::u32>("target").value_or(GL_TEXTURE_2D) };
-	glBindTexture(static_cast<GLenum>(target), GLuint{ 0 });
+	const auto target{ texture->get_property<GLenum>("gl_target").value_or(GL_TEXTURE_2D) };
+	glBindTexture(target, GLuint{ 0 });
 
 	return true;
 }
@@ -618,51 +681,51 @@ void gl_impl::viewport(const core::u32 x, const core::u32 y, const core::u32 wid
 }
 
 void gl_impl::enable(const mods::capabilities capability) {
-	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
-		glEnable(static_cast<GLenum>(found->second));
+	if (const auto found{ gl_value<GLenum>(capability, gl_capability_map) }; found != GL_NONE) {
+		glEnable(found);
 	} else {
 		spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
 	}
 }
 void gl_impl::enable(const mods::capabilities capability, const core::u32 value) {
-	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
-		glEnablei(static_cast<GLenum>(found->second), value);
+	if (const auto found{ gl_value<GLenum>(capability, gl_capability_map) }; found != GL_NONE) {
+		glEnablei(found, value);
 	} else {
 		spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
 	}
 }
 void gl_impl::disable(const mods::capabilities capability) {
-	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
-		glDisable(static_cast<GLenum>(found->second));
+	if (const auto found{ gl_value<GLenum>(capability, gl_capability_map) }; found != GL_NONE) {
+		glDisable(found);
 	} else {
 		spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
 	}
 }
 void gl_impl::disable(const mods::capabilities capability, const core::u32 value) {
-	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
-		glDisablei(static_cast<GLenum>(found->second), value);
+	if (const auto found{ gl_value<GLenum>(capability, gl_capability_map) }; found != GL_NONE) {
+		glDisablei(found, value);
 	} else {
 		spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
 	}
 }
 bool gl_impl::is_enabled(const mods::capabilities capability) const {
-	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
-		return glIsEnabled(static_cast<GLenum>(found->second)) == GL_TRUE;
+	if (const auto found{ gl_value<GLenum>(capability, gl_capability_map) }; found != GL_NONE) {
+		return glIsEnabled(found) == GL_TRUE;
 	}
 	spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
 	return false;
 }
 bool gl_impl::is_enabled(const mods::capabilities capability, const core::u32 value) const {
-	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
-		return glIsEnabledi(static_cast<GLenum>(found->second), value) == GL_TRUE;
+	if (const auto found{ gl_value<GLenum>(capability, gl_capability_map) }; found != GL_NONE) {
+		return glIsEnabledi(found, value) == GL_TRUE;
 	}
 	spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
 	return false;
 }
 core::i32 gl_impl::capability_value(const mods::capabilities capability) const {
-	if (const auto found{ gl_capability_map.find(capability) }; found != std::end(gl_capability_map)) {
+	if (const auto found{ gl_value<GLenum>(capability, gl_capability_map) }; found != GL_NONE) {
 		core::i32 capability_value_out{};
-		glGetIntegerv(static_cast<GLenum>(found->second), &capability_value_out);
+		glGetIntegerv(found, &capability_value_out);
 		return capability_value_out;
 	}
 	spdlog::error("[{}] Unhandled capability: {:x}", class_name, static_cast<core::u32>(capability));
@@ -681,8 +744,8 @@ glm::vec4 gl_impl::get_blend_color() {
 
 void gl_impl::set_blend_function(const mods::blend::function src, const mods::blend::function dest) {
 	glBlendFunc(
-		static_cast<GLenum>(gl_blend_function_map.at(src)),
-		static_cast<GLenum>(gl_blend_function_map.at(dest))
+		gl_value<GLenum>(src, gl_blend_function_map),
+		gl_value<GLenum>(dest, gl_blend_function_map)
 	);
 }
 
@@ -709,7 +772,7 @@ std::pair<mods::blend::function, mods::blend::function> gl_impl::get_blend_funct
 }
 
 void gl_impl::set_blend_equation(const mods::blend::equation equation) {
-	glBlendEquation(static_cast<GLenum>(gl_blend_equation_map.at(equation)));
+	glBlendEquation(gl_value<GLenum>(equation, gl_blend_equation_map));
 }
 
 mods::blend::equation gl_impl::get_blend_equation() {
@@ -728,10 +791,10 @@ void gl_impl::set_blend_function_separate(
 	const mods::blend::function src_rgb, const mods::blend::function dest_rgb,
 	const mods::blend::function src_alpha, const mods::blend::function dest_alpha) {
 	glBlendFuncSeparate(
-		static_cast<GLenum>(gl_blend_function_map.at(src_rgb)),
-		static_cast<GLenum>(gl_blend_function_map.at(dest_rgb)),
-		static_cast<GLenum>(gl_blend_function_map.at(src_alpha)),
-		static_cast<GLenum>(gl_blend_function_map.at(dest_alpha))
+		gl_value<GLenum>(src_rgb, gl_blend_function_map),
+		gl_value<GLenum>(dest_rgb, gl_blend_function_map),
+		gl_value<GLenum>(src_alpha, gl_blend_function_map),
+		gl_value<GLenum>(dest_alpha, gl_blend_function_map)
 	);
 }
 
@@ -780,8 +843,8 @@ std::array<mods::blend::function, 4> gl_impl::get_blend_function_separate() {
 void gl_impl::set_blend_equation_separate(
 		const mods::blend::equation equation_rgb, const mods::blend::equation equation_alpha) {
 	glBlendEquationSeparate(
-		static_cast<GLenum>(gl_blend_equation_map.at(equation_rgb)),
-		static_cast<GLenum>(gl_blend_equation_map.at(equation_alpha))
+		gl_value<GLenum>(equation_rgb, gl_blend_equation_map),
+		gl_value<GLenum>(equation_alpha, gl_blend_equation_map)
 	);
 }
 
@@ -818,8 +881,8 @@ bool gl_impl::get_depth_mask() const {
 }
 
 void gl_impl::set_depth_function(const mods::depth::function func) {
-	if (auto found{ gl_depth_function_map.find(func) }; found != std::end(gl_depth_function_map)) {
-		glDepthFunc(found->second);
+	if (const auto value{ gl_value<GLenum>(func, gl_depth_function_map) }; value != GL_NONE) {
+		glDepthFunc(value);
 	} else {
 		spdlog::error("[{}] Unhandled depth function: {:x}", class_name, static_cast<core::u32>(func));
 	}
@@ -867,6 +930,52 @@ bool gl_impl::check_program_and_shader(const types::object::ref &program, const 
 		return false;
 	}
 	return true;
+}
+
+bool gl_impl::setup_texture(types::object::ref texture, const types::texture::target target,
+		const types::tex_format internal_format, const types::tex_data_format data_format) const {
+
+	if (texture == nullptr || !texture->valid()) {
+		spdlog::error("[{}] Texture is null or invalid", class_name);
+		return false;
+	}
+
+	const auto gl_target{ gl_value<GLenum>(target, gl_tex_target_map) };
+	if (gl_target == GL_NONE) {
+		/// @todo: Use magic_enum for target
+		spdlog::error("[{}] Unhandled texture target: {}", class_name, static_cast<core::u32>(target));
+		return false;
+	}
+	const auto gl_internal_format{ gl_value<GLenum>(internal_format, gl_tex_format_map) };
+	if (gl_internal_format == GL_NONE) {
+		/// @todo: Use magic_enum for internal_format
+		spdlog::error("[{}] Unhandled texture format: {}", class_name, static_cast<core::u32>(internal_format));
+		return false;
+	}
+	const auto gl_data_format{ gl_value<GLenum>(data_format, gl_tex_data_format_map) };
+	if (gl_data_format == GL_NONE) {
+		/// @todo: Use magic_enum for data_format
+		spdlog::error("[{}] Unhandled texture data format: {}", class_name, static_cast<core::u32>(data_format));
+		return false;
+	}
+
+	texture->set_property("gl_target", gl_target);
+	texture->set_property("gl_internal_format", gl_internal_format);
+	texture->set_property("gl_data_format", gl_data_format);
+	return true;
+}
+
+core::i32 gl_impl::translate_texture_channel(const core::i32 channel) const noexcept {
+	switch(channel) {
+		case 1: return GL_RED;
+		case 2: return GL_RG;
+		case 3: return GL_RGB;
+		case 4: return GL_RGBA;
+		default:
+			spdlog::error("[{}] Unhandled channel: {}", class_name, channel);
+			break;
+	}
+	return GL_RED;
 }
 
 void gl_impl::set_texture_depth_stencil_mode(const core::u32 target, const std::any mode) const {

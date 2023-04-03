@@ -1,69 +1,21 @@
 #include <spdlog/spdlog.h>
 #include <golxzn/core/resources/manager.hpp>
 
+#include "golxzn/graphics/inner/texture_instances_registry.hpp"
 #include "golxzn/graphics/types/texture/texture.hpp"
 
 #include "golxzn/graphics/controller/controller.hpp"
 
 namespace golxzn::graphics::types {
 
-texture::ref texture::make(const type tex_type, const std::string &path) {
-	return std::make_shared<texture>(tex_type, path);
-}
-texture::ref texture::make(const std::string &name, core::bytes &&data) {
-	return std::make_shared<texture>(name, std::move(data));
-}
-texture::ref texture::make(const std::string &name, cubemap_array<core::bytes> &&data) {
-	return std::make_shared<texture>(name, std::move(data));
+texture::ref texture::make(type tex_type, const std::string &path) {
+	return inner::texture_instances_registry::get_or_create(tex_type, path);
 }
 
-
-texture::texture(const type tex_type, const std::string &path)
-	: named{ core::fs::path{ path }.stem().string() } {
+texture::texture(const std::string &name, const type tex_type)
+	: named{ name } {
 
 	if (!make_texture(tex_type)) return;
-
-	if (tex_type == type::cube_map) {
-		cubemap_array<std::string> faces;
-
-		const auto ext_pos{ path.find_last_of('.') };
-		if (ext_pos == std::string::npos) {
-			spdlog::error("[{}] [{}] The path has not extension: {}", class_name, full_name(), path);
-			return;
-		}
-		const auto ext{ path.substr(ext_pos) };
-		const auto path_without_ext{ path.substr(0, ext_pos) };
-		static constexpr std::string_view face_names[]{
-			"right", "left", "bottom", "top", "front", "back"
-		};
-
-		for (core::u32 i{}; i < cube_map_faces; ++i) {
-			faces[i] = path_without_ext + '/' + std::string{ face_names[i] } + ext;
-		}
-		mObject->set_property(param_path, std::move(faces));
-	} else {
-		mObject->set_property(param_path, path);
-	}
-
-	generate();
-}
-
-texture::texture(const std::string &name, core::bytes &&data)
-	: named{ name } {
-
-	if (!make_texture(type::texture_2d)) return;
-
-	mObject->set_property(param_data, std::move(data));
-	generate();
-}
-
-texture::texture(const std::string &name, cubemap_array<core::bytes> &&data)
-	: named{ name } {
-
-	if (!make_texture(type::cube_map)) return;
-
-	mObject->set_property(param_data, std::move(data));
-	generate();
 }
 
 void texture::bind(const core::u32 unit) const noexcept {
@@ -95,6 +47,11 @@ object::id_t texture::id() const noexcept {
 	return mObject->id();
 }
 
+core::usize texture::length() const noexcept {
+	if (!valid()) return 0;
+	return width() * height() /* * channels */;
+}
+
 core::u32 texture::width() const noexcept {
 	if (!valid()) return 0;
 	return mObject->get_property<core::u32>(param_width).value_or(0);
@@ -104,34 +61,34 @@ core::u32 texture::height() const noexcept {
 	return mObject->get_property<core::u32>(param_height).value_or(0);
 }
 
-void texture::set_data(const core::bytes &data) {
-	if (!valid()) return;
-	if (get_type() != type::texture_2d) {
-		mObject->set_property(param_type, type::texture_2d);
-	}
-	mObject->set_property(param_data, data);
-}
-void texture::set_data(core::bytes &&data) {
-	if (!valid()) return;
-	if (get_type() != type::texture_2d) {
-		mObject->set_property(param_type, type::texture_2d);
-	}
-	mObject->set_property(param_data, std::move(data));
-}
-void texture::set_data(const cubemap_array<core::bytes> &data) {
-	if (!valid()) return;
-	if (get_type() != type::cube_map) {
-		mObject->set_property(param_type, type::cube_map);
-	}
-	mObject->set_property(param_data, data);
-}
-void texture::set_data(cubemap_array<core::bytes> &&data) {
-	if (!valid()) return;
-	if (get_type() != type::cube_map) {
-		mObject->set_property(param_type, type::cube_map);
-	}
-	mObject->set_property(param_data, std::move(data));
-}
+// void texture::set_data(const core::bytes &data) {
+// 	if (!valid()) return;
+// 	if (get_type() != type::texture_2d) {
+// 		mObject->set_property(param_type, type::texture_2d);
+// 	}
+// 	mObject->set_property(param_data, data);
+// }
+// void texture::set_data(core::bytes &&data) {
+// 	if (!valid()) return;
+// 	if (get_type() != type::texture_2d) {
+// 		mObject->set_property(param_type, type::texture_2d);
+// 	}
+// 	mObject->set_property(param_data, std::move(data));
+// }
+// void texture::set_data(const cubemap_array<core::bytes> &data) {
+// 	if (!valid()) return;
+// 	if (get_type() != type::cube_map) {
+// 		mObject->set_property(param_type, type::cube_map);
+// 	}
+// 	mObject->set_property(param_data, data);
+// }
+// void texture::set_data(cubemap_array<core::bytes> &&data) {
+// 	if (!valid()) return;
+// 	if (get_type() != type::cube_map) {
+// 		mObject->set_property(param_type, type::cube_map);
+// 	}
+// 	mObject->set_property(param_data, std::move(data));
+// }
 
 bool texture::generate(const bool setup_default_params) {
 	if (!valid()) return false;

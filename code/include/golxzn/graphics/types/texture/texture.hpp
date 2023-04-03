@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <glm/fwd.hpp>
 #include <golxzn/core/types/color.hpp>
 
 #include "golxzn/graphics/types/object.hpp"
@@ -34,22 +35,25 @@ public:
 	struct swizzle;
 	struct wrap;
 
+	enum class target;
+	enum class internal_format;
+	enum class pixel_data_format;
+
 	template<class T, std::enable_if_t<std::is_base_of_v<parameter, T>, bool> = false>
 	T param() const noexcept { return T{ mObject }; }
 
 	enum class type {
 		invalid,
+		texture_1d,
 		texture_2d,
+		texture_3d,
+		texture_gif,
 		cube_map
 	};
 
-	static ref make(const type tex_type, const std::string &path);
-	static ref make(const std::string &name, core::bytes &&data);
-	static ref make(const std::string &name, cubemap_array<core::bytes> &&data);
+	static ref make(type tex_type, const std::string &path);
 
-	explicit texture(const type tex_type, const std::string &path);
-	explicit texture(const std::string &name, core::bytes &&data);
-	explicit texture(const std::string &name, cubemap_array<core::bytes> &&data);
+	explicit texture(const std::string &name, const type texture_type = type::texture_2d);
 
 	void bind(const core::u32 unit = 0) const noexcept;
 	void unbind() const noexcept;
@@ -57,13 +61,21 @@ public:
 	type get_type() const noexcept;
 	bool valid() const noexcept;
 	object::id_t id() const noexcept;
+	core::usize length() const noexcept;
 	core::u32 width() const noexcept;
 	core::u32 height() const noexcept;
 
-	void set_data(const core::bytes &data);
-	void set_data(core::bytes &&data);
-	void set_data(const cubemap_array<core::bytes> &data);
-	void set_data(cubemap_array<core::bytes> &&data);
+	const std::vector<core::i32> &delays() const noexcept;
+
+	// void set_data(const target &target, const core::i32 size, const internal_format format,
+	// 	const pixel_data_format data_format, const core::bytes &data);
+	// void set_data(const target &target, const glm::i32vec2 size, const internal_format format,
+	// 	const pixel_data_format data_format, const core::bytes &data);
+	// void set_data(const target &target, const glm::i32vec3 size, const internal_format format,
+	// 	const pixel_data_format data_format, const core::bytes &data);
+
+	// void set_delays(const std::vector<core::i32> &delays);
+	// void set_delays(std::vector<core::i32> &&delays);
 
 	bool generate(const bool setup_default_params = true);
 	bool generate_mip_maps();
@@ -72,9 +84,112 @@ public:
 
 private:
 	object::ref mObject;
+	std::vector<core::i32> mDelays;
 
 	bool make_texture(const type tex_type);
 };
+
+enum class texture::target {
+	// Texture 1D
+	texture_1d, proxy_texture_1d,
+
+	// Texture 2D
+	texture_2d,        proxy_texture_2d,
+	texture_1d_array,  proxy_texture_1d_array,
+	texture_rectangle, proxy_texture_rectangle,
+	texture_cube_map_positive_x, texture_cube_map_negative_x,
+	texture_cube_map_positive_y, texture_cube_map_negative_y,
+	texture_cube_map_positive_z, texture_cube_map_negative_z,
+	proxy_texture_cube_map,
+
+	// Texture 3D
+	texture_3d,       proxy_texture_3d,
+	texture_2d_array, proxy_texture_2d_array,
+};
+
+enum class texture::internal_format {
+	RGBA_32f,
+	RGBA_32i,
+	RGBA_32ui,
+	RGBA_16,
+	RGBA_16f,
+	RGBA_16i,
+	RGBA_16ui,
+	RGBA_16_snorm,
+	RGBA_8,
+	RGBA_8i,
+	RGBA_8ui,
+	RGBA_8_snorm,
+
+	SRGB_8_alpha8,
+	SRGB_8,
+
+	RGB_32f,
+	RGB_32i,
+	RGB_32ui,
+	RGB_16,
+	RGB_16f,
+	RGB_16i,
+	RGB_16ui,
+	RGB_16_snorm,
+	RGB_8,
+	RGB_8i,
+	RGB_8ui,
+	RGB_8_snorm,
+
+	RGB_10_a2,
+	RGB_10_a2ui,
+	RGB_9_e5,
+
+	RG_32f,
+	RG_32i,
+	RG_32ui,
+	RG_16,
+	RG_16f,
+	RG_16_snorm,
+	RG_8,
+	RG_8i,
+	RG_8ui,
+	RG_8_snorm,
+
+	R11f_G11f_B10f,
+
+	R_32f,
+	R_32i,
+	R_32ui,
+	R_16f,
+	R_16i,
+	R_16ui,
+	R_16_snorm,
+	R_8,
+	R_8i,
+	R_8ui,
+	R_8_snorm,
+
+	compressed_RG_RGTC2,
+	compressed_signed_RG_RGTC2,
+	compressed_red_RGTC1,
+	compressed_signed_red_RGTC1,
+
+	depth_component_32f,
+	depth_component_24,
+	depth_component_16,
+	depth_32f_stencil_8,
+	depth_24_stencil_8,
+};
+
+enum class texture::pixel_data_format {
+	RED,
+	RG,
+	RGB,
+	BGR,
+	RGBA,
+	BGRA,
+};
+
+using tex_target = texture::target;
+using tex_format = texture::internal_format;
+using tex_data_format = texture::pixel_data_format;
 
 //====================================== texture parameters ======================================//
 
