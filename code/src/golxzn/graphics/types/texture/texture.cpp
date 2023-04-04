@@ -47,7 +47,7 @@ object::id_t texture::id() const noexcept {
 	return mObject->id();
 }
 
-core::usize texture::length() const noexcept {
+core::usize texture::bytes_count() const noexcept {
 	if (!valid()) return 0;
 	return width() * height() /* * channels */;
 }
@@ -59,6 +59,24 @@ core::u32 texture::width() const noexcept {
 core::u32 texture::height() const noexcept {
 	if (!valid()) return 0;
 	return mObject->get_property<core::u32>(param_height).value_or(0);
+}
+
+void texture::set_path(const std::string &path) noexcept {
+	if (!valid() || path.empty()) return;
+	mObject->set_property(param_path, path);
+}
+
+void texture::set_bytes_count(const core::usize bytes_count) noexcept {
+	if (!valid()) return;
+	mObject->set_property(param_bytes_count, bytes_count);
+}
+
+void texture::set_image(const target &target, const core::types::image::ref &img, const pixel_data_format format) {
+	if (!valid() || img == nullptr) return;
+
+	if (auto api{ controller::api() }; api) {
+		api->set_texture_image(mObject, img, target, format);
+	}
 }
 
 // void texture::set_data(const core::bytes &data) {
@@ -101,40 +119,22 @@ bool texture::generate(const bool setup_default_params) {
 
 	mObject->set_property("setup_default_params", setup_default_params);
 
-	switch(get_type()) {
-		case type::texture_2d: {
-			const auto optional_path{ mObject->get_property<std::string>(param_path) };
-			if (!optional_path.has_value()) {
-				spdlog::error("[{}] [{}] The texture has no path", class_name, full_name());
-				return false;
-			}
+	// switch(get_type()) {
+	// 	case type::texture_2d: {
+	// 		const auto optional_path{ mObject->get_property<std::string>(param_path) };
+	// 		if (!optional_path.has_value()) {
+	// 			spdlog::error("[{}] [{}] The texture has no path", class_name, full_name());
+	// 			return false;
+	// 		}
 
-			const auto data{ core::res_man::load_binary(optional_path.value()) };
-			return api->make_texture_image_2d(mObject, data);
-		} break;
+	// 		const auto data{ core::res_man::load_binary(optional_path.value()) };
+	// 		return api->make_texture_image_2d(mObject, data);
+	// 	} break;
 
-		case type::cube_map: {
-			const auto optional_paths{ mObject->get_property<cubemap_array<std::string>>(param_path) };
-			if (!optional_paths.has_value()) {
-				spdlog::error("[{}] [{}] The texture has no path", class_name, full_name());
-				return false;
-			}
-			cubemap_array<core::bytes> data;
-			const auto paths{ optional_paths.value() };
-			std::transform(std::begin(paths), std::end(paths), std::begin(data), [this] (const auto &path) {
-				spdlog::debug("[{}] [{}] Loading cubemap face: {}", class_name, full_name(), path);
-				return core::res_man::load_binary(path);
-			} );
-
-			static const auto is_empty{ [] (const auto &d) { return d.empty(); } };
-			if (std::any_of(std::begin(data), std::end(data), is_empty)) {
-				spdlog::error("[{}] [{}] One or more cube_map faces could not be loaded", class_name, full_name());
-				return false;
-			}
-			return api->make_texture_image_2d(mObject, data);
-		} break;
-		default: break;
-	}
+	// 	case type::cube_map: {
+// } break;
+	// 	default: break;
+	// }
 	return false;
 }
 

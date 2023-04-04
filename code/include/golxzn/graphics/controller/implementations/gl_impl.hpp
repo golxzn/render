@@ -41,13 +41,8 @@ public:
 		const types::tex_format internal_format, const types::tex_data_format data_format,
 		const core::u8 *data) override;
 
-	void set_texture_image(types::object::ref texture, const core::i32 width,
-		const core::i32 height, const core::i32 channels, const core::u8 *data) override;
-
-
-	bool make_texture_image_2d(types::object::ref texture, const core::bytes &data) override;
-
-	bool make_texture_image_2d(types::object::ref texture, const types::texture::cubemap_array<core::bytes> &data) override;
+	void set_texture_image(types::object::ref texture, const core::types::image::ref &img,
+		const types::tex_target target, const types::tex_data_format data_format) override;
 
 
 	void generate_mip_maps(const types::object::ref &texture) override;

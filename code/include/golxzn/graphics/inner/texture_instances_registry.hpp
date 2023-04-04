@@ -33,12 +33,12 @@ private:
 	static core::usize max_cache_size;
 	static core::umap<std::string, types::texture::ref> cache;
 
-	static types::texture::ref load_texture_2D(const std::string &path, const bool mip_maps);
-	static types::texture::ref load_texture_gif(const std::string &path, const bool mip_maps);
-	static types::texture::ref load_cube_map(const std::string &path, const bool mip_maps);
+	static types::texture::ref load_texture_2D(const std::string &path, core::usize &length);
+	static types::texture::ref load_texture_gif(const std::string &path, core::usize &length);
+	static types::texture::ref load_cube_map(const std::string &path, core::usize &length);
 
-	static void cache_texture(const types::texture::ref &texture, const std::string &name,
-		const glm::i32vec2 &size, const core::i32 channels);
+	static types::texture::ref load_from_cache(const std::string &path);
+	static void cache_texture(types::texture::ref texture, const std::string &name, const core::usize length);
 
 };
 

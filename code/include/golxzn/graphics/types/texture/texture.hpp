@@ -3,6 +3,7 @@
 #include <array>
 #include <glm/fwd.hpp>
 #include <golxzn/core/types/color.hpp>
+#include <golxzn/core/types/image.hpp>
 
 #include "golxzn/graphics/types/object.hpp"
 #include "golxzn/graphics/types/name_manager.hpp"
@@ -18,6 +19,7 @@ public:
 	static constexpr std::string_view param_type{ "type" };
 	static constexpr std::string_view param_width{ "width" };
 	static constexpr std::string_view param_height{ "height" };
+	static constexpr std::string_view param_bytes_count{ "bytes_count" };
 
 	using ref = std::shared_ptr<texture>;
 	template<class T>
@@ -61,11 +63,16 @@ public:
 	type get_type() const noexcept;
 	bool valid() const noexcept;
 	object::id_t id() const noexcept;
-	core::usize length() const noexcept;
+	core::usize bytes_count() const noexcept;
 	core::u32 width() const noexcept;
 	core::u32 height() const noexcept;
 
 	const std::vector<core::i32> &delays() const noexcept;
+
+	void set_path(const std::string &path) noexcept;
+	void set_bytes_count(const core::usize bytes_count) noexcept;
+
+	void set_image(const target &target, const core::types::image::ref &img, const pixel_data_format format);
 
 	// void set_data(const target &target, const core::i32 size, const internal_format format,
 	// 	const pixel_data_format data_format, const core::bytes &data);

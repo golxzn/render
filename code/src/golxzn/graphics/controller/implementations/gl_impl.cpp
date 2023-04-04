@@ -531,18 +531,14 @@ void gl_impl::set_texture_image_ext(types::object::ref texture,
 	unbind_texture(texture);
 }
 
-void gl_impl::set_texture_image(types::object::ref texture, const core::i32 width,
-		const core::i32 height, const core::i32 channels, const core::u8 *data) {
-
-}
-
-
-bool gl_impl::make_texture_image_2d(types::object::ref texture, const core::bytes &data) {
-	return false;
-}
-
-bool gl_impl::make_texture_image_2d(types::object::ref texture, const types::texture::cubemap_array<core::bytes> &data) {
-	return false;
+void gl_impl::set_texture_image(types::object::ref texture, const core::types::image::ref &img,
+		const types::tex_target target, const types::tex_data_format data_format) {
+	if (img == nullptr) {
+		spdlog::error("[{}] Image is null", class_name);
+		return;
+	}
+	set_texture_image_ext(texture, target, glm::i32vec2{ img->width(), img->height() },
+		types::tex_format::RGBA_8ui, data_format, img->raw().data());
 }
 
 
