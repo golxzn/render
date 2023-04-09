@@ -6,6 +6,9 @@
 </p>
 <br/>
 
+> <code><b>[Warning]</b> The project is under development.
+> New versions could be unstable and non-backward-compatible.</code>
+
 <h2>📜 Table of contents </h2>
 
 - [🧟 Cloning and building](#-cloning-and-building)

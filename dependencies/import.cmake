@@ -17,20 +17,13 @@ add_subdirectory_params(${GOLXZNR_DEPENDENCIES_DIR}/core
 	"GOLXZNC_DEVELOPER_MODE OFF"
 )
 
-add_subdirectory(${GOLXZNR_DEPENDENCIES_DIR}/glm) # ${CMAKE_BINARY_DIR}/_deps/glm EXCLUDE_FROM_ALL)
-
-add_subdirectory(${GOLXZNR_DEPENDENCIES_DIR}/stb_image)
-
 add_dependencies(${target}
-	glm::glm
 	glad
 )
 
 list(APPEND dependencies
 	OpenGL::GL
-	glm::glm
 	glad
 	glfw
-	stb::image
 	golxzn::core
 )

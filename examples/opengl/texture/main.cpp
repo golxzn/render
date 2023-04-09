@@ -1,16 +1,19 @@
 #include "glfw_window.hpp"
 
+#include <golxzn/core/types/time.hpp>
+#include <golxzn/core/types/clock.hpp>
 #include <golxzn/core/resources/manager.hpp>
 #include <golxzn/render.hpp>
-#include <golxzn/graphics/types/shader_program.hpp>
-#include <golxzn/graphics/types/texture.hpp>
-
-#include <golxzn/graphics/controller/opengl/VAO.hpp>
-#include <golxzn/graphics/controller/opengl/EBO.hpp>
+#include <golxzn/graphics/types/shader/program.hpp>
+#include <golxzn/graphics/types/texture/texture.hpp>
+#include <golxzn/graphics/types/model/mesh.hpp>
+#include <golxzn/graphics/types/model/material.hpp>
+#include <golxzn/graphics/types/model/presets.hpp>
 
 int main() {
 	using namespace golxzn;
 	using namespace types_literals;
+	using graphics::types::vertex;
 
 	glfwSetErrorCallback([](int code, const char *desc) {
 		spdlog::error("Error [{}]: {}", code, desc);
@@ -27,135 +30,33 @@ int main() {
 		return -1;
 	}
 
-	core::i32 max_texture_image_units{};
-	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &max_texture_image_units);
-	spdlog::info("Max texture image units {}", max_texture_image_units);
-
-	auto program{ graphics::types::shader_program::make("default", {
-		"res://shaders/texture.vert",
-		"res://shaders/texture.frag",
-	}) };
-	if (program->get_status() == graphics::program_status::need_to_link) {
-		program->link();
-	}
-	program->use();
-	program->set_uniform("diffuse0", 0_i32);
-	program->set_uniform("diffuse1", 1_i32);
-	program->unuse();
-
-	auto diffuse0{ graphics::types::texture::make(
-		graphics::types::texture::type::texture_2d, "res://textures/moaning_pink.jpg") };
-	if (diffuse0->valid()) {
-		using namespace graphics::types;
-		diffuse0->generate_mip_maps();
-		auto wrap{ diffuse0->param<texture::wrap>() };
-		wrap[texture::wrap::type::s] = texture::wrap::mode::mirrored_repeat;
-		wrap[texture::wrap::type::t] = texture::wrap::mode::clamp_to_edge;
-	}
-	auto diffuse1{ graphics::types::texture::make(
-		graphics::types::texture::type::texture_2d, "res://textures/cube_maps/skybox/back.jpg") };
-	if (diffuse1->valid()) {
-		using namespace graphics::types;
-		diffuse1->generate_mip_maps();
-		auto wrap{ diffuse1->param<texture::wrap>() };
-		wrap[texture::wrap::type::s] = texture::wrap::mode::mirrored_repeat;
-		wrap[texture::wrap::type::t] = texture::wrap::mode::clamp_to_edge;
-	}
-
-
-
-	auto cube_map_shader{ graphics::types::shader_program::make("cube_map", {
-		"res://shaders/cube_map.vert",
-		"res://shaders/cube_map.frag",
-	}) };
-	if (cube_map_shader->get_status() == graphics::program_status::need_to_link) {
-		cube_map_shader->link();
-	}
-
-	auto cube_map{ graphics::types::texture::make(
-		graphics::types::texture::type::cube_map, "res://textures/cube_maps/skybox.jpg") };
-	if (cube_map->valid()) {
-		cube_map->generate_mip_maps();
-		cube_map_shader->use();
-		cube_map_shader->set_uniform("skybox", 0_i32);
-		// cube_map_shader->set_uniform<core::i32>("skybox", cube_map->id());
-		cube_map_shader->unuse();
-	}
-
-
-	graphics::gl::VAO cube_map_vao;
-	cube_map_vao.bind();
-	graphics::gl::VBO cube_map_vbo{
-		-1.0_f16,  1.0_f16, -1.0_f16,
-		-1.0_f16, -1.0_f16, -1.0_f16,
-		 1.0_f16, -1.0_f16, -1.0_f16,
-		 1.0_f16, -1.0_f16, -1.0_f16,
-		 1.0_f16,  1.0_f16, -1.0_f16,
-		-1.0_f16,  1.0_f16, -1.0_f16,
-
-		-1.0_f16, -1.0_f16,  1.0_f16,
-		-1.0_f16, -1.0_f16, -1.0_f16,
-		-1.0_f16,  1.0_f16, -1.0_f16,
-		-1.0_f16,  1.0_f16, -1.0_f16,
-		-1.0_f16,  1.0_f16,  1.0_f16,
-		-1.0_f16, -1.0_f16,  1.0_f16,
-
-		 1.0_f16, -1.0_f16, -1.0_f16,
-		 1.0_f16, -1.0_f16,  1.0_f16,
-		 1.0_f16,  1.0_f16,  1.0_f16,
-		 1.0_f16,  1.0_f16,  1.0_f16,
-		 1.0_f16,  1.0_f16, -1.0_f16,
-		 1.0_f16, -1.0_f16, -1.0_f16,
-
-		-1.0_f16, -1.0_f16,  1.0_f16,
-		-1.0_f16,  1.0_f16,  1.0_f16,
-		 1.0_f16,  1.0_f16,  1.0_f16,
-		 1.0_f16,  1.0_f16,  1.0_f16,
-		 1.0_f16, -1.0_f16,  1.0_f16,
-		-1.0_f16, -1.0_f16,  1.0_f16,
-
-		-1.0_f16,  1.0_f16, -1.0_f16,
-		 1.0_f16,  1.0_f16, -1.0_f16,
-		 1.0_f16,  1.0_f16,  1.0_f16,
-		 1.0_f16,  1.0_f16,  1.0_f16,
-		-1.0_f16,  1.0_f16,  1.0_f16,
-		-1.0_f16,  1.0_f16, -1.0_f16,
-
-		-1.0_f16, -1.0_f16, -1.0_f16,
-		-1.0_f16, -1.0_f16,  1.0_f16,
-		 1.0_f16, -1.0_f16, -1.0_f16,
-		 1.0_f16, -1.0_f16, -1.0_f16,
-		-1.0_f16, -1.0_f16,  1.0_f16,
-		 1.0_f16, -1.0_f16,  1.0_f16
+	static constexpr glm::vec3 white{ 1.0_f16, 1.0_f16, 1.0_f16 };
+	auto cube_map_preset{ graphics::presets::cube_map_vertices(white) };
+	graphics::types::mesh cube_map_mesh{ "cube_map",
+	 	std::move(cube_map_preset.vertices), std::move(cube_map_preset.indices),
+		graphics::types::shader_program::make("cube_map_shader", {
+			"res://shaders/cube_map.vert",
+			"res://shaders/cube_map.frag",
+		}),
+		nullptr,
+		{
+			std::make_pair("u_texture", graphics::types::texture::make(graphics::types::tex_type::cube_map, "res://textures/cube_maps/skybox.jpg")),
+		}
 	};
-	cube_map_vao.link_attribute(cube_map_vbo, 0, 3, GL_FLOAT, 3 * sizeof(float), (void *)0);
+	cube_map_mesh.get_mod<graphics::mods::mod_capabilities>()
+		->reset(graphics::mods::capabilities::depth_test);
 
-	cube_map_vbo.unbind();
-	cube_map_vao.unbind();
-
-	graphics::gl::VAO VAO;
-
-	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-	VAO.bind();
-	graphics::gl::VBO VBO{
-		//  X         Y        Z         U         V
-		 0.5_f16,  0.5_f16, 0.0_f16,  2.0_f16,  1.5_f16,   // top right
-		 0.5_f16, -0.5_f16, 0.0_f16,  2.0_f16, -0.5_f16,   // bottom right
-		-0.5_f16, -0.5_f16, 0.0_f16,  0.0_f16, -0.5_f16,   // bottom left
-		-0.5_f16,  0.5_f16, 0.0_f16,  0.0_f16,  1.5_f16,   // top left
+	auto plane_preset{ graphics::presets::plane_vertices(white) };
+	graphics::types::mesh plane{ "plane",
+		std::move(plane_preset.vertices), std::move(plane_preset.indices),
+		graphics::types::shader_program::make("default", {
+			"res://shaders/texture.vert",
+			"res://shaders/texture.frag",
+		}), nullptr,
+		{
+			std::make_pair("diffuse0", graphics::types::texture::make(graphics::types::tex_type::texture_2d, "res://textures/moaning_pink.jpg")),
+		}
 	};
-	graphics::gl::EBO EBO{  // note that we start from 0!
-		0_u32, 1_u32, 3_u32,  // first Triangle
-		1_u32, 2_u32, 3_u32   // second Triangle
-	};
-
-	static constexpr auto stride{ 5 * sizeof(core::f16) };
-
-	VAO.link_attribute(VBO, 0, 3, GL_FLOAT, stride, (void*)0);
-	VAO.link_attribute(VBO, 1, 2, GL_FLOAT, stride, (void*)(3 * sizeof(core::f16)));
-
-	VBO.unbind();
-	VAO.unbind();
 
 	static constexpr glm::vec3 up{ 0.0_f16, 1.0_f16, 0.0_f16 };
 
@@ -166,7 +67,7 @@ int main() {
 		1000.0_f16
 	) };
 
-	glm::vec3 camera_pos{ 0.0_f16, 0.0_f16, 3.0_f16 };
+	glm::vec3 camera_pos{ 0.0_f16, 0.0_f16, 6.0_f16 };
 	glm::mat4 view{ glm::lookAt(
 		camera_pos,
 		glm::vec3(0.0_f16, 0.0_f16, 0.0_f16),
@@ -177,18 +78,14 @@ int main() {
 	// uncomment this call to draw in wireframe polygons.
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	core::f32 current_frame{ glfwGetTime() };
-	core::f32 last_frame{};
-	core::f32 delta{};
+	core::clock clock;
 
 	// render loop
 	// -----------
 	glClearColor(0.999_f16, 0.666_f16, 0.777_f16, 1.0_f16);
 	while (!glfwWindowShouldClose(window)) {
 
-		current_frame = glfwGetTime();
-		delta = current_frame - last_frame;
-		last_frame = current_frame;
+		const auto delta{ clock.restart().seconds() };
 
 		// model = glm::rotate_slow(model, glm::radians(1.0_f16), up);
 		const glm::mat3 rotator{
@@ -202,54 +99,31 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-		cube_map->bind();
-		cube_map_shader->use();
+		if (auto cube_map_shader{ cube_map_mesh.get_shader_program() }; cube_map_shader != nullptr) {
+			cube_map_shader->use();
+			cube_map_shader->set_uniform("projection", projection);
+			cube_map_shader->set_uniform("view", glm::mat4(glm::mat3(view)));
+			cube_map_shader->unuse();
+		}
+		cube_map_mesh.draw();
 
-		view = glm::mat4(glm::mat3(view));
-		cube_map_shader->set_uniform("projection", projection);
-		cube_map_shader->set_uniform("view", view);
-
-		cube_map_vao.bind();
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		cube_map_vao.unbind();
-
-		cube_map_shader->unuse();
-		cube_map->unbind();
-
-
-
-		diffuse0->bind(1);
-		diffuse1->bind(0);
-		program->use();
 
 		view = glm::lookAt(
 			camera_pos,
 			glm::vec3(0.0_f16, 0.0_f16, 0.0_f16),
 			glm::vec3(0.0_f16, 1.0_f16, 0.0_f16)
 		);
-		program->set_uniform("projection", projection);
-		program->set_uniform("view", view);
-		program->set_uniform("model", model);
+		if (auto plane_shader{ plane.get_shader_program() }; plane_shader != nullptr) {
+			plane_shader->use();
+			plane_shader->set_uniform("projection", projection);
+			plane_shader->set_uniform("view", view);
+			plane_shader->set_uniform("model", glm::mat4{ 1.0_f16 });
+			plane_shader->unuse();
+		}
+		plane.draw();
 
-		VAO.bind();
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		VAO.unbind();
-
-		program->unuse();
-		diffuse1->unbind();
-		diffuse0->unbind();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-
-	// optional: de-allocate all resources once they've outlived their purpose:
-	// ------------------------------------------------------------------------
-	VAO.clean();
-	VBO.clean();
-	EBO.clean();
-
-	cube_map_vbo.clean();
-	cube_map_vao.clean();
-	program->clear();
 }

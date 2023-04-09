@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <spdlog/spdlog.h>
 #include <golxzn/core/utils/traits.hpp>
-#include "golxzn/graphics/types/material.hpp"
+#include "golxzn/graphics/types/model/material.hpp"
 
 namespace golxzn::graphics::types {
 
@@ -135,23 +135,27 @@ std::vector<material> material::from_binaries(const core::bytes &bytes) {
 			bytes.size(), sizeof(material));
 		return {};
 	}
+
+	static constexpr core::usize material_size{ sizeof(material) };
 	std::vector<material> materials;
-	materials.reserve(bytes.size() / sizeof(material));
-	for (core::size i{ 0 }; i < bytes.size(); i += sizeof(material)) {
-		materials.emplace_back(from_binary(&bytes[i], sizeof(material)));
+	materials.reserve(bytes.size() / material_size);
+	for (core::usize i{ 0 }; i < bytes.size(); i += material_size) {
+		materials.emplace_back(from_binary(bytes.data(), material_size));
 	}
 	return materials;
 }
 
 material material::from_binary(const core::u8 *bytes, const core::usize len) {
-	if (len != sizeof(material)) {
+	static constexpr core::usize material_size{ sizeof(material) };
+
+	if (len != material_size) {
 		spdlog::warn("[material::from_binary] Bytes size {} is not equal to material size {}",
-			len, sizeof(material));
+			len, material_size);
 		return default_material;
 	}
 
 	material mat{ default_material };
-	std::memcpy(&mat, bytes, sizeof(material));
+	std::memcpy(&mat, bytes, material_size);
 	return mat;
 }
 

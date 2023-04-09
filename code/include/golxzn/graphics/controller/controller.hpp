@@ -2,9 +2,9 @@
 
 #include <functional>
 
-#include <golxzn/graphics/types/shader.hpp>
-#include <golxzn/graphics/types/texture.hpp>
-#include <golxzn/graphics/types/mesh.hpp>
+#include <golxzn/graphics/types/shader/shader.hpp>
+#include <golxzn/graphics/types/texture/texture.hpp>
+#include <golxzn/graphics/types/model/mesh.hpp>
 
 namespace golxzn::graphics {
 
@@ -52,10 +52,27 @@ public:
 			const std::any value, const std::type_info &info) = 0;
 
 		// Texture stuff
-		virtual bool make_texture_image_2d(types::object::ref texture, const core::bytes &data) = 0;
 
-		virtual bool make_texture_image_2d(types::object::ref texture,
-			const types::texture::cubemap_array<core::bytes> &data) = 0;
+		// Texture 1D
+		virtual void set_texture_image_ext(types::object::ref texture,
+			const types::tex_target target, const core::i32 size,
+			const types::tex_format internal_format, const types::tex_data_format data_format,
+			const core::u8 *data) = 0;
+
+		// Texture 2D
+		virtual void set_texture_image_ext(types::object::ref texture,
+			const types::tex_target target, const glm::i32vec2 &size,
+			const types::tex_format internal_format, const types::tex_data_format data_format,
+			const core::u8 *data) = 0;
+
+		// Texture 3D
+		virtual void set_texture_image_ext(types::object::ref texture,
+			const types::tex_target target, const glm::i32vec3 &size,
+			const types::tex_format internal_format, const types::tex_data_format data_format,
+			const core::u8 *data) = 0;
+
+		virtual void set_texture_image(types::object::ref texture, const core::types::image::ref &img,
+			const types::tex_target target, const types::tex_format data_format) = 0;
 
 		virtual void generate_mip_maps(const types::object::ref &texture) = 0;
 

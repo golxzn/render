@@ -1,6 +1,6 @@
 #include <spdlog/spdlog.h>
 
-#include "golxzn/graphics/types/shader_program.hpp"
+#include "golxzn/graphics/types/shader/program.hpp"
 
 namespace golxzn::graphics::types {
 

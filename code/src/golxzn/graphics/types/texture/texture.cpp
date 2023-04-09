@@ -1,69 +1,22 @@
 #include <spdlog/spdlog.h>
+#include <golxzn/core/types/image.hpp>
 #include <golxzn/core/resources/manager.hpp>
 
-#include "golxzn/graphics/types/texture.hpp"
+#include "golxzn/graphics/inner/texture_instances_registry.hpp"
+#include "golxzn/graphics/types/texture/texture.hpp"
 
 #include "golxzn/graphics/controller/controller.hpp"
 
 namespace golxzn::graphics::types {
 
-texture::ref texture::make(const type tex_type, const std::string &path) {
-	return std::make_shared<texture>(tex_type, path);
-}
-texture::ref texture::make(const std::string &name, core::bytes &&data) {
-	return std::make_shared<texture>(name, std::move(data));
-}
-texture::ref texture::make(const std::string &name, cubemap_array<core::bytes> &&data) {
-	return std::make_shared<texture>(name, std::move(data));
+texture::ref texture::make(type tex_type, const std::string &path) {
+	return inner::texture_instances_registry::get_or_create(tex_type, path);
 }
 
-
-texture::texture(const type tex_type, const std::string &path)
-	: named{ core::fs::path{ path }.stem().string() } {
+texture::texture(const std::string &name, const type tex_type)
+	: named{ name } {
 
 	if (!make_texture(tex_type)) return;
-
-	if (tex_type == type::cube_map) {
-		cubemap_array<std::string> faces;
-
-		const auto ext_pos{ path.find_last_of('.') };
-		if (ext_pos == std::string::npos) {
-			spdlog::error("[{}] [{}] The path has not extension: {}", class_name, full_name(), path);
-			return;
-		}
-		const auto ext{ path.substr(ext_pos) };
-		const auto path_without_ext{ path.substr(0, ext_pos) };
-		static constexpr std::string_view face_names[]{
-			"right", "left", "bottom", "top", "front", "back"
-		};
-
-		for (core::u32 i{}; i < cube_map_faces; ++i) {
-			faces[i] = path_without_ext + '/' + std::string{ face_names[i] } + ext;
-		}
-		mObject->set_property(param_path, std::move(faces));
-	} else {
-		mObject->set_property(param_path, path);
-	}
-
-	generate();
-}
-
-texture::texture(const std::string &name, core::bytes &&data)
-	: named{ name } {
-
-	if (!make_texture(type::texture_2d)) return;
-
-	mObject->set_property(param_data, std::move(data));
-	generate();
-}
-
-texture::texture(const std::string &name, cubemap_array<core::bytes> &&data)
-	: named{ name } {
-
-	if (!make_texture(type::cube_map)) return;
-
-	mObject->set_property(param_data, std::move(data));
-	generate();
 }
 
 void texture::bind(const core::u32 unit) const noexcept {
@@ -95,6 +48,11 @@ object::id_t texture::id() const noexcept {
 	return mObject->id();
 }
 
+core::usize texture::bytes_count() const noexcept {
+	if (!valid()) return 0;
+	return width() * height() /* * channels */;
+}
+
 core::u32 texture::width() const noexcept {
 	if (!valid()) return 0;
 	return mObject->get_property<core::u32>(param_width).value_or(0);
@@ -104,34 +62,57 @@ core::u32 texture::height() const noexcept {
 	return mObject->get_property<core::u32>(param_height).value_or(0);
 }
 
-void texture::set_data(const core::bytes &data) {
-	if (!valid()) return;
-	if (get_type() != type::texture_2d) {
-		mObject->set_property(param_type, type::texture_2d);
-	}
-	mObject->set_property(param_data, data);
+void texture::set_path(const std::string &path) noexcept {
+	if (!valid() || path.empty()) return;
+	mObject->set_property(param_path, path);
 }
-void texture::set_data(core::bytes &&data) {
+
+void texture::set_bytes_count(const core::usize bytes_count) noexcept {
 	if (!valid()) return;
-	if (get_type() != type::texture_2d) {
-		mObject->set_property(param_type, type::texture_2d);
-	}
-	mObject->set_property(param_data, std::move(data));
+	mObject->set_property(param_bytes_count, bytes_count);
 }
-void texture::set_data(const cubemap_array<core::bytes> &data) {
-	if (!valid()) return;
-	if (get_type() != type::cube_map) {
-		mObject->set_property(param_type, type::cube_map);
-	}
-	mObject->set_property(param_data, data);
+
+void texture::set_image(const target &target, const core::types::image::ref &img) {
+	if (img == nullptr) return;
+	set_image(target, img, get_internal_format(img));
 }
-void texture::set_data(cubemap_array<core::bytes> &&data) {
-	if (!valid()) return;
-	if (get_type() != type::cube_map) {
-		mObject->set_property(param_type, type::cube_map);
+
+void texture::set_image(const target &target, const core::types::image::ref &img, const internal_format format) {
+	if (!valid() || img == nullptr) return;
+
+	if (auto api{ controller::api() }; api) {
+		api->set_texture_image(mObject, img, target, format);
 	}
-	mObject->set_property(param_data, std::move(data));
 }
+
+// void texture::set_data(const core::bytes &data) {
+// 	if (!valid()) return;
+// 	if (get_type() != type::texture_2d) {
+// 		mObject->set_property(param_type, type::texture_2d);
+// 	}
+// 	mObject->set_property(param_data, data);
+// }
+// void texture::set_data(core::bytes &&data) {
+// 	if (!valid()) return;
+// 	if (get_type() != type::texture_2d) {
+// 		mObject->set_property(param_type, type::texture_2d);
+// 	}
+// 	mObject->set_property(param_data, std::move(data));
+// }
+// void texture::set_data(const cubemap_array<core::bytes> &data) {
+// 	if (!valid()) return;
+// 	if (get_type() != type::cube_map) {
+// 		mObject->set_property(param_type, type::cube_map);
+// 	}
+// 	mObject->set_property(param_data, data);
+// }
+// void texture::set_data(cubemap_array<core::bytes> &&data) {
+// 	if (!valid()) return;
+// 	if (get_type() != type::cube_map) {
+// 		mObject->set_property(param_type, type::cube_map);
+// 	}
+// 	mObject->set_property(param_data, std::move(data));
+// }
 
 bool texture::generate(const bool setup_default_params) {
 	if (!valid()) return false;
@@ -144,40 +125,22 @@ bool texture::generate(const bool setup_default_params) {
 
 	mObject->set_property("setup_default_params", setup_default_params);
 
-	switch(get_type()) {
-		case type::texture_2d: {
-			const auto optional_path{ mObject->get_property<std::string>(param_path) };
-			if (!optional_path.has_value()) {
-				spdlog::error("[{}] [{}] The texture has no path", class_name, full_name());
-				return false;
-			}
+	// switch(get_type()) {
+	// 	case type::texture_2d: {
+	// 		const auto optional_path{ mObject->get_property<std::string>(param_path) };
+	// 		if (!optional_path.has_value()) {
+	// 			spdlog::error("[{}] [{}] The texture has no path", class_name, full_name());
+	// 			return false;
+	// 		}
 
-			const auto data{ core::res_man::load_binary(optional_path.value()) };
-			return api->make_texture_image_2d(mObject, data);
-		} break;
+	// 		const auto data{ core::res_man::load_binary(optional_path.value()) };
+	// 		return api->make_texture_image_2d(mObject, data);
+	// 	} break;
 
-		case type::cube_map: {
-			const auto optional_paths{ mObject->get_property<cubemap_array<std::string>>(param_path) };
-			if (!optional_paths.has_value()) {
-				spdlog::error("[{}] [{}] The texture has no path", class_name, full_name());
-				return false;
-			}
-			cubemap_array<core::bytes> data;
-			const auto paths{ optional_paths.value() };
-			std::transform(std::begin(paths), std::end(paths), std::begin(data), [this] (const auto &path) {
-				spdlog::debug("[{}] [{}] Loading cubemap face: {}", class_name, full_name(), path);
-				return core::res_man::load_binary(path);
-			} );
-
-			static const auto is_empty{ [] (const auto &d) { return d.empty(); } };
-			if (std::any_of(std::begin(data), std::end(data), is_empty)) {
-				spdlog::error("[{}] [{}] One or more cube_map faces could not be loaded", class_name, full_name());
-				return false;
-			}
-			return api->make_texture_image_2d(mObject, data);
-		} break;
-		default: break;
-	}
+	// 	case type::cube_map: {
+// } break;
+	// 	default: break;
+	// }
 	return false;
 }
 
@@ -190,11 +153,37 @@ bool texture::generate_mip_maps() {
 	return false;
 }
 
+tex_data_format texture::get_pixel_data_format(const core::types::image::ref &img) noexcept {
+	if (img == nullptr) return tex_data_format::RGB;
+
+	switch(img->get_channel()) {
+		case core::types::image::channel::grey:       return tex_data_format::RED;
+		case core::types::image::channel::grey_alpha: return tex_data_format::RG;
+		case core::types::image::channel::rgb:        return tex_data_format::RGB;
+		case core::types::image::channel::rgba:       return tex_data_format::RGBA;
+		default: break;
+	}
+	return tex_data_format::RGB;
+}
+
+tex_format texture::get_internal_format(const core::types::image::ref &img) noexcept {
+	if (img == nullptr) return tex_format::RGB_8;
+
+	switch(img->get_channel()) {
+		case core::types::image::channel::grey:       return tex_format::R_8;
+		case core::types::image::channel::grey_alpha: return tex_format::RG_8;
+		case core::types::image::channel::rgb:        return tex_format::RGB_8;
+		case core::types::image::channel::rgba:       return tex_format::RGBA_8;
+		default: break;
+	}
+	return tex_format::RGB_8;
+}
+
 bool texture::make_texture(const type tex_type) {
 	if (auto api{ controller::api() }; api) {
 		mObject = api->make_texture();
 		mObject->set_property(param_type, tex_type);
-		spdlog::debug("[{}] [{}] Created a new {} texture object", class_name, full_name(), mObject->id());
+		spdlog::debug("[{}] [{}] Created texture object with id: {}", class_name, full_name(), mObject->id());
 		return true;
 	}
 
