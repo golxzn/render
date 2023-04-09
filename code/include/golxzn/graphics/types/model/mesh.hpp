@@ -1,7 +1,6 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <golxzn/core/aliases.hpp>
 #include "golxzn/graphics/types/object.hpp"
 #include "golxzn/graphics/types/name_manager.hpp"
 #include "golxzn/graphics/mods/capabilities.hpp"
@@ -21,7 +20,7 @@ struct vertex {
 class mesh : public named, public mods::holder {
 	static constexpr std::string_view class_name{ "graphics::types::mesh" };
 public:
-	using ref = std::shared_ptr<mesh>;
+	using ref = core::sptr<mesh>;
 
 	static ref make(const std::string &name, const std::vector<vertex> &vertices, const std::vector<core::u32> &indices,
 		const core::sptr<shader_program> &shader_program = {},
@@ -51,8 +50,6 @@ public:
 	void set_material(const core::sptr<material> &material);
 	void add_texture(const std::string &name, core::sptr<texture> texture);
 	void remove_texture(const std::string &name);
-
-	void depth_test(bool enable = true);
 
 	void draw();
 

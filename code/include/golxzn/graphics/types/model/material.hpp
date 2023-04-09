@@ -10,7 +10,7 @@ struct material : public named {
 	static constexpr auto smallest_string_length{ sizeof("a:0,0,0:0,0,0:0,0,0:0") - 1 };
 	static const material default_material;
 
-	using ref = std::shared_ptr<material>;
+	using ref = core::sptr<material>;
 
 	glm::vec3 ambient;
 	glm::vec3 diffuse;

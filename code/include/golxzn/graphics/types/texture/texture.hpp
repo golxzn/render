@@ -21,7 +21,7 @@ public:
 	static constexpr std::string_view param_height{ "height" };
 	static constexpr std::string_view param_bytes_count{ "bytes_count" };
 
-	using ref = std::shared_ptr<texture>;
+	using ref = core::sptr<texture>;
 	template<class T>
 	using cubemap_array = std::array<T, cube_map_faces>;
 

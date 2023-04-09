@@ -8,7 +8,7 @@ namespace golxzn::graphics::types {
 class shader_program : named {
 	static constexpr const std::string_view class_name{ "graphics::types::shader_program" };
 public:
-	using ref = std::shared_ptr<shader_program>;
+	using ref = core::sptr<shader_program>;
 
 	enum class status : core::u8 {
 		invalid,
