@@ -8,7 +8,7 @@ namespace golxzn::graphics::inner {
 class texture_instances_registry {
 	static constexpr std::string_view class_name{ "graphics::inner::texture_instances_registry" };
 public:
-	static constexpr core::usize default_max_cache_size{ 2048 * 1024 };
+	static constexpr core::usize default_max_cache_size{ 2'147'483'648 };
 	GOLXZN_STATIC_CLASS(texture_instances_registry);
 
 	enum class storage_policy { with_cache, without_cache };

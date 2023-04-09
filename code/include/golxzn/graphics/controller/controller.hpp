@@ -72,7 +72,7 @@ public:
 			const core::u8 *data) = 0;
 
 		virtual void set_texture_image(types::object::ref texture, const core::types::image::ref &img,
-			const types::tex_target target, const types::tex_data_format data_format) = 0;
+			const types::tex_target target, const types::tex_format data_format) = 0;
 
 		virtual void generate_mip_maps(const types::object::ref &texture) = 0;
 

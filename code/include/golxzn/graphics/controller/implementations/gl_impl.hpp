@@ -42,7 +42,7 @@ public:
 		const core::u8 *data) override;
 
 	void set_texture_image(types::object::ref texture, const core::types::image::ref &img,
-		const types::tex_target target, const types::tex_data_format data_format) override;
+		const types::tex_target target, const types::tex_format data_format) override;
 
 
 	void generate_mip_maps(const types::object::ref &texture) override;
@@ -98,6 +98,7 @@ public:
 
 private:
 	core::u32 max_texture_units{ 0 };
+	static const core::umap<types::tex_type, core::u32> gl_tex_type_map;
 	static const core::umap<types::tex_target, core::u32> gl_tex_target_map;
 	static const core::umap<types::tex_format, core::u32> gl_tex_format_map;
 	static const core::umap<types::tex_data_format, core::u32> gl_tex_data_format_map;

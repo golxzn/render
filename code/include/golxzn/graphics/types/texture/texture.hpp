@@ -72,7 +72,8 @@ public:
 	void set_path(const std::string &path) noexcept;
 	void set_bytes_count(const core::usize bytes_count) noexcept;
 
-	void set_image(const target &target, const core::types::image::ref &img, const pixel_data_format format);
+	void set_image(const target &target, const core::types::image::ref &img);
+	void set_image(const target &target, const core::types::image::ref &img, const internal_format format);
 
 	// void set_data(const target &target, const core::i32 size, const internal_format format,
 	// 	const pixel_data_format data_format, const core::bytes &data);
@@ -87,7 +88,10 @@ public:
 	bool generate(const bool setup_default_params = true);
 	bool generate_mip_maps();
 
-	void set_border_color(const core::color &color) noexcept;
+	// void set_border_color(const core::color &color) noexcept;
+
+	static pixel_data_format get_pixel_data_format(const core::types::image::ref &img) noexcept;
+	static internal_format get_internal_format(const core::types::image::ref &img) noexcept;
 
 private:
 	object::ref mObject;
@@ -115,74 +119,32 @@ enum class texture::target {
 };
 
 enum class texture::internal_format {
-	RGBA_32f,
-	RGBA_32i,
-	RGBA_32ui,
-	RGBA_16,
-	RGBA_16f,
-	RGBA_16i,
-	RGBA_16ui,
-	RGBA_16_snorm,
-	RGBA_8,
-	RGBA_8i,
-	RGBA_8ui,
-	RGBA_8_snorm,
+	RGBA_32f, RGBA_32i, RGBA_32ui,
+	RGBA_16, RGBA_16f, RGBA_16i, RGBA_16ui, RGBA_16_snorm,
+	RGBA_8, RGBA_8i, RGBA_8ui, RGBA_8_snorm,
+	SRGB_8_alpha8, SRGB_8,
 
-	SRGB_8_alpha8,
-	SRGB_8,
+	RGB_32f, RGB_32i, RGB_32ui,
+	RGB_16, RGB_16f, RGB_16i, RGB_16ui, RGB_16_snorm,
+	RGB_8, RGB_8i, RGB_8ui, RGB_8_snorm,
 
-	RGB_32f,
-	RGB_32i,
-	RGB_32ui,
-	RGB_16,
-	RGB_16f,
-	RGB_16i,
-	RGB_16ui,
-	RGB_16_snorm,
-	RGB_8,
-	RGB_8i,
-	RGB_8ui,
-	RGB_8_snorm,
+	RGB_10_a2, RGB_10_a2ui, RGB_9_e5,
 
-	RGB_10_a2,
-	RGB_10_a2ui,
-	RGB_9_e5,
-
-	RG_32f,
-	RG_32i,
-	RG_32ui,
-	RG_16,
-	RG_16f,
-	RG_16_snorm,
-	RG_8,
-	RG_8i,
-	RG_8ui,
-	RG_8_snorm,
+	RG_32f, RG_32i, RG_32ui,
+	RG_16, RG_16f, RG_16_snorm,
+	RG_8, RG_8i, RG_8ui, RG_8_snorm,
 
 	R11f_G11f_B10f,
 
-	R_32f,
-	R_32i,
-	R_32ui,
-	R_16f,
-	R_16i,
-	R_16ui,
-	R_16_snorm,
-	R_8,
-	R_8i,
-	R_8ui,
-	R_8_snorm,
+	R_32f, R_32i, R_32ui,
+	R_16f, R_16i, R_16ui, R_16_snorm,
+	R_8, R_8i, R_8ui, R_8_snorm,
 
-	compressed_RG_RGTC2,
-	compressed_signed_RG_RGTC2,
-	compressed_red_RGTC1,
-	compressed_signed_red_RGTC1,
+	compressed_red_RGTC1, compressed_signed_red_RGTC1,
+	compressed_RG_RGTC2, compressed_signed_RG_RGTC2,
 
-	depth_component_32f,
-	depth_component_24,
-	depth_component_16,
-	depth_32f_stencil_8,
-	depth_24_stencil_8,
+	depth_component_32f, depth_component_24, depth_component_16,
+	depth_32f_stencil_8, depth_24_stencil_8,
 };
 
 enum class texture::pixel_data_format {
@@ -194,6 +156,7 @@ enum class texture::pixel_data_format {
 	BGRA,
 };
 
+using tex_type = texture::type;
 using tex_target = texture::target;
 using tex_format = texture::internal_format;
 using tex_data_format = texture::pixel_data_format;

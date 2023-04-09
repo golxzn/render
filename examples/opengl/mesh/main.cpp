@@ -8,6 +8,7 @@
 #include <golxzn/graphics/types/texture/texture.hpp>
 #include <golxzn/graphics/types/model/material.hpp>
 #include <golxzn/graphics/types/model/mesh.hpp>
+#include <golxzn/graphics/types/model/presets.hpp>
 
 #include <golxzn/graphics/controller/opengl/VAO.hpp>
 #include <golxzn/graphics/controller/opengl/EBO.hpp>
@@ -35,57 +36,16 @@ int main() {
 	}
 
 	static constexpr glm::vec3 white{ 1.0_f16, 1.0_f16, 1.0_f16 };
+	auto cube_map_preset{ graphics::presets::cube_map_vertices(white) };
 	graphics::types::mesh cube_map_mesh{ "cube_map",
-		std::vector<vertex>{
-			{ glm::vec3{ -1.0_f16,  1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{ -1.0_f16, -1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16, -1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16, -1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16,  1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{ -1.0_f16,  1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-
-			{ glm::vec3{ -1.0_f16, -1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{ -1.0_f16, -1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{ -1.0_f16,  1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{ -1.0_f16,  1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{ -1.0_f16,  1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{ -1.0_f16, -1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-
-			{ glm::vec3{  1.0_f16, -1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16, -1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16,  1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16,  1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16,  1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16, -1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-
-			{ glm::vec3{ -1.0_f16, -1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{ -1.0_f16,  1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16,  1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16,  1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16, -1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{ -1.0_f16, -1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-
-			{ glm::vec3{ -1.0_f16,  1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16,  1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16,  1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16,  1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{ -1.0_f16,  1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{ -1.0_f16,  1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-
-			{ glm::vec3{ -1.0_f16, -1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{ -1.0_f16, -1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16, -1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16, -1.0_f16, -1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{ -1.0_f16, -1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-			{ glm::vec3{  1.0_f16, -1.0_f16,  1.0_f16 }, white, glm::vec2{} },
-		}, {},
+	 	std::move(cube_map_preset.vertices), std::move(cube_map_preset.indices),
 		graphics::types::shader_program::make("cube_map_shader", {
 			"res://shaders/cube_map.vert",
 			"res://shaders/cube_map.frag",
 		}),
 		nullptr,
 		{
-			std::make_pair("skybox", graphics::types::texture::make(graphics::types::texture::type::cube_map, "res://textures/cube_maps/skybox.jpg")),
+			std::make_pair("skybox", graphics::types::texture::make(graphics::types::tex_type::cube_map, "res://textures/cube_maps/skybox.jpg")),
 		}
 	};
 	cube_map_mesh.get_mod<graphics::mods::mod_capabilities>()
@@ -93,15 +53,23 @@ int main() {
 
 	auto diffuse0{ graphics::types::texture::make(
 		graphics::types::texture::type::texture_2d, "res://textures/moaning_pink.jpg") };
-	if (diffuse0->valid()) {
-		using namespace graphics::types;
+	if (diffuse0 && diffuse0->valid()) {
 		diffuse0->generate_mip_maps();
-		auto wrap{ diffuse0->param<texture::wrap>() };
-		wrap[texture::wrap::type::s] = texture::wrap::mode::mirrored_repeat;
-		wrap[texture::wrap::type::t] = texture::wrap::mode::clamp_to_edge;
 	}
 
-	spdlog::info("Creating mesh teapot");
+	auto plane_preset{ graphics::presets::plane_vertices(white) };
+	graphics::types::mesh plane{ "plane",
+		std::move(plane_preset.vertices), std::move(plane_preset.indices),
+		graphics::types::shader_program::make("texture", {
+			"res://shaders/texture.vert",
+			"res://shaders/texture.frag",
+		}),
+		nullptr,
+		{
+			std::make_pair("diffuse0", std::move(diffuse0)),
+		}
+	};
+
 	graphics::types::mesh teapot_mesh{ "teapot",
 		teapot_verices,
 		teapot_triangles,
@@ -127,6 +95,12 @@ int main() {
 	) };
 
 	glm::mat4 model{ 1.0_f16 };
+	const glm::mat4 plane_transform{
+		glm::translate(
+			glm::rotate(glm::mat4{ 1.0_f16 }, 1.5708_f16, glm::vec3{ 1.0_f16, 0.0_f16, 0.0_f16 }),
+			glm::vec3{  0.0_f16, 0.0_f16, 0.1_f16 }
+		),
+	};
 
 	glm::vec3 camera_pos{ 0.0_f16, 1.0_f16, 3.0_f16 };
 	glm::mat4 view{ glm::lookAt(
@@ -134,9 +108,6 @@ int main() {
 		glm::vec3(model[3]),
 		glm::vec3(0.0_f16, 1.0_f16, 0.0_f16)
 	) };
-
-	// uncomment this call to draw in wireframe polygons.
-	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	core::clock clock;
 
@@ -150,6 +121,7 @@ int main() {
 			glfwPollEvents();
 			continue;
 		}
+		clock.restart();
 
 		// model = glm::rotate_slow(model, glm::radians(1.0_f16), up);
 		const glm::mat3 rotator{
@@ -179,6 +151,15 @@ int main() {
 		// Has to be first, before all other rendering (except for the cube map)
 		golxzn::render::gizmos::draw_infinity_grid(view, projection);
 
+		if (auto plane_shader{ plane.get_shader_program() }; plane_shader != nullptr) {
+			plane_shader->use();
+			plane_shader->set_uniform("projection", projection);
+			plane_shader->set_uniform("view", view);
+			plane_shader->set_uniform("model", plane_transform);
+			plane_shader->unuse();
+		}
+		plane.draw();
+
 		if (auto teapot_mesh_shader{ teapot_mesh.get_shader_program() }; teapot_mesh_shader != nullptr) {
 			teapot_mesh_shader->use();
 			teapot_mesh_shader->set_uniform("projection", projection);
@@ -190,5 +171,10 @@ int main() {
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+		if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		} else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		}
 	}
 }

@@ -1,5 +1,6 @@
 #include <glm/glm.hpp>
 #include <spdlog/spdlog.h>
+#include <golxzn/core/utils/strutils.hpp>
 #include <golxzn/core/resources/manager.hpp>
 
 #include "golxzn/graphics/inner/texture_instances_registry.hpp"
@@ -84,7 +85,10 @@ types::texture::ref texture_instances_registry::load_texture_2D(const std::strin
 		length = img->bytes_count();
 
 		auto tex{ std::make_shared<types::texture>(core::fs::path{ path }.stem().string()) };
-		tex->set_image(types::tex_target::texture_2d, img, types::tex_data_format::RGBA);
+		tex->param<types::texture::min_filter>() = types::texture::min_filter::filter::nearest;
+		tex->param<types::texture::mag_filter>() = types::texture::mag_filter::filter::linear;
+		tex->set_image(types::tex_target::texture_2d, img);
+
 		return tex;
 	}
 	return nullptr;
@@ -93,16 +97,22 @@ types::texture::ref texture_instances_registry::load_texture_2D(const std::strin
 types::texture::ref texture_instances_registry::load_texture_gif(const std::string &path, core::usize &length) {
 	if (path.empty()) return nullptr;
 
+	/// @todo: Implement GIF loading
+	spdlog::error("{}: GIF textures are not supported yet :,<", class_name);
 	return nullptr;
 }
 
 types::texture::ref texture_instances_registry::load_cube_map(const std::string &path, core::usize &length) {
 	if (path.empty()) return nullptr;
 	using namespace types;
-	static constexpr std::initializer_list<std::string_view> faces{
-		"right", "left", "top", "bottom", "front", "back"
+	using namespace std::string_view_literals;
+
+	static constexpr std::initializer_list faces{
+		"right"sv,   "left"sv,
+		"top"sv,     "bottom"sv,
+		"front"sv,   "back"sv
 	};
-	static constexpr std::initializer_list<tex_target> targets{
+	static constexpr std::initializer_list targets{
 		tex_target::texture_cube_map_positive_x, tex_target::texture_cube_map_negative_x,
 		tex_target::texture_cube_map_positive_y, tex_target::texture_cube_map_negative_y,
 		tex_target::texture_cube_map_positive_z, tex_target::texture_cube_map_negative_z
@@ -110,12 +120,9 @@ types::texture::ref texture_instances_registry::load_cube_map(const std::string 
 
 	static const auto ext_and_dir = [](std::string_view name) {
 		if (auto dot_pos{ name.find_last_of('.') }; dot_pos != std::string_view::npos) {
-			return std::make_pair(
-				std::string{ name.substr(0, dot_pos) },
-				std::string{ name.substr(dot_pos) }
-			);
+			return std::make_pair(name.substr(0, dot_pos), name.substr(dot_pos));
 		}
-		return std::make_pair<std::string, std::string>("", "");
+		return std::make_pair(""sv, ""sv);
 	};
 
 	const auto [dir, ext]{ ext_and_dir(path) };
@@ -127,7 +134,7 @@ types::texture::ref texture_instances_registry::load_cube_map(const std::string 
 		[&](const auto &face) -> core::types::image::ref {
 			if (!loaded) return nullptr;
 
-			const auto path{ dir + "/" + std::string{ face } + ext };
+			const auto path{ core::utils::concat(dir, "/", face, ext) };
 			auto img{ core::res_man::load_image(path) };
 			loaded = img != nullptr;
 			if (!loaded) {
@@ -140,15 +147,25 @@ types::texture::ref texture_instances_registry::load_cube_map(const std::string 
 
 	if (!loaded) return nullptr;
 
-	auto tex{ std::make_shared<texture>(core::fs::path{ path }.stem().string()) };
+	auto tex{ std::make_shared<texture>(core::fs::path{ path }.stem().string(), texture::type::cube_map) };
 	length = 0;
 	auto target_iter{ std::cbegin(targets) };
 	for (auto &img : images) {
 		length += img->bytes_count();
-		/// @todo: @warning - Add support for RGB formats! Cubemap cannot be loaded as RGBA.
-		tex->set_image(*target_iter, img, tex_data_format::RGB);
+		tex->set_image(*target_iter, img, tex_format::RGB_8);
 		++target_iter;
 	}
+
+	using namespace types;
+
+	tex->param<texture::mag_filter>() = texture::mag_filter::filter::linear;
+	tex->param<texture::min_filter>() = texture::min_filter::filter::linear;
+	auto wrap{ tex->param<texture::wrap>() };
+	wrap[texture::wrap::type::s] = texture::wrap::mode::clamp_to_edge;
+	wrap[texture::wrap::type::t] = texture::wrap::mode::clamp_to_edge;
+	wrap[texture::wrap::type::r] = texture::wrap::mode::clamp_to_edge;
+
+	return tex;
 }
 
 

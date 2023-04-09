@@ -1,4 +1,5 @@
 #include <spdlog/spdlog.h>
+#include <golxzn/core/types/image.hpp>
 #include <golxzn/core/resources/manager.hpp>
 
 #include "golxzn/graphics/inner/texture_instances_registry.hpp"
@@ -71,7 +72,12 @@ void texture::set_bytes_count(const core::usize bytes_count) noexcept {
 	mObject->set_property(param_bytes_count, bytes_count);
 }
 
-void texture::set_image(const target &target, const core::types::image::ref &img, const pixel_data_format format) {
+void texture::set_image(const target &target, const core::types::image::ref &img) {
+	if (img == nullptr) return;
+	set_image(target, img, get_internal_format(img));
+}
+
+void texture::set_image(const target &target, const core::types::image::ref &img, const internal_format format) {
 	if (!valid() || img == nullptr) return;
 
 	if (auto api{ controller::api() }; api) {
@@ -145,6 +151,32 @@ bool texture::generate_mip_maps() {
 		return true;
 	}
 	return false;
+}
+
+tex_data_format texture::get_pixel_data_format(const core::types::image::ref &img) noexcept {
+	if (img == nullptr) return tex_data_format::RGB;
+
+	switch(img->get_channel()) {
+		case core::types::image::channel::grey:       return tex_data_format::RED;
+		case core::types::image::channel::grey_alpha: return tex_data_format::RG;
+		case core::types::image::channel::rgb:        return tex_data_format::RGB;
+		case core::types::image::channel::rgba:       return tex_data_format::RGBA;
+		default: break;
+	}
+	return tex_data_format::RGB;
+}
+
+tex_format texture::get_internal_format(const core::types::image::ref &img) noexcept {
+	if (img == nullptr) return tex_format::RGB_8;
+
+	switch(img->get_channel()) {
+		case core::types::image::channel::grey:       return tex_format::R_8;
+		case core::types::image::channel::grey_alpha: return tex_format::RG_8;
+		case core::types::image::channel::rgb:        return tex_format::RGB_8;
+		case core::types::image::channel::rgba:       return tex_format::RGBA_8;
+		default: break;
+	}
+	return tex_format::RGB_8;
 }
 
 bool texture::make_texture(const type tex_type) {

@@ -1,4 +1,3 @@
-#include "stb_image.h"
 #include "golxzn/common.hpp"
 
 #include "golxzn/graphics/controller/implementations/gl_impl.hpp"
@@ -10,6 +9,15 @@
 #include "golxzn/graphics/types/shader/program.hpp"
 
 namespace golxzn::graphics {
+
+const core::umap<types::tex_type, core::u32> gl_impl::gl_tex_type_map{
+	{ types::tex_type::invalid,            core::u32{ GL_NONE } },
+	{ types::tex_type::texture_1d,         core::u32{ GL_TEXTURE_1D } },
+	{ types::tex_type::texture_2d,         core::u32{ GL_TEXTURE_2D } },
+	{ types::tex_type::texture_3d,         core::u32{ GL_TEXTURE_3D } },
+	{ types::tex_type::texture_gif,        core::u32{ GL_TEXTURE_2D_ARRAY } },
+	{ types::tex_type::cube_map,           core::u32{ GL_TEXTURE_CUBE_MAP } },
+};
 
 const core::umap<types::tex_target, core::u32> gl_impl::gl_tex_target_map{
 	{ types::tex_target::texture_2d,                   core::u32{ GL_TEXTURE_2D }                  },
@@ -227,8 +235,6 @@ bool gl_impl::initialize(controller::get_process_address_function function) {
 	}
 
 	spdlog::info("[{}] Initialization has finished", class_name);
-
-	stbi_set_flip_vertically_on_load(true);
 
 	GLint value{};
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &value);
@@ -531,14 +537,15 @@ void gl_impl::set_texture_image_ext(types::object::ref texture,
 	unbind_texture(texture);
 }
 
-void gl_impl::set_texture_image(types::object::ref texture, const core::types::image::ref &img,
-		const types::tex_target target, const types::tex_data_format data_format) {
+void gl_impl::set_texture_image(types::object::ref tex, const core::types::image::ref &img,
+		const types::tex_target target, const types::tex_format data_format) {
 	if (img == nullptr) {
 		spdlog::error("[{}] Image is null", class_name);
 		return;
 	}
-	set_texture_image_ext(texture, target, glm::i32vec2{ img->width(), img->height() },
-		types::tex_format::RGBA_8ui, data_format, img->raw().data());
+
+	set_texture_image_ext(tex, target, glm::i32vec2{ img->width(), img->height() },
+		data_format, types::texture::get_pixel_data_format(img), img->raw().data());
 }
 
 
@@ -579,8 +586,11 @@ bool gl_impl::bind_texture(const types::object::ref &texture, const core::u32 un
 	}
 
 	const auto id{ static_cast<GLuint>(texture->id()) };
-	const auto target{ texture->get_property<GLenum>("gl_target").value_or(GL_TEXTURE_2D) };
-	glBindTexture(target, id);
+
+	const auto target{ texture->get_property<types::tex_type>(types::texture::param_type)
+		.value_or(types::tex_type::texture_2d) };
+
+	glBindTexture(gl_value<GLenum>(target, gl_tex_type_map), id);
 
 	return true;
 }
@@ -590,8 +600,9 @@ bool gl_impl::unbind_texture(const types::object::ref &texture) {
 		return false;
 	}
 
-	const auto target{ texture->get_property<GLenum>("gl_target").value_or(GL_TEXTURE_2D) };
-	glBindTexture(target, GLuint{ 0 });
+	const auto target{ texture->get_property<types::tex_type>(types::texture::param_type)
+		.value_or(types::tex_type::texture_2d) };
+	glBindTexture(gl_value<GLenum>(target, gl_tex_type_map), GLuint{ 0 });
 
 	return true;
 }
@@ -989,7 +1000,7 @@ void gl_impl::set_texture_depth_stencil_mode(const core::u32 target, const std::
 		{ depth_stencil_mode::depth_stencil,   GL_DEPTH_STENCIL    },
 	};
 
-	glTexParameteri(target, GL_DEPTH_STENCIL_TEXTURE_MODE, mode_map.at(*value_ptr));
+	glTexParameteri(target, GL_DEPTH_STENCIL_TEXTURE_MODE, gl_value<GLenum>(*value_ptr, mode_map));
 }
 
 void gl_impl::set_texture_base_level(const core::u32 target, const std::any level) const {
@@ -1019,7 +1030,7 @@ void gl_impl::set_texture_compare_function(const core::u32 target, const std::an
 		{ func::always,   GL_ALWAYS   },
 	};
 
-	glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, lookup.at(*value_ptr));
+	glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, gl_value<GLenum>(*value_ptr, lookup));
 }
 void gl_impl::set_texture_compare_mode(const core::u32 target, const std::any mode) const {
 	using comp_mode = types::texture::compare_mode::mode;
@@ -1048,7 +1059,7 @@ void gl_impl::set_texture_min_filter(const core::u32 target, const std::any filt
 		{ min_filter::nearest_mipmap_linear,    GL_NEAREST_MIPMAP_LINEAR  },
 		{ min_filter::linear_mipmap_linear,     GL_LINEAR_MIPMAP_LINEAR   },
 	};
-	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, lookup.at(*value_ptr));
+	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, gl_value<GLenum>(*value_ptr, lookup));
 }
 void gl_impl::set_texture_mag_filter(const core::u32 target, const std::any filter) const {
 	using mag_filter = types::texture::mag_filter::filter;
@@ -1063,7 +1074,7 @@ void gl_impl::set_texture_mag_filter(const core::u32 target, const std::any filt
 		{ mag_filter::nearest,    GL_NEAREST    },
 		{ mag_filter::linear,     GL_LINEAR     },
 	};
-	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, lookup.at(*value_ptr));
+	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, gl_value<GLenum>(*value_ptr, lookup));
 }
 void gl_impl::set_texture_lod(const core::u32 target, const types::texture::lod::level level, const std::any value) const {
 	using lod_lvl = types::texture::lod::level;
@@ -1078,7 +1089,7 @@ void gl_impl::set_texture_lod(const core::u32 target, const types::texture::lod:
 		{ lod_lvl::max,  GL_TEXTURE_MAX_LOD },
 		{ lod_lvl::bias, GL_TEXTURE_LOD_BIAS },
 	};
-	glTexParameterf(target, level_map.at(level), static_cast<GLfloat>(*value_ptr));
+	glTexParameterf(target, gl_value<GLenum>(level, level_map), static_cast<GLfloat>(*value_ptr));
 }
 
 void gl_impl::set_texture_swizzle(const core::u32 target, const types::texture::swizzle::type type, const std::any channel) const {
@@ -1105,7 +1116,7 @@ void gl_impl::set_texture_swizzle(const core::u32 target, const types::texture::
 		{ swizzle_type::blue,  GL_TEXTURE_SWIZZLE_B },
 		{ swizzle_type::alpha, GL_TEXTURE_SWIZZLE_A },
 	};
-	glTexParameteri(target, mode_lookup.at(type), channel_lookup.at(*value_ptr));
+	glTexParameteri(target, gl_value<GLenum>(type, mode_lookup), gl_value<GLenum>(*value_ptr, channel_lookup));
 }
 
 void gl_impl::set_texture_wrap(const core::u32 target, const types::texture::wrap::type type, const std::any wrap) const {
@@ -1132,7 +1143,7 @@ void gl_impl::set_texture_wrap(const core::u32 target, const types::texture::wra
 		{ wrap_mode::mirrored_repeat,       GL_MIRRORED_REPEAT       },
 		{ wrap_mode::mirror_clamp_to_edge,  GL_MIRROR_CLAMP_TO_EDGE  },
 	};
-	glTexParameteri(target, type_lookup.at(type), mode_lookup.at(*value_ptr));
+	glTexParameteri(target, gl_value<GLenum>(type, type_lookup), gl_value<GLenum>(*value_ptr, mode_lookup));
 }
 
 } // namespace golxzn::graphics
