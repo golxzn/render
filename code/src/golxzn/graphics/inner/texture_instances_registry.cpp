@@ -148,13 +148,6 @@ types::texture::ref texture_instances_registry::load_cube_map(const std::string 
 	if (!loaded) return nullptr;
 
 	auto tex{ std::make_shared<texture>(core::fs::path{ path }.stem().string(), texture::type::cube_map) };
-	length = 0;
-	auto target_iter{ std::cbegin(targets) };
-	for (auto &img : images) {
-		length += img->bytes_count();
-		tex->set_image(*target_iter, img, tex_format::RGB_8);
-		++target_iter;
-	}
 
 	using namespace types;
 
@@ -164,6 +157,13 @@ types::texture::ref texture_instances_registry::load_cube_map(const std::string 
 	wrap[texture::wrap::type::s] = texture::wrap::mode::clamp_to_edge;
 	wrap[texture::wrap::type::t] = texture::wrap::mode::clamp_to_edge;
 	wrap[texture::wrap::type::r] = texture::wrap::mode::clamp_to_edge;
+
+	auto target_iter{ std::cbegin(targets) };
+	for (auto &img : images) {
+		length += img->bytes_count();
+		tex->set_image(*target_iter, img, tex_format::RGB_8);
+		++target_iter;
+	}
 
 	return tex;
 }

@@ -617,7 +617,8 @@ void gl_impl::set_raw_texture_parameter(const types::object::ref &texture,
 
 	bind_texture(texture, 0);
 
-	const auto target{ texture->get_property<core::u32>("target").value_or(GL_TEXTURE_2D) };
+	const auto target{ gl_value<GLenum>(texture->get_property<types::tex_type>(types::texture::param_type)
+		.value_or(types::tex_type::texture_2d), gl_tex_type_map) };
 
 	if (param_type == typeid(texture::depth_stencil_texture_mode)) {
 		set_texture_depth_stencil_mode(target, param_value);

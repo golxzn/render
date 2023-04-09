@@ -183,7 +183,7 @@ bool texture::make_texture(const type tex_type) {
 	if (auto api{ controller::api() }; api) {
 		mObject = api->make_texture();
 		mObject->set_property(param_type, tex_type);
-		spdlog::debug("[{}] [{}] Created a new {} texture object", class_name, full_name(), mObject->id());
+		spdlog::debug("[{}] [{}] Created texture object with id: {}", class_name, full_name(), mObject->id());
 		return true;
 	}
 

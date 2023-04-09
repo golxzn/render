@@ -40,7 +40,7 @@ int main() {
 		}),
 		nullptr,
 		{
-			std::make_pair("skybox", graphics::types::texture::make(graphics::types::tex_type::cube_map, "res://textures/cube_maps/skybox.jpg")),
+			std::make_pair("u_texture", graphics::types::texture::make(graphics::types::tex_type::cube_map, "res://textures/cube_maps/skybox.jpg")),
 		}
 	};
 	cube_map_mesh.get_mod<graphics::mods::mod_capabilities>()
