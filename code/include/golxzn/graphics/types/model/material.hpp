@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <golxzn/core/types.hpp>
+#include <golxzn/core/aliases.hpp>
 #include "golxzn/graphics/types/name_manager.hpp"
 
 namespace golxzn::graphics::types {

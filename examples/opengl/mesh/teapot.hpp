@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <glm/glm.hpp>
-#include <golxzn/core/types.hpp>
+#include <golxzn/core/aliases.hpp>
 #include <golxzn/graphics/types/model/mesh.hpp>
 
 static const std::vector<golxzn::graphics::types::vertex> teapot_verices{

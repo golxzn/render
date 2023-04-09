@@ -2,7 +2,7 @@
 
 #include <string_view>
 #include <golxzn/common.hpp>
-#include <golxzn/core/types.hpp>
+#include <golxzn/core/aliases.hpp>
 
 namespace window{
 

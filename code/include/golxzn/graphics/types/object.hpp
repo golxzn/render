@@ -2,7 +2,7 @@
 
 #include <any>
 #include <optional>
-#include <golxzn/core/types.hpp>
+#include <golxzn/core/aliases.hpp>
 
 namespace golxzn::graphics::types {
 

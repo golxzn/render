@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <golxzn/core/types.hpp>
+#include <golxzn/core/aliases.hpp>
 
 namespace golxzn::graphics::gl {
 
