@@ -1,7 +1,11 @@
 [ ] Essential:
-  [ ] Text render;
   [ ] Model;
-    [ ] Model parsing.
+    [ ] Creating;
+    [ ] Model parsing;
+    [ ] Mesh:
+      [ ] Custom vertex format;
+      [ ] Draw without VAO
+  [ ] Text render;
   [ ] Camera;
   [ ] Animated Texture;
   [ ] Lighting:
