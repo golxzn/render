@@ -10,13 +10,27 @@
 
 namespace golxzn::graphics {
 
+const core::umap<types::draw_mode, core::u32> gl_impl::gl_draw_mode_map{
+	{ types::draw_mode::points,                      core::u32{ GL_POINTS }                        },
+	{ types::draw_mode::line_strip,                  core::u32{ GL_LINE_STRIP }                    },
+	{ types::draw_mode::line_loop,                   core::u32{ GL_LINE_LOOP }                     },
+	{ types::draw_mode::lines,                       core::u32{ GL_LINES }                         },
+	{ types::draw_mode::line_strip_adjacency,        core::u32{ GL_LINE_STRIP_ADJACENCY }          },
+	{ types::draw_mode::lines_adjacency,             core::u32{ GL_LINES_ADJACENCY }               },
+	{ types::draw_mode::triangle_strip,              core::u32{ GL_TRIANGLE_STRIP }                },
+	{ types::draw_mode::triangle_fan,                core::u32{ GL_TRIANGLE_FAN }                  },
+	{ types::draw_mode::triangles,                   core::u32{ GL_TRIANGLES }                     },
+	{ types::draw_mode::triangle_strip_adjacency,    core::u32{ GL_TRIANGLE_STRIP_ADJACENCY }      },
+	{ types::draw_mode::triangles_adjacency,         core::u32{ GL_TRIANGLES_ADJACENCY }           },
+};
+
 const core::umap<types::tex_type, core::u32> gl_impl::gl_tex_type_map{
-	{ types::tex_type::invalid,            core::u32{ GL_NONE } },
-	{ types::tex_type::texture_1d,         core::u32{ GL_TEXTURE_1D } },
-	{ types::tex_type::texture_2d,         core::u32{ GL_TEXTURE_2D } },
-	{ types::tex_type::texture_3d,         core::u32{ GL_TEXTURE_3D } },
-	{ types::tex_type::texture_gif,        core::u32{ GL_TEXTURE_2D_ARRAY } },
-	{ types::tex_type::cube_map,           core::u32{ GL_TEXTURE_CUBE_MAP } },
+	{ types::tex_type::invalid,            core::u32{ GL_NONE }              },
+	{ types::tex_type::texture_1d,         core::u32{ GL_TEXTURE_1D }        },
+	{ types::tex_type::texture_2d,         core::u32{ GL_TEXTURE_2D }        },
+	{ types::tex_type::texture_3d,         core::u32{ GL_TEXTURE_3D }        },
+	{ types::tex_type::texture_gif,        core::u32{ GL_TEXTURE_2D_ARRAY }  },
+	{ types::tex_type::cube_map,           core::u32{ GL_TEXTURE_CUBE_MAP }  },
 };
 
 const core::umap<types::tex_target, core::u32> gl_impl::gl_tex_target_map{
@@ -666,19 +680,16 @@ void gl_impl::draw_mesh(const types::object::ref &mesh) {
 		return;
 	}
 
-	const auto VAO{ mesh->get_property<core::u32>("VAO") };
-	if (!VAO.has_value()) {
-		const auto name{ mesh->get_property<std::string>("name").value_or("unknown") };
-		spdlog::error("[{}] Failed to draw the '{}' mesh, the VAO is not set", name, class_name);
-	}
+	const auto VAO{ mesh->id() };
+	glBindVertexArray(VAO);
 
-	glBindVertexArray(VAO.value());
+	const auto mode{ mesh->get_property<types::draw_mode>("draw_mode").value_or(types::draw_mode::triangles) };
 
 	if (const auto indices_count{ mesh->get_property<core::u32>("indices_count") }; indices_count.has_value()) {
-		glDrawElements(GL_TRIANGLES, indices_count.value(), GL_UNSIGNED_INT, 0);
+		glDrawElements(gl_value<GLenum>(mode, gl_draw_mode_map), indices_count.value(), GL_UNSIGNED_INT, 0);
 	} else {
 		const auto vertices_count{ mesh->get_property<core::u32>("vertices_count") };
-		glDrawArrays(GL_TRIANGLES, 0, vertices_count.value());
+		glDrawArrays(gl_value<GLenum>(mode, gl_draw_mode_map), 0, vertices_count.value());
 	}
 
 	glBindVertexArray(0);

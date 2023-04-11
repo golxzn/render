@@ -10,6 +10,7 @@ namespace golxzn::graphics::types {
 struct material;
 class texture;
 class shader_program;
+enum class draw_mode;
 
 struct vertex {
 	glm::vec3 position;
@@ -50,6 +51,7 @@ public:
 	void set_material(const core::sptr<material> &material);
 	void add_texture(const std::string &name, core::sptr<texture> texture);
 	void remove_texture(const std::string &name);
+	void set_draw_mode(const draw_mode &mode);
 
 	void draw();
 
@@ -58,6 +60,7 @@ public:
 	core::sptr<shader_program> get_shader_program();
 	core::sptr<material> get_material();
 	const core::umap<std::string, core::sptr<texture>> &get_textures() const;
+	draw_mode get_draw_mode() const noexcept;
 
 private:
 	object::ref mObject;
@@ -69,6 +72,20 @@ private:
 
 	void generate();
 	void update_shader_program_uniforms();
+};
+
+enum class draw_mode {
+	points,
+	line_strip,
+	line_loop,
+	lines,
+	line_strip_adjacency,
+	lines_adjacency,
+	triangle_strip,
+	triangle_fan,
+	triangles,
+	triangle_strip_adjacency,
+	triangles_adjacency,
 };
 
 } // namespace golxzn::graphics::types

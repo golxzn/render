@@ -81,6 +81,9 @@ void mesh::add_texture(const std::string &name, core::sptr<texture> texture) {
 void mesh::remove_texture(const std::string &name) {
 	mTextures.erase(name);
 }
+void mesh::set_draw_mode(const types::draw_mode &mode) {
+	if (valid()) mObject->set_property("draw_mode", mode);
+}
 
 void mesh::draw() {
 	if (mShaderProgram == nullptr || !mShaderProgram->valid() || !valid()) return;
@@ -111,6 +114,12 @@ core::sptr<material> mesh::get_material() {
 }
 const core::umap<std::string, core::sptr<texture>> &mesh::get_textures() const {
 	return mTextures;
+}
+draw_mode mesh::get_draw_mode() const {
+	if (valid()) {
+		return mObject->get_property<draw_mode>("draw_mode").value_or(draw_mode::triangles);
+	}
+	return draw_mode::triangles;
 }
 
 void mesh::generate() {

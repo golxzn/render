@@ -98,6 +98,7 @@ public:
 
 private:
 	core::u32 max_texture_units{ 0 };
+	static const core::umap<types::draw_mode, core::u32> gl_draw_mode_map;
 	static const core::umap<types::tex_type, core::u32> gl_tex_type_map;
 	static const core::umap<types::tex_target, core::u32> gl_tex_target_map;
 	static const core::umap<types::tex_format, core::u32> gl_tex_format_map;
