@@ -16,7 +16,13 @@ public:
 	types::object::ref make_shader(const types::shader::type type, const std::string_view code) override;
 	types::object::ref make_program() override;
 	types::object::ref make_texture() override;
+	types::object::ref make_model() override;
 	types::object::ref make_mesh(const std::vector<types::vertex> &vertices, const std::vector<core::u32> &indices) override;
+
+	void set_mesh_data(const types::object::ref &mesh, const std::vector<types::vertex> &vertices,
+		const std::vector<core::u32> &indices) override;
+	void bind_mesh_data(const types::object::ref &mesh, const types::object::ref &model,
+		const types::object::ref &shader) override;
 
 	bool attach_shader(const types::object::ref &program, const types::object::ref &shader) override;
 	bool detach_shader(const types::object::ref &program, const types::object::ref &shader) override;

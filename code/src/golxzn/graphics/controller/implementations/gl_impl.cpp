@@ -322,6 +322,16 @@ types::object::ref gl_impl::make_texture() {
 	});
 }
 
+types::object::ref gl_impl::make_model() {
+	core::u32 id{};
+	glGenVertexArrays(1, &id);
+
+	return types::object::make(static_cast<types::object::id_t>(id), [](types::object &obj) {
+		const auto id{ static_cast<GLuint>(obj.id()) };
+		glDeleteVertexArrays(1, &id);
+	});
+}
+
 types::object::ref gl_impl::make_mesh(const std::vector<types::vertex> &vertices, const std::vector<core::u32> &indices) {
 	if (vertices.empty()) {
 		spdlog::error("[{}] Mesh cannot be empty", class_name);
@@ -385,6 +395,67 @@ types::object::ref gl_impl::make_mesh(const std::vector<types::vertex> &vertices
 	}
 
 	return obj;
+}
+void gl_impl::set_mesh_data(const types::object::ref &mesh, const std::vector<types::vertex> &vertices,
+		const std::vector<core::u32> &indices) {
+	if (mesh == nullptr || !mesh->valid()) return;
+
+	if (const auto VBO{ mesh->get_property<core::u32>("VBO") }; VBO.has_value()) {
+		glBindBuffer(GL_ARRAY_BUFFER, VBO.value());
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(types::vertex), vertices.data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	auto EBO{ mesh->get_property<core::u32>("EBO") };
+	if (!EBO.has_value() && indices.empty()) return;
+	if (EBO.has_value() && indices.empty()) {
+		glDeleteBuffers(1, &EBO.value());
+		mesh->set_property<core::u32>("EBO", 0);
+		mesh->set_property<core::u32>("indices_count", 0);
+		return;
+	}
+	if (!EBO.has_value() && !indices.empty()) {
+		core::u32 new_EBO{};
+		glGenBuffers(1, &new_EBO);
+
+		mesh->set_property<core::u32>("EBO", new_EBO);
+		mesh->set_property<core::u32>("indices_count", static_cast<core::u32>(indices.size()));
+		EBO = mesh->get_property<core::u32>("EBO");
+	}
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO.value());
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(core::u32), indices.data(), GL_STATIC_DRAW);
+
+}
+void gl_impl::bind_mesh_data(const types::object::ref &mesh, const types::object::ref &model,
+		const types::object::ref &shader) {
+	static const auto check{ [](auto obj) { return obj != nullptr && obj->valid(); } };
+	if (!check(mesh) || !check(model) || !check(shader)) return;
+
+	use_program(shader);
+	const auto shader_id{ shader->id() };
+
+	const auto a_position{ glGetAttribLocation(shader_id, "a_position") };
+	const auto a_normal{ glGetAttribLocation(shader_id, "a_normal") };
+	const auto a_UV{ glGetAttribLocation(shader_id, "a_UV") };
+
+	const auto make_attribute = [](auto loc, const GLint size, const GLuint offset, const GLenum type = GL_FLOAT, const GLboolean normalized = GL_FALSE) {
+		if (loc == -1) return;
+		glEnableVertexAttribArray(loc);
+		glVertexAttribPointer(loc, size, type, normalized, sizeof(types::vertex), reinterpret_cast<GLvoid *>(offset));
+	};
+
+	glBindVertexArray(model->id());
+
+	if (const auto VBO{ mesh->get_property<core::u32>("VBO") }; VBO.has_value()) {
+		glBindBuffer(GL_ARRAY_BUFFER, VBO.value());
+		make_attribute(a_position, 3, offsetof(types::vertex, position));
+		make_attribute(a_normal, 3, offsetof(types::vertex, normal));
+		make_attribute(a_UV, 2, offsetof(types::vertex, UV));
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	glBindVertexArray(0);
 }
 
 bool gl_impl::attach_shader(const types::object::ref &program, const types::object::ref &shader) {

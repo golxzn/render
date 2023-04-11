@@ -37,8 +37,16 @@ public:
 		virtual types::object::ref make_shader(const types::shader::type type, const std::string_view code) = 0;
 		virtual types::object::ref make_program() = 0;
 		virtual types::object::ref make_texture() = 0;
+		virtual types::object::ref make_model() = 0;
 		virtual types::object::ref make_mesh(const std::vector<types::vertex> &vertices,
 			const std::vector<core::u32> &indices) = 0;
+
+		virtual void set_mesh_data(const types::object::ref &mesh,
+			const std::vector<types::vertex> &vertices,
+			const std::vector<core::u32> &indices) = 0;
+		virtual void bind_mesh_data(const types::object::ref &mesh,
+			const types::object::ref &model,
+			const types::object::ref &shader) = 0;
 
 		// Shader stuff
 		virtual bool attach_shader(const types::object::ref &program, const types::object::ref &shader) = 0;
