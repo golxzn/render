@@ -60,7 +60,7 @@ public:
 	core::sptr<shader_program> get_shader_program();
 	core::sptr<material> get_material();
 	const core::umap<std::string, core::sptr<texture>> &get_textures() const;
-	draw_mode get_draw_mode() const noexcept;
+	draw_mode get_draw_mode() const;
 
 private:
 	object::ref mObject;
