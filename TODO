@@ -17,9 +17,9 @@
   [ ] primitives:
     [ ] 2D stuff:
       [ ] draw_triangle;
-      [*] draw_line;
-      [*] draw_rectangle;
-      [*] draw_circle;
+      [x] draw_line;
+      [x] draw_rectangle;
+      [x] draw_circle;
     [ ] 3D stuff:
       [ ] draw_line;
       [ ] draw_triangle;
@@ -27,7 +27,7 @@
       [ ] draw_cube;
       [ ] draw_sphere;
   [ ] gizmos:
-    [*] infinity grid;
+    [x] infinity grid;
   [ ] text render module;
 
 [ ] resource management
@@ -38,9 +38,9 @@
   [ ] Runtime shader code generator;
   [ ] Configurable Vertex class & mesh;
 
-[*] Window:
-  [*] Remove the glfw initialization from gl_impl;
-  [*] Make the graphics library independent from glfw;
+[x] Window:
+  [x] Remove the glfw initialization from gl_impl;
+  [x] Make the graphics library independent from glfw;
 
 [ ] Quality & beauty
   [ ] make::really::long::namespaces::shorter;
