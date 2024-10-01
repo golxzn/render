@@ -6,7 +6,8 @@
 </p>
 <br/>
 
-> <code><b>[Warning]</b> The project is under development.
+> [!WARNING]
+> The project is under development.
 > New versions could be unstable and non-backward-compatible.</code>
 
 <h2>📜 Table of contents </h2>
